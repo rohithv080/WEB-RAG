@@ -1,0 +1,57 @@
+:root {
+  --bg: #0f1419;
+  --bg-elevated: #1a222c;
+  --bg-input: #121820;
+  --border: #2a3544;
+  --text: #e8eef4;
+  --text-muted: #8b9aab;
+  --accent: #3d9cf0;
+  --accent-dim: #2a6fad;
+  --accent-soft: rgba(61, 156, 240, 0.12);
+  --danger: #e85d5d;
+  --success: #3ecf8e;
+  --radius: 10px;
+  --font-sans: "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(61, 156, 240, 0.15), transparent),
+    linear-gradient(180deg, #0f1419 0%, #0c1015 100%);
+  background-attachment: fixed;
+}
+
+a {
+  color: var(--accent);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}

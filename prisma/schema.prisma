@@ -1,0 +1,62 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [vector]
+}
+
+model Site {
+  id          String        @id @default(cuid())
+  name        String? // display name for the bot card
+  description String? // short blurb shown on the card
+  scrapedAt   DateTime      @default(now())
+  pages       Page[]
+  sessions    ChatSession[]
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  siteId    String
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  url       String
+  title     String?
+  scrapedAt DateTime @default(now())
+  chunks    Chunk[]
+
+  @@index([siteId])
+}
+
+model Chunk {
+  id            String                     @id @default(cuid())
+  pageId        String
+  page          Page                       @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  content       String
+  heading       String? // nearest h2/h3 for better citations
+  order         Int // position in doc
+  isBoilerplate Boolean                    @default(false)
+  embedding     Unsupported("vector(768)") // nomic-embed-text-v1 is 768-dim
+
+  @@index([pageId])
+}
+
+model ChatSession {
+  id        String    @id @default(cuid())
+  siteId    String
+  site      Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  messages  Message[]
+  createdAt DateTime  @default(now())
+}
+
+model Message {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String // "user" | "assistant"
+  content   String
+  citations Json? // [{ chunkId, heading, snippet, pageUrl }]
+  createdAt DateTime    @default(now())
+}

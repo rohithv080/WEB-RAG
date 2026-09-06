@@ -1,0 +1,50 @@
+{
+  "name": "web-rag",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:ext": "prisma db execute --file prisma/sql/01_enable_vector.sql --schema prisma/schema.prisma",
+    "db:index": "prisma db execute --file prisma/sql/02_chunk_index.sql --schema prisma/schema.prisma",
+    "db:setup": "npm run db:ext && npm run db:push && npm run db:index",
+    "probe:embed": "tsx scripts/probe-embed-dim.ts",
+    "test:scrapes": "tsx scripts/test-failed-scrapes.ts",
+    "test:no-answer": "tsx scripts/test-no-answer.ts",
+    "test:explain": "tsx scripts/explain-retrieval.ts",
+    "test:groq-stress": "tsx scripts/stress-groq-retry.ts --burst-only",
+    "test:groq-light": "tsx scripts/stress-groq-retry.ts --light",
+    "test:groq-all": "tsx scripts/stress-groq-retry.ts",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "@prisma/client": "^6.5.0",
+    "@xenova/transformers": "^2.17.2",
+    "groq-sdk": "^0.15.0",
+    "jsdom": "^26.0.0",
+    "next": "^15.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^22.13.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/turndown": "^5.0.6",
+    "dotenv": "^17.4.2",
+    "prisma": "^6.5.0",
+    "tsx": "^4.23.13",
+    "typescript": "^5.7.0"
+  }
+}
