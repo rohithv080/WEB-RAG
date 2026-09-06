@@ -1,7 +1,10 @@
 import { pipeline, env } from "@xenova/transformers";
 
-// Cache models under project .cache (avoid writing into node_modules)
-env.cacheDir = process.env.TRANSFORMERS_CACHE ?? "./.cache/transformers";
+import os from "os";
+import path from "path";
+
+// Cache models under /tmp on Vercel (read-only filesystem), or project .cache locally
+env.cacheDir = process.env.TRANSFORMERS_CACHE ?? (process.env.VERCEL ? path.join(os.tmpdir(), "transformers") : "./.cache/transformers");
 env.allowLocalModels = false;
 
 const MODEL = "Xenova/nomic-embed-text-v1";
