@@ -113,8 +113,8 @@ export async function POST(req: NextRequest) {
     await sendTelegramMessage(chatId, siteNamePrefix + answer);
     
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error("[telegram] Webhook Error:", error);
-    return NextResponse.json({ ok: false, error: "Internal Error" }, { status: 500 });
+    return NextResponse.json({ ok: false, error: error.stack || String(error) }, { status: 500 });
   }
 }
