@@ -159,7 +159,7 @@ export async function createChatStreamWithRetry(args: CreateArgs): Promise<{
   stream: AsyncIterable<Groq.Chat.ChatCompletionChunk>;
   stats: GroqRetryStats;
 }> {
-  const model = args.model || process.env.GROQ_MODEL || "openai/gpt-oss-20b";
+  const model = args.model || (process.env.GROQ_MODEL || "openai/gpt-oss-20b").trim();
   let lastError: unknown;
   let waitedMs = 0;
   let usedRetryAfter = false;
