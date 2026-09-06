@@ -186,23 +186,26 @@ export async function searchChunks(
   topK = 10
 ): Promise<RetrievedChunk[]> {
   const queryEmbedding = await embedQuery(question);
-  const vectorSql = embeddingToSql(queryEmbedding);
 
-  // Run both searches in parallel
-  const [vectorResults, bm25Results] = await Promise.all([
-    vectorSearch(siteId, vectorSql, 40),
-    bm25Search(siteId, question, 40),
-  ]);
+  // Run BM25 always; vector search only when we have an embedding
+  const bm25Promise = bm25Search(siteId, question, 40);
+  const vectorPromise = queryEmbedding
+    ? vectorSearch(siteId, embeddingToSql(queryEmbedding), 40)
+    : Promise.resolve([] as RetrievedChunk[]);
+
+  const [vectorResults, bm25Results] = await Promise.all([vectorPromise, bm25Promise]);
 
   console.log(
     `[search] vector=${vectorResults.length} hits, bm25=${bm25Results.length} hits`
   );
 
-  // If BM25 returned nothing (e.g., very short query), fall back to vector only
+  // Fuse results — if no vector results (e.g., serverless BM25-only mode), use BM25 alone
   const candidates =
-    bm25Results.length > 0
+    vectorResults.length > 0 && bm25Results.length > 0
       ? reciprocalRankFusion(vectorResults, bm25Results, 30)
-      : vectorResults.sort((a, b) => b.score - a.score).slice(0, 30);
+      : vectorResults.length > 0
+      ? vectorResults.sort((a, b) => b.score - a.score).slice(0, 30)
+      : bm25Results.sort((a, b) => b.score - a.score).slice(0, 30);
 
   if (candidates.length === 0) return [];
 

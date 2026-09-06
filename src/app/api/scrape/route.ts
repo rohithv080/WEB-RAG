@@ -115,7 +115,9 @@ async function indexPage(
 
   for (let i = 0; i < chunks.length; i++) {
     const c = chunks[i];
-    const emb = embeddingToSql(embeddings[i]);
+    const embRaw = embeddings[i];
+    if (!embRaw) continue; // skip if embedding unavailable (serverless mode)
+    const emb = embeddingToSql(embRaw);
     await prisma.$executeRawUnsafe(
       `
       INSERT INTO "Chunk" (id, "pageId", content, heading, "order", "isBoilerplate", embedding)

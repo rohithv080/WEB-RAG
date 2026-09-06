@@ -1,13 +1,12 @@
-import { prisma } from "../src/lib/db";
+import { embedQuery } from "../src/lib/embeddings/embed";
 
 async function main() {
-  const site = await prisma.site.findFirst({ where: { name: 'cookbook' } });
-  if (!site) return;
-  
-  const pages = await prisma.page.findMany({ where: { siteId: site.id } });
-  console.log(`Site: ${site.name} has ${pages.length} pages`);
-  for (const p of pages.slice(0, 20)) { // limit to 20 to not clutter
-    console.log(p.url);
+  console.log("Testing Groq embedding API...");
+  try {
+    const vec = await embedQuery("pasta recipe");
+    console.log(`✅ Embedding works! Dimension: ${vec.length}`);
+  } catch (err) {
+    console.error("❌ Embedding failed:", err);
   }
 }
 
