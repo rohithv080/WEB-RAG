@@ -159,7 +159,11 @@ export async function createChatStreamWithRetry(args: CreateArgs): Promise<{
   stream: AsyncIterable<Groq.Chat.ChatCompletionChunk>;
   stats: GroqRetryStats;
 }> {
-  const model = args.model || (process.env.GROQ_MODEL || "openai/gpt-oss-20b").trim();
+  let envModel = (process.env.GROQ_MODEL || "openai/gpt-oss-20b").trim();
+  if (envModel === "llama-3.1-70b-versatile") {
+    envModel = "llama-3.3-70b-versatile"; // Groq decommissioned 3.1
+  }
+  const model = args.model || envModel;
   let lastError: unknown;
   let waitedMs = 0;
   let usedRetryAfter = false;
