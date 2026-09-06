@@ -161,7 +161,7 @@ export async function createChatStreamWithRetry(args: CreateArgs): Promise<{
 }> {
   let envModel = (process.env.GROQ_MODEL || "openai/gpt-oss-20b").trim();
   if (envModel === "llama-3.1-70b-versatile") {
-    envModel = "llama-3.3-70b-versatile"; // Groq decommissioned 3.1
+    envModel = "llama3-8b-8192"; // Some API keys lack access to 3.3
   }
   const model = args.model || envModel;
   let lastError: unknown;
