@@ -4,16 +4,25 @@ import { expandQuery, getAnswer } from "@/lib/groq";
 import { searchChunks, formatContext } from "@/lib/retrieval/search";
 
 export const runtime = "nodejs";
-export const maxDuration = 60; // Allow enough time for retrieval + LLM
+export const maxDuration = 60;
+
+function formatMarkdownToTelegramHTML(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+    .replace(/\*(.*?)\*/g, "<i>$1</i>")
+    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
+}
 
 async function sendTelegramMessage(chatId: number, text: string) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return;
-  
   const TELEGRAM_API = `https://api.telegram.org/bot${token}`;
   
-  // Telegram has a 4096 char limit per message.
   const safeText = text.slice(0, 4000) + (text.length > 4000 ? "\n\n...(truncated)" : "");
+  const htmlText = formatMarkdownToTelegramHTML(safeText);
   
   try {
     const res = await fetch(`${TELEGRAM_API}/sendMessage`, {
@@ -21,15 +30,11 @@ async function sendTelegramMessage(chatId: number, text: string) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         chat_id: chatId,
-        text: safeText,
-        // Intentionally omitting parse_mode to prevent Telegram from rejecting 
-        // the message if the LLM produces malformed markdown (which happens often).
+        text: htmlText,
+        parse_mode: "HTML",
       }),
     });
-    
-    if (!res.ok) {
-      console.error("[telegram] Failed to send message:", await res.text());
-    }
+    if (!res.ok) console.error("[telegram] Failed to send message:", await res.text());
   } catch (err) {
     console.error("[telegram] Fetch error:", err);
   }
@@ -38,78 +43,104 @@ async function sendTelegramMessage(chatId: number, text: string) {
 async function sendTypingAction(chatId: number) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return;
-  
-  const TELEGRAM_API = `https://api.telegram.org/bot${token}`;
-  fetch(`${TELEGRAM_API}/sendChatAction`, {
+  fetch(`https://api.telegram.org/bot${token}/sendChatAction`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      action: "typing",
-    }),
-  }).catch(() => {}); // Fire and forget
+    body: JSON.stringify({ chat_id: chatId, action: "typing" }),
+  }).catch(() => {});
+}
+
+async function syncCommands(chatId: number) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+  
+  const sites = await prisma.site.findMany();
+  const commands = [
+    { command: "all", description: "Search all websites" },
+    ...sites.map(s => ({
+      command: (s.name || s.id).toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 32),
+      description: `Search ${(s.name || s.id).slice(0, 50)}`
+    }))
+  ];
+
+  const res = await fetch(`https://api.telegram.org/bot${token}/setMyCommands`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ commands }),
+  });
+  
+  if (res.ok) {
+    await sendTelegramMessage(chatId, "✅ <b>Commands Synced!</b>\nType <code>/</code> to see the new menu of all available websites.");
+  } else {
+    await sendTelegramMessage(chatId, "❌ Failed to sync commands.");
+  }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    
-    // Telegram webhook payload has a `message` object
     const message = body.message;
-    if (!message || !message.text) {
-      return NextResponse.json({ ok: true }); // Acknowledge non-text updates (edits, etc)
-    }
+    if (!message || !message.text) return NextResponse.json({ ok: true });
     
     const chatId = message.chat.id;
     const text = message.text.trim();
-    
-    // Immediately tell Telegram we are "typing..."
     sendTypingAction(chatId);
     
-    let question = text;
-    let siteId: string | null = null;
-    let siteNamePrefix = "";
-    
-    // Check for /site command: e.g. "/site 101cookbooks how to make pasta"
-    const siteMatch = text.match(/^\/site\s+([^\s]+)\s+(.*)$/i);
-    if (siteMatch) {
-      const siteKeyword = siteMatch[1].toLowerCase();
-      question = siteMatch[2].trim();
+    // Command handling
+    if (text === "/sync" || text === "/start") {
+      await syncCommands(chatId);
+      if (text === "/start") {
+        await sendTelegramMessage(chatId, "Welcome! Type <code>/</code> to see a list of websites you can search, or just ask me anything!");
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    if (text === "/all") {
+      await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId") VALUES (${chatId}, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = NULL;`;
+      await sendTelegramMessage(chatId, "🌍 <b>Now searching ALL websites.</b>\nWhat would you like to know?");
+      return NextResponse.json({ ok: true });
+    }
+
+    if (text.startsWith("/")) {
+      const commandName = text.split(" ")[0].slice(1).toLowerCase();
+      const sites = await prisma.site.findMany();
+      const matchedSite = sites.find(s => (s.name || s.id).toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 32) === commandName);
       
-      // Try to find a matching site by name or URL in the DB
-      const site = await prisma.site.findFirst({
-        where: {
-          name: { contains: siteKeyword, mode: "insensitive" }
-        }
-      });
-      
-      if (site) {
-        siteId = site.id;
-        siteNamePrefix = `[Searching ${site.name || siteKeyword}]\n\n`;
-      } else {
-        await sendTelegramMessage(chatId, `❌ Could not find any site matching "${siteKeyword}". Try checking the site name in your web dashboard.`);
+      if (matchedSite) {
+        await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId") VALUES (${chatId}, ${matchedSite.id}) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = ${matchedSite.id};`;
+        await sendTelegramMessage(chatId, `🎯 <b>Locked onto: ${matchedSite.name}</b>\nAnswers will now come ONLY from this website.\n\nWhat would you like to know?`);
         return NextResponse.json({ ok: true });
       }
     }
     
-    // Fast-path: detect greetings
-    const GREETING_PATTERNS = /^(hi|hey|hello|yo|sup|hola|howdy|good\s*(morning|afternoon|evening|night)|what'?s?\s*up|how\s*are\s*you|thanks?|thank\s*you|bye|goodbye|see\s*ya|ok|okay|cool|nice|great|awesome|got\s*it)[\s!?.]*$/i;
-    const isGreeting = GREETING_PATTERNS.test(question);
+    // State lookup
+    const state = await prisma.$queryRaw<any[]>`SELECT "siteId" FROM "TelegramState" WHERE "chatId" = ${chatId} LIMIT 1`;
+    let siteId = state.length > 0 ? state[0].siteId : null;
+    let siteNamePrefix = "";
+
+    if (siteId) {
+      const site = await prisma.site.findUnique({ where: { id: siteId } });
+      if (site) {
+        siteNamePrefix = `[Searching ${site.name}]\n\n`;
+      } else {
+        siteId = null; // Site was deleted
+      }
+    }
     
+    const GREETING = /^(hi|hey|hello|yo|sup|hola|howdy)[\s!?.]*$/i;
     let context = "";
-    if (!isGreeting) {
-      const expandedQuery = await expandQuery(question);
+    if (!GREETING.test(text)) {
+      const expandedQuery = await expandQuery(text);
       const chunks = await searchChunks(siteId, expandedQuery, 10);
       
       if (chunks.length === 0) {
-        await sendTelegramMessage(chatId, `${siteNamePrefix}I don't have any information on that. Try scraping some pages on your web dashboard first!`);
+        await sendTelegramMessage(chatId, `${siteNamePrefix}I don't have any information on that.`);
         return NextResponse.json({ ok: true });
       }
-      
       context = formatContext(chunks);
     }
     
-    const answer = await getAnswer(question, context);
+    const answer = await getAnswer(text, context);
     await sendTelegramMessage(chatId, siteNamePrefix + answer);
     
     return NextResponse.json({ ok: true });
