@@ -76,9 +76,84 @@ async function syncCommands(chatId: number) {
   }
 }
 
+async function sendLanguageMenu(chatId: number) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+  
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: "🌐 Choose a language for my answers:",
+      reply_markup: {
+        inline_keyboard: [
+          [
+            { text: "🌐 Auto", callback_data: "lang_auto" },
+            { text: "🇬🇧 EN", callback_data: "lang_en" },
+            { text: "🇪🇸 ES", callback_data: "lang_es" }
+          ],
+          [
+            { text: "🇫🇷 FR", callback_data: "lang_fr" },
+            { text: "🇮🇳 HI", callback_data: "lang_hi" },
+            { text: "🇮🇳 TA", callback_data: "lang_ta" }
+          ]
+        ]
+      }
+    })
+  });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+    const token = process.env.TELEGRAM_BOT_TOKEN;
+
+    // 1. Handle Callback Queries (Inline button clicks)
+    if (body.callback_query) {
+      const cb = body.callback_query;
+      const callbackId = cb.id;
+      const chatId = cb.message?.chat?.id;
+      const messageId = cb.message?.message_id;
+      const data = cb.data;
+
+      if (data && data.startsWith("lang_") && chatId && token) {
+        const langCode = data.replace("lang_", "");
+        let langName = "Auto";
+        if (langCode === "en") langName = "English";
+        else if (langCode === "es") langName = "Spanish";
+        else if (langCode === "fr") langName = "French";
+        else if (langCode === "hi") langName = "Hindi";
+        else if (langCode === "ta") langName = "Tamil";
+        
+        const dbLang = langCode === "auto" ? null : langName;
+
+        await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "language") VALUES (${chatId}, ${dbLang}) ON CONFLICT ("chatId") DO UPDATE SET "language" = ${dbLang};`;
+        
+        // Immediately acknowledge so the button stops loading
+        await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ callback_query_id: callbackId })
+        }).catch(console.error);
+
+        // Edit the message text seamlessly
+        if (messageId) {
+          await fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: chatId,
+              message_id: messageId,
+              text: `✅ Language updated to ${langName}`
+            })
+          }).catch(console.error);
+        }
+      }
+      return NextResponse.json({ ok: true });
+    }
+
+    // 2. Handle Text Messages
     const message = body.message;
     if (!message || !message.text) return NextResponse.json({ ok: true });
     
@@ -87,10 +162,16 @@ export async function POST(req: NextRequest) {
     sendTypingAction(chatId);
     
     // Command handling
+    if (text === "/language") {
+      await sendLanguageMenu(chatId);
+      return NextResponse.json({ ok: true });
+    }
+
     if (text === "/sync" || text === "/start") {
       await syncCommands(chatId);
       if (text === "/start") {
         await sendTelegramMessage(chatId, "Welcome! Type <code>/</code> to see a list of websites you can search, or just ask me anything!");
+        await sendLanguageMenu(chatId); // Show language menu on start
       }
       return NextResponse.json({ ok: true });
     }
@@ -114,8 +195,9 @@ export async function POST(req: NextRequest) {
     }
     
     // State lookup
-    const state = await prisma.$queryRaw<any[]>`SELECT "siteId" FROM "TelegramState" WHERE "chatId" = ${chatId} LIMIT 1`;
+    const state = await prisma.$queryRaw<any[]>`SELECT "siteId", "language" FROM "TelegramState" WHERE "chatId" = ${chatId} LIMIT 1`;
     let siteId = state.length > 0 ? state[0].siteId : null;
+    const userLanguage = state.length > 0 ? state[0].language : null;
     let siteNamePrefix = "";
 
     if (siteId) {
@@ -140,7 +222,7 @@ export async function POST(req: NextRequest) {
       context = formatContext(chunks);
     }
     
-    const answer = await getAnswer(text, context);
+    const answer = await getAnswer(text, context, userLanguage);
     // Strip out the CoT <thinking> block so it doesn't break Telegram HTML parsing
     const cleanAnswer = answer.replace(/<thinking>[\s\S]*?<\/thinking>/gi, "").trim();
     await sendTelegramMessage(chatId, siteNamePrefix + cleanAnswer);

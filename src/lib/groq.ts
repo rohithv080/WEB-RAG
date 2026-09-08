@@ -26,7 +26,7 @@ export const NO_ANSWER_PHRASE = "I couldn't find that in the source.";
 export const GROQ_BUSY_MESSAGE =
   "High demand right now, please try again in a moment";
 
-const SYSTEM_PROMPT = `You are an expert AI assistant grounded entirely in a specific knowledge base.
+const BASE_SYSTEM_PROMPT = `You are an expert AI assistant grounded entirely in a specific knowledge base.
 
 GREETING BEHAVIOR:
 For simple greetings (e.g., "hi", "hello"), respond warmly and briefly in 1 sentence.
@@ -45,11 +45,16 @@ ANSWERING RULES:
 4. DO NOT USE MARKDOWN TABLES. Use bulleted lists instead.
 5. Ensure your final answer (outside the <thinking> block) is beautifully formatted, concise, and direct.
 
-LANGUAGE MATCHING:
-Detect the language of the user's latest query. Provide your response entirely in that same language. Do not switch back to English simply because the retrieved context documents are written in English. When citing terms, translate or transcribe naturally unless it is a proper noun or code identifier.
-
 REFUSAL:
 If the documents do not contain the answer at all, your final answer must be EXACTLY: "${NO_ANSWER_PHRASE}"`;
+
+function getSystemPrompt(language?: string | null) {
+  if (language && language !== 'auto') {
+    return BASE_SYSTEM_PROMPT + `\n\nLANGUAGE OVERRIDE:\nThe user has explicitly selected to receive answers in ${language}. You MUST translate your final response entirely into ${language}, regardless of the language of the source documents or the user's query.`;
+  } else {
+    return BASE_SYSTEM_PROMPT + `\n\nLANGUAGE MATCHING:\nDetect the language of the user's latest query. Provide your response entirely in that same language. Do not switch back to English simply because the retrieved context documents are written in English. When citing terms, translate or transcribe naturally unless it is a proper noun or code identifier.`;
+  }
+}
 
 export class GroqBusyError extends Error {
   readonly hitBudgetCap: boolean;
@@ -332,10 +337,10 @@ export async function createChatStreamWithRetry(args: CreateArgs): Promise<{
   });
 }
 
-export async function streamAnswer(question: string, context: string) {
+export async function streamAnswer(question: string, context: string, language?: string | null) {
   const { stream } = await createChatStreamWithRetry({
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: getSystemPrompt(language) },
       {
         role: "user",
         content: `Context:\n${context}\n\nQuestion: ${question}`,
@@ -346,8 +351,8 @@ export async function streamAnswer(question: string, context: string) {
   return stream;
 }
 
-export async function getAnswer(question: string, context: string): Promise<string> {
-  const stream = await streamAnswer(question, context);
+export async function getAnswer(question: string, context: string, language?: string | null): Promise<string> {
+  const stream = await streamAnswer(question, context, language);
   let answer = "";
   for await (const part of stream) {
     answer += part.choices[0]?.delta?.content ?? "";

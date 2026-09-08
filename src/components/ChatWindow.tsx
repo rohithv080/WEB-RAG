@@ -100,6 +100,8 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle }: Props)
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [language, setLanguage] = useState<string>("auto");
+
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streaming]);
@@ -133,7 +135,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle }: Props)
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: question.trim(), siteId, sessionId }),
+          body: JSON.stringify({ question: question.trim(), siteId, sessionId, language: language === "auto" ? null : language }),
         });
 
         if (!res.ok) {
@@ -257,6 +259,20 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle }: Props)
       {error && <p className="chat-error">{error}</p>}
 
       <form onSubmit={handleSubmit} className="chat-form">
+        <select 
+          className="chat-language-select" 
+          value={language} 
+          onChange={(e) => setLanguage(e.target.value)}
+          disabled={!ready || streaming}
+          title="Select AI Response Language"
+        >
+          <option value="auto">🌐 Auto</option>
+          <option value="English">🇬🇧 EN</option>
+          <option value="Spanish">🇪🇸 ES</option>
+          <option value="French">🇫🇷 FR</option>
+          <option value="Hindi">🇮🇳 HI</option>
+          <option value="Tamil">🇮🇳 TA</option>
+        </select>
         <input
           ref={inputRef}
           type="text"
@@ -410,6 +426,20 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle }: Props)
           padding: 0.85rem 1.15rem;
           border-top: 1px solid var(--border);
           background: rgba(0, 0, 0, 0.15);
+        }
+        .chat-language-select {
+          padding: 0.7rem;
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          background: var(--bg-input);
+          color: var(--text);
+          outline: none;
+          cursor: pointer;
+          transition: border-color 0.15s ease;
+        }
+        .chat-language-select:focus {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 2px var(--accent-soft);
         }
         .chat-input {
           flex: 1;

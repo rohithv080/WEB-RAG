@@ -10,6 +10,7 @@ type ChatBody = {
   question?: string;
   siteId?: string;
   sessionId?: string;
+  language?: string | null;
 };
 
 export async function POST(req: NextRequest) {
@@ -25,6 +26,7 @@ export async function POST(req: NextRequest) {
     const question = typeof body.question === "string" ? body.question.trim() : "";
     const siteId = typeof body.siteId === "string" ? body.siteId : "";
     let sessionId = typeof body.sessionId === "string" ? body.sessionId : "";
+    const language = typeof body.language === "string" ? body.language : null;
 
     if (!question || !siteId) {
       return NextResponse.json(
@@ -86,7 +88,7 @@ export async function POST(req: NextRequest) {
 
     let groqStream;
     try {
-      groqStream = await streamAnswer(question, context);
+      groqStream = await streamAnswer(question, context, language);
     } catch (err) {
       if (err instanceof GroqBusyError) {
         return NextResponse.json({ error: GROQ_BUSY_MESSAGE }, { status: 429 });
