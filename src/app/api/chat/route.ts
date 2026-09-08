@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       const expandedQuery = await expandQuery(question);
       console.log(`[chat] original="${question}", expanded="${expandedQuery}"`);
 
-      const chunks = await searchChunks(siteId, expandedQuery, 10);
+      const chunks = await searchChunks(siteId, expandedQuery, 15);
       if (chunks.length === 0) {
         return NextResponse.json(
           { error: "No indexed chunks for this site. Scrape a URL first." },

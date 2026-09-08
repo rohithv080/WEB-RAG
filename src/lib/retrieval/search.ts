@@ -225,8 +225,8 @@ export async function searchChunks(
 export function formatContext(chunks: RetrievedChunk[]): string {
   return chunks
     .map((c, i) => {
-      const label = c.heading ? ` (${c.heading})` : "";
-      return `[${i + 1}]${label}\n${c.content}`;
+      const headingText = c.heading ? ` heading="${c.heading.replace(/"/g, '&quot;')}"` : "";
+      return `<document id="${i + 1}"${headingText}>\n${c.content}\n</document>`;
     })
     .join("\n\n");
 }

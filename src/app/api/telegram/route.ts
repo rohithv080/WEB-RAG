@@ -131,7 +131,7 @@ export async function POST(req: NextRequest) {
     let context = "";
     if (!GREETING.test(text)) {
       const expandedQuery = await expandQuery(text);
-      const chunks = await searchChunks(siteId, expandedQuery, 10);
+      const chunks = await searchChunks(siteId, expandedQuery, 15);
       
       if (chunks.length === 0) {
         await sendTelegramMessage(chatId, `${siteNamePrefix}I don't have any information on that.`);

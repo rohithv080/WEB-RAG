@@ -73,18 +73,47 @@ export function embeddingToSql(vector: number[]): string {
 }
 
 /**
- * Rerank: simple score-based sort without a local model.
- * Returns top-K indices sorted by original vector score (already set by RRF).
+ * Rerank: uses Jina AI Cross-Encoder API for high precision.
+ * Returns top-K indices of the most relevant documents.
  */
 export async function rerankDocuments(
-  _query: string,
+  query: string,
   documents: string[],
   topK = 5
 ): Promise<number[]> {
-  // Without a local cross-encoder, just return the top-K by index
-  // (RRF already combined vector + BM25 scores, so order is already good)
-  const count = Math.min(topK, documents.length);
-  return Array.from({ length: count }, (_, i) => i);
+  const apiKey = process.env.JINA_API_KEY;
+  if (!apiKey || documents.length === 0) {
+    console.warn("[rerank] No JINA_API_KEY found (or no docs). Skipping rerank.");
+    return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => i);
+  }
+
+  try {
+    const res = await fetch("https://api.jina.ai/v1/rerank", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: "jina-reranker-v2-base-multilingual",
+        query: query,
+        documents: documents,
+        top_n: topK
+      })
+    });
+    
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.warn("[rerank] Jina API failed:", errorText);
+      return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => i);
+    }
+
+    const data = await res.json();
+    return data.results.map((r: any) => r.index);
+  } catch (error) {
+    console.warn("[rerank] Jina API error:", error);
+    return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => i);
+  }
 }
 
 /** Diagnostic: verify embedding dimension. */

@@ -26,26 +26,27 @@ export const NO_ANSWER_PHRASE = "I couldn't find that in the source.";
 export const GROQ_BUSY_MESSAGE =
   "High demand right now, please try again in a moment";
 
-const SYSTEM_PROMPT = `You are a helpful AI assistant grounded in a specific knowledge base scraped from a website.
+const SYSTEM_PROMPT = `You are an expert AI assistant grounded entirely in a specific knowledge base.
 
 GREETING BEHAVIOR:
-For greetings or chitchat (e.g., "hi", "hey", "hello", "thanks"), respond warmly and briefly. If no context is provided, just greet back and mention you can answer questions about the indexed website.
+For simple greetings (e.g., "hi", "hello"), respond warmly and briefly in 1 sentence.
 
-RESPONSE LENGTH — MATCH THE QUESTION:
-- **Simple/short questions**: Give a concise, focused answer in 1-3 sentences.
-- **List/browse questions** (e.g., "show me all X", "what options are there?"): Give a comprehensive list with brief descriptions for each item.
-- **Detailed/how-to questions** (e.g., "how does X work?", "explain X in detail", "give me full details on X"): Give the COMPLETE answer with ALL details available in the context. Do NOT summarize when full details exist.
+ANALYSIS & THINKING:
+Before answering the user's question, you MUST think step-by-step in a <thinking> block.
+1. Analyze the user's question to understand exactly what they are asking.
+2. Read through the provided <document> tags carefully.
+3. Identify which documents contain relevant information.
+4. Formulate your answer based ONLY on those documents.
 
 ANSWERING RULES:
-1. Answer ONLY using the provided context blocks. Do NOT invent or guess.
-2. When making a claim, cite the source using [1], [2], etc.
-3. If multiple context blocks are relevant, synthesize information from ALL of them.
-4. **DO NOT USE MARKDOWN TABLES.** Telegram does not render tables well. Instead, use bulleted lists with clear, concise descriptions.
-5. Use plain text formatting and emojis to make answers readable. Limit the use of bolding (**).
+1. Answer ONLY using the provided <document> blocks. Do NOT invent or guess any facts outside the context.
+2. When you use information from a document, cite it inline using the document ID like this: [1], [2], etc.
+3. If multiple documents are relevant, synthesize them into a single coherent answer.
+4. DO NOT USE MARKDOWN TABLES. Use bulleted lists instead.
+5. Ensure your final answer (outside the <thinking> block) is beautifully formatted, concise, and direct.
 
 REFUSAL:
-If the context does not contain the answer at all, respond exactly with: "${NO_ANSWER_PHRASE}"
-Do not invent facts and do not guess.`;
+If the documents do not contain the answer at all, your final answer must be EXACTLY: "${NO_ANSWER_PHRASE}"`;
 
 export class GroqBusyError extends Error {
   readonly hitBudgetCap: boolean;
@@ -160,12 +161,10 @@ export async function createChatStreamWithRetry(args: CreateArgs): Promise<{
   stats: GroqRetryStats;
 }> {
   const DECOMMISSIONED_MODELS = new Set([
-    "llama-3.1-70b-versatile",
-    "llama-3.3-70b-versatile",
     "llama3-8b-8192",
     "llama3-70b-8192",
   ]);
-  const DEFAULT_MODEL = "openai/gpt-oss-20b";
+  const DEFAULT_MODEL = "llama-3.3-70b-versatile";
   let envModel = (process.env.GROQ_MODEL || DEFAULT_MODEL).trim();
   if (DECOMMISSIONED_MODELS.has(envModel)) {
     envModel = DEFAULT_MODEL;
