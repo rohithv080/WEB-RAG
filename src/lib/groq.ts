@@ -45,6 +45,9 @@ ANSWERING RULES:
 4. DO NOT USE MARKDOWN TABLES. Use bulleted lists instead.
 5. Ensure your final answer (outside the <thinking> block) is beautifully formatted, concise, and direct.
 
+LANGUAGE MATCHING:
+Detect the language of the user's latest query. Provide your response entirely in that same language. Do not switch back to English simply because the retrieved context documents are written in English. When citing terms, translate or transcribe naturally unless it is a proper noun or code identifier.
+
 REFUSAL:
 If the documents do not contain the answer at all, your final answer must be EXACTLY: "${NO_ANSWER_PHRASE}"`;
 

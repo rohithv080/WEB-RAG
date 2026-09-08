@@ -106,10 +106,10 @@ async function bm25Search(
       c."pageId",
       p.url AS "pageUrl",
       c."isBoilerplate",
-      ts_rank_cd(c.tsv, websearch_to_tsquery('english', $1)) AS score
+      ts_rank_cd(c.tsv, websearch_to_tsquery('simple', $1)) AS score
     FROM "Chunk" c
     JOIN "Page" p ON p.id = c."pageId"
-    WHERE c.tsv @@ websearch_to_tsquery('english', $1)
+    WHERE c.tsv @@ websearch_to_tsquery('simple', $1)
       ${siteId ? `AND p."siteId" = $2` : ``}
     ORDER BY score DESC
     LIMIT ${siteId ? "$3" : "$2"}
