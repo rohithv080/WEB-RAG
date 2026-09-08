@@ -56,6 +56,7 @@ async function syncCommands(chatId: number) {
   
   const sites = await prisma.site.findMany();
   const commands = [
+    { command: "language", description: "Change AI Response Language" },
     { command: "all", description: "Search all websites" },
     ...sites.map(s => ({
       command: (s.name || s.id).toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 32),
