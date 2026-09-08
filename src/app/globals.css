@@ -1,57 +1,221 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Web RAG — Design System
+   ═══════════════════════════════════════════════════════════════════════════ */
+
 :root {
-  --bg: #0f1419;
-  --bg-elevated: #1a222c;
-  --bg-input: #121820;
-  --border: #2a3544;
-  --text: #e8eef4;
-  --text-muted: #8b9aab;
-  --accent: #3d9cf0;
-  --accent-dim: #2a6fad;
-  --accent-soft: rgba(61, 156, 240, 0.12);
-  --danger: #e85d5d;
-  --success: #3ecf8e;
-  --radius: 10px;
-  --font-sans: "IBM Plex Sans", "Segoe UI", sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  /* ── Core palette ──────────────────────────────────────────────────────── */
+  --bg:            #0a0e14;
+  --bg-elevated:   rgba(22, 28, 38, 0.75);
+  --bg-input:      #0d1219;
+  --bg-sidebar:    rgba(14, 18, 24, 0.92);
+  --border:        rgba(255, 255, 255, 0.06);
+  --border-active: rgba(255, 255, 255, 0.12);
+  --text:          #e8eef4;
+  --text-muted:    #6b7a8d;
+  --text-dim:      #3d4a5c;
+  --accent:        #3d9cf0;
+  --accent-dim:    #2a6fad;
+  --accent-soft:   rgba(61, 156, 240, 0.10);
+  --accent-glow:   rgba(61, 156, 240, 0.25);
+  --danger:        #f05d5d;
+  --danger-soft:   rgba(240, 93, 93, 0.10);
+  --success:       #3ecf8e;
+  --success-soft:  rgba(62, 207, 142, 0.10);
+  --warning:       #f0b232;
+  --radius:        10px;
+  --radius-lg:     16px;
+  --font-sans:     "IBM Plex Sans", "Segoe UI", sans-serif;
+  --font-mono:     "IBM Plex Mono", ui-monospace, monospace;
+
+  /* ── Glass ─────────────────────────────────────────────────────────────── */
+  --glass-bg:      rgba(22, 28, 38, 0.55);
+  --glass-border:  rgba(255, 255, 255, 0.07);
+  --glass-blur:    16px;
+  --glass-shadow:  0 8px 32px rgba(0, 0, 0, 0.35);
+
+  /* ── Sidebar ───────────────────────────────────────────────────────────── */
+  --sidebar-width: 260px;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Reset & Base
+   ═══════════════════════════════════════════════════════════════════════════ */
 
 * {
   box-sizing: border-box;
 }
 
-html,
-body {
+html, body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
+  min-height: 100vh;
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-sans);
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(61, 156, 240, 0.15), transparent),
-    linear-gradient(180deg, #0f1419 0%, #0c1015 100%);
-  background-attachment: fixed;
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: 0.5; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Animated Background
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(61, 156, 240, 0.08), transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 90%, rgba(167, 139, 250, 0.06), transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(52, 211, 153, 0.04), transparent 60%);
+  animation: meshFloat 25s ease-in-out infinite alternate;
 }
 
-a {
+@keyframes meshFloat {
+  0%   { transform: scale(1) translate(0, 0); }
+  33%  { transform: scale(1.05) translate(-2%, 3%); }
+  66%  { transform: scale(0.98) translate(3%, -2%); }
+  100% { transform: scale(1.02) translate(-1%, 1%); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Glass Utility
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Skeleton Loader
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+  border-radius: var(--radius);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Toast Notifications
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius);
+  font-size: 0.85rem;
+  font-weight: 500;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 3.7s forwards;
+  max-width: 360px;
+}
+
+.toast-success {
+  background: rgba(62, 207, 142, 0.15);
+  color: var(--success);
+  border-color: rgba(62, 207, 142, 0.2);
+}
+
+.toast-error {
+  background: rgba(240, 93, 93, 0.15);
+  color: var(--danger);
+  border-color: rgba(240, 93, 93, 0.2);
+}
+
+.toast-info {
+  background: rgba(61, 156, 240, 0.15);
   color: var(--accent);
+  border-color: rgba(61, 156, 240, 0.2);
 }
 
-button,
-input {
-  font: inherit;
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(100%) scale(0.9); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
 }
 
-button {
-  cursor: pointer;
+@keyframes toastOut {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to   { opacity: 0; transform: translateX(100%) scale(0.9); }
 }
 
-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.55;
+/* ═══════════════════════════════════════════════════════════════════════════
+   Shared Animations
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Scrollbar
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
