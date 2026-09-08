@@ -141,7 +141,9 @@ export async function POST(req: NextRequest) {
     }
     
     const answer = await getAnswer(text, context);
-    await sendTelegramMessage(chatId, siteNamePrefix + answer);
+    // Strip out the CoT <thinking> block so it doesn't break Telegram HTML parsing
+    const cleanAnswer = answer.replace(/<thinking>[\s\S]*?<\/thinking>/gi, "").trim();
+    await sendTelegramMessage(chatId, siteNamePrefix + cleanAnswer);
     
     return NextResponse.json({ ok: true });
   } catch (error: any) {

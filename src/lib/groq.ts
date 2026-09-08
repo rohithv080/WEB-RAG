@@ -161,10 +161,12 @@ export async function createChatStreamWithRetry(args: CreateArgs): Promise<{
   stats: GroqRetryStats;
 }> {
   const DECOMMISSIONED_MODELS = new Set([
+    "llama-3.1-70b-versatile",
+    "llama-3.3-70b-versatile",
     "llama3-8b-8192",
     "llama3-70b-8192",
   ]);
-  const DEFAULT_MODEL = "llama-3.3-70b-versatile";
+  const DEFAULT_MODEL = "openai/gpt-oss-20b";
   let envModel = (process.env.GROQ_MODEL || DEFAULT_MODEL).trim();
   if (DECOMMISSIONED_MODELS.has(envModel)) {
     envModel = DEFAULT_MODEL;
