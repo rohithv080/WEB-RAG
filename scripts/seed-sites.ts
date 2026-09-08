@@ -31,6 +31,9 @@ async function indexUrl(url: string) {
   const embeddings = await embedDocuments(chunks.map((c) => c.content));
   for (let i = 0; i < chunks.length; i++) {
     const c = chunks[i];
+    const embedding = embeddings[i];
+    if (!embedding) continue;
+
     await prisma.$executeRawUnsafe(
       `
       INSERT INTO "Chunk" (id, "pageId", content, heading, "order", embedding)
@@ -41,7 +44,7 @@ async function indexUrl(url: string) {
       c.content,
       c.heading,
       c.order,
-      embeddingToSql(embeddings[i])
+      embeddingToSql(embedding)
     );
   }
 

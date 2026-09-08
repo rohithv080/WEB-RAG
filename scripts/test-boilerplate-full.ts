@@ -60,7 +60,9 @@ async function testUrl(url: string) {
   const embeddings = await embedDocuments(chunks.map((c) => c.content));
   for (let i = 0; i < chunks.length; i++) {
     const c = chunks[i];
-    const emb = embeddingToSql(embeddings[i]);
+    const embedding = embeddings[i];
+    if (!embedding) continue;
+    const emb = embeddingToSql(embedding);
     await prisma.$executeRawUnsafe(
       `
       INSERT INTO "Chunk" (id, "pageId", content, heading, "order", "isBoilerplate", embedding)
