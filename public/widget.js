@@ -31,7 +31,7 @@
   }
 
   // Derive origin from script src so it works locally and on production automatically
-  let origin = "https://web-rag-two.vercel.app";
+  let origin = "https://rohith-rag.vercel.app";
   try {
     if (currentScript.src) {
       origin = new URL(currentScript.src).origin;

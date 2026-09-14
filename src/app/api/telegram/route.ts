@@ -126,7 +126,7 @@ async function sendLanguageMenu(chatId: number) {
 
 export async function GET(req: NextRequest) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
-  const origin = req.nextUrl.origin || "https://web-rag-two.vercel.app";
+  const origin = req.nextUrl.origin || "https://rohith-rag.vercel.app";
   const webhookUrl = `${origin}/api/telegram`;
 
   if (!token) {

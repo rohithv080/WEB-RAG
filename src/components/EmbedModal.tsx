@@ -27,7 +27,7 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
   const [position, setPosition] = useState<"bottom-right" | "bottom-left">("bottom-right");
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<"script" | "iframe">("script");
-  const [origin, setOrigin] = useState("https://web-rag-two.vercel.app");
+  const [origin, setOrigin] = useState("https://rohith-rag.vercel.app");
 
   useEffect(() => {
     if (typeof window !== "undefined") {

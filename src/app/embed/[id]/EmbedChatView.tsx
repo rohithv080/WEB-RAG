@@ -356,7 +356,7 @@ export function EmbedChatView({
         <div className="branding">
           <span>Powered by </span>
           <a
-            href="https://web-rag-two.vercel.app"
+            href="https://rohith-rag.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
           >
