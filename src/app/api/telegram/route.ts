@@ -56,10 +56,11 @@ async function syncCommands(chatId: number) {
   
   const sites = await prisma.site.findMany();
   const commands = [
+    { command: "sites", description: "Choose a website bot" },
     { command: "language", description: "Change AI Response Language" },
     { command: "all", description: "Search all websites" },
     ...sites.map(s => ({
-      command: (s.name || s.id).toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 32),
+      command: (s.name || s.id).toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32),
       description: `Search ${(s.name || s.id).slice(0, 50)}`
     }))
   ];
@@ -71,10 +72,44 @@ async function syncCommands(chatId: number) {
   });
   
   if (res.ok) {
-    await sendTelegramMessage(chatId, "✅ <b>Commands Synced!</b>\nType <code>/</code> to see the new menu of all available websites.");
+    const list = sites.map(s => {
+      const cmd = (s.name || s.id).toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32);
+      return `• <b>${s.name}</b>: /${cmd}`;
+    }).join("\n");
+    await sendTelegramMessage(chatId, `✅ <b>Commands Synced! (${sites.length} bots available)</b>\n\n${list}\n\nType <code>/</code>, or tap /sites to choose a bot!`);
+    await sendSiteMenu(chatId);
   } else {
     await sendTelegramMessage(chatId, "❌ Failed to sync commands.");
   }
+}
+
+async function sendSiteMenu(chatId: number) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+
+  const sites = await prisma.site.findMany();
+  const keyboard: any[][] = [];
+  keyboard.push([{ text: "🌍 Search ALL Websites", callback_data: "site_all" }]);
+
+  for (let i = 0; i < sites.length; i += 2) {
+    const row = [];
+    row.push({ text: `🤖 ${sites[i].name || "Bot"}`, callback_data: `site_${sites[i].id}` });
+    if (sites[i + 1]) {
+      row.push({ text: `🤖 ${sites[i + 1].name || "Bot"}`, callback_data: `site_${sites[i + 1].id}` });
+    }
+    keyboard.push(row);
+  }
+
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text: "📚 <b>Choose a website bot:</b>",
+      parse_mode: "HTML",
+      reply_markup: { inline_keyboard: keyboard },
+    }),
+  });
 }
 
 async function sendLanguageMenu(chatId: number) {
@@ -152,6 +187,56 @@ export async function POST(req: NextRequest) {
           }).catch(console.error);
         }
       }
+
+      if (data && data.startsWith("site_") && chatId && token) {
+        const selectedSiteId = data.replace("site_", "");
+        if (selectedSiteId === "all") {
+          await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, NULL, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = NULL, "sessionId" = NULL;`;
+          
+          await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ callback_query_id: callbackId, text: "🌍 Searching ALL websites" })
+          }).catch(console.error);
+
+          if (messageId) {
+            await fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                chat_id: chatId,
+                message_id: messageId,
+                text: "🌍 <b>Now searching ALL websites.</b>\n\nWhat would you like to know?",
+                parse_mode: "HTML"
+              })
+            }).catch(console.error);
+          }
+        } else {
+          const site = await prisma.site.findUnique({ where: { id: selectedSiteId } });
+          if (site) {
+            await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, ${site.id}, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = ${site.id}, "sessionId" = NULL;`;
+            
+            await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ callback_query_id: callbackId, text: `Locked onto ${site.name}` })
+            }).catch(console.error);
+
+            if (messageId) {
+              await fetch(`https://api.telegram.org/bot${token}/editMessageText`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  message_id: messageId,
+                  text: `🎯 <b>Locked onto: ${site.name}</b>\nAnswers will now come ONLY from this website.\n\nWhat would you like to know?`,
+                  parse_mode: "HTML"
+                })
+              }).catch(console.error);
+            }
+          }
+        }
+      }
       return NextResponse.json({ ok: true });
     }
 
@@ -169,11 +254,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
+    if (text === "/sites" || text === "/bots") {
+      await sendSiteMenu(chatId);
+      return NextResponse.json({ ok: true });
+    }
+
     if (text === "/sync" || text === "/start") {
       await syncCommands(chatId);
       if (text === "/start") {
         await prisma.$executeRaw`UPDATE "TelegramState" SET "sessionId" = NULL WHERE "chatId" = ${chatId};`;
-        await sendTelegramMessage(chatId, "Welcome! Type <code>/</code> to see a list of websites you can search, or just ask me anything!");
+        await sendTelegramMessage(chatId, "Welcome! Tap /sites or select a bot above to begin, or just ask me anything!");
         await sendLanguageMenu(chatId); // Show language menu on start
       }
       return NextResponse.json({ ok: true });
@@ -186,9 +276,15 @@ export async function POST(req: NextRequest) {
     }
 
     if (text.startsWith("/")) {
-      const commandName = text.split(" ")[0].slice(1).toLowerCase();
+      const rawCmd = text.split(" ")[0].slice(1).toLowerCase();
+      const commandName = rawCmd.split("@")[0];
       const sites = await prisma.site.findMany();
-      const matchedSite = sites.find(s => (s.name || s.id).toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 32) === commandName);
+      const matchedSite = sites.find(s => {
+        const name = (s.name || s.id).toLowerCase();
+        const cmdWithUnderscore = name.replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32);
+        const cmdWithoutUnderscore = name.replace(/[^a-z0-9]/g, '').slice(0, 32);
+        return commandName === cmdWithUnderscore || commandName === cmdWithoutUnderscore;
+      });
       
       if (matchedSite) {
         await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, ${matchedSite.id}, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = ${matchedSite.id}, "sessionId" = NULL;`;
