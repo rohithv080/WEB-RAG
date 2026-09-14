@@ -6,6 +6,8 @@ export type CrawlProgressState = {
   stage: "discovering" | "indexing" | "complete";
   currentUrl?: string;
   percent: number;
+  itemType?: "page" | "chunk";
+  customLabel?: string;
 };
 
 type Props = {
@@ -15,17 +17,20 @@ type Props = {
 
 export function CrawlProgressBar({ progress, compact = false }: Props) {
   const isDiscovering = progress.stage === "discovering";
+  const itemType = progress.itemType || "page";
+
+  const label = progress.customLabel
+    ? progress.customLabel
+    : isDiscovering
+    ? "Discovering internal page links…"
+    : `Indexing ${itemType} ${progress.current} of ${progress.total}`;
 
   return (
     <div className={`crawl-progress-card ${compact ? "compact" : ""}`}>
       <div className="progress-top-row">
         <div className="progress-status-group">
           <span className={`pulse-indicator ${isDiscovering ? "pulse-amber" : "pulse-violet"}`} />
-          <span className="progress-status-label">
-            {isDiscovering
-              ? "Discovering internal page links…"
-              : `Indexing page ${progress.current} of ${progress.total}`}
-          </span>
+          <span className="progress-status-label">{label}</span>
         </div>
         <span className="progress-percentage">
           {isDiscovering ? "Scanning" : `${progress.percent}%`}
@@ -47,7 +52,7 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
       )}
 
       <div className="progress-footer-badge">
-        <span>🛡️ Vercel Timeout Safe • 3x Concurrent Batching</span>
+        <span>🛡️ Vercel Timeout Safe • Client-Driven Chunked Batching</span>
       </div>
 
       <style jsx>{`

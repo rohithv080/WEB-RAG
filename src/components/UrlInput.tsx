@@ -69,85 +69,70 @@ export function UrlInput({
       }
 
       let currentSiteId = siteId;
+      const totalPages = urlsToScrape.length;
+      const BATCH_SIZE = 3;
+      let completed = 0;
+      let lastResult: any = null;
 
       setCrawlProgress({
         current: 0,
-        total: urlsToScrape.length,
+        total: totalPages,
         stage: "indexing",
         currentUrl: urlsToScrape[0],
         percent: 0,
+        customLabel: `Indexing page 0 of ${totalPages}... (0%)`,
       });
 
-      // 1. Scrape first page
-      const firstRes = await fetch("/api/scrape", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: urlsToScrape[0], siteId: currentSiteId }),
-      });
-      
-      if (firstRes.status === 401) {
-        onUnauthorized?.();
-        throw new Error("Unauthorized");
-      }
-      
-      const firstData = await firstRes.json();
-      if (!firstRes.ok) throw new Error(firstData.error || "Failed to scrape initial page");
-      if (!currentSiteId && firstData.siteId) {
-        currentSiteId = firstData.siteId;
-      }
-
-      let completed = 1;
-      let lastResult = firstData;
-
-      setCrawlProgress({
-        current: 1,
-        total: urlsToScrape.length,
-        stage: "indexing",
-        currentUrl: urlsToScrape[0],
-        percent: Math.round((1 / urlsToScrape.length) * 100),
-      });
-
-      // 2. Scrape remaining pages in parallel concurrency pool of 3
-      const remaining = urlsToScrape.slice(1);
-      if (remaining.length > 0) {
-        const concurrency = 3;
-        let queueIdx = 0;
-
-        async function worker() {
-          while (queueIdx < remaining.length) {
-            const idx = queueIdx++;
-            const u = remaining[idx];
-            setCrawlProgress(prev => prev ? { ...prev, currentUrl: u } : null);
-
-            try {
-              const res = await fetch("/api/scrape", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: u, siteId: currentSiteId }),
-              });
-              if (res.ok) {
-                lastResult = await res.json();
+      for (let i = 0; i < urlsToScrape.length; i += BATCH_SIZE) {
+        const batchUrls = urlsToScrape.slice(i, i + BATCH_SIZE);
+        setCrawlProgress((prev) =>
+          prev
+            ? {
+                ...prev,
+                currentUrl: batchUrls[0],
+                stage: "indexing",
               }
-            } catch (err) {
-              console.warn(`[crawl batch] Failed ${u}:`, err);
-            }
+            : null
+        );
 
-            completed++;
-            setCrawlProgress(prev => prev ? {
-              ...prev,
-              current: completed,
-              percent: Math.round((completed / urlsToScrape.length) * 100),
-            } : null);
-          }
+        const res = await fetch("/api/scrape", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            urls: batchUrls,
+            siteId: currentSiteId || undefined,
+          }),
+        });
+
+        if (res.status === 401) {
+          onUnauthorized?.();
+          throw new Error("Unauthorized");
         }
 
-        await Promise.all(
-          Array.from({ length: Math.min(concurrency, remaining.length) }, worker)
-        );
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to scrape page batch");
+
+        if (!currentSiteId && data.siteId) {
+          currentSiteId = data.siteId;
+        }
+        lastResult = data;
+
+        completed += batchUrls.length;
+        const currentCount = Math.min(completed, totalPages);
+        const percent = Math.round((currentCount / totalPages) * 100);
+
+        setCrawlProgress({
+          current: currentCount,
+          total: totalPages,
+          stage: "indexing",
+          currentUrl: batchUrls[batchUrls.length - 1],
+          percent,
+          customLabel: `Indexing page ${currentCount} of ${totalPages}... (${percent}%)`,
+        });
       }
 
       setStatus(`Indexed ${urlsToScrape.length} page(s) successfully!`);
-      onScraped(lastResult as ScrapeResult);
+      if (lastResult) onScraped(lastResult as ScrapeResult);
       setUrl("");
     } catch (err: any) {
       setError(err instanceof Error ? err.message : "Scrape failed");

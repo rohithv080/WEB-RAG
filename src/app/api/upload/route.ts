@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { createId } from "@/lib/id";
-import { chunkDocument } from "@/lib/scraper/chunk";
+import { chunkDocument, type Chunk } from "@/lib/scraper/chunk";
 import { embedDocuments, embeddingToSql } from "@/lib/embeddings/embed";
 import { syncTelegramBotCommands } from "@/lib/telegram";
 import { extractText } from "unpdf";
@@ -10,6 +10,53 @@ import { verifyIngestionAuth } from "@/lib/auth";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
+const INITIAL_CHUNK_BATCH = 25;
+
+/**
+ * Bulk insert chunks using parameterized multi-row SQL queries.
+ */
+async function insertChunksBulk(
+  pageId: string,
+  chunks: Chunk[],
+  embeddings: (number[] | null)[]
+) {
+  const validItems = chunks
+    .map((c, idx) => ({ c, emb: embeddings[idx] }))
+    .filter((item): item is { c: Chunk; emb: number[] } => Boolean(item.emb));
+
+  const MULTI_ROW_BATCH = 25;
+  for (let i = 0; i < validItems.length; i += MULTI_ROW_BATCH) {
+    const batch = validItems.slice(i, i + MULTI_ROW_BATCH);
+    const placeholders: string[] = [];
+    const params: any[] = [];
+
+    batch.forEach((item, idx) => {
+      const offset = idx * 7;
+      placeholders.push(
+        `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, CAST($${offset + 7} AS vector))`
+      );
+      params.push(
+        createId(),
+        pageId,
+        item.c.content,
+        item.c.heading,
+        item.c.order,
+        item.c.isBoilerplate || false,
+        embeddingToSql(item.emb)
+      );
+    });
+
+    if (placeholders.length > 0) {
+      await prisma.$executeRawUnsafe(
+        `INSERT INTO "Chunk" (id, "pageId", content, heading, "order", "isBoilerplate", embedding) VALUES ${placeholders.join(", ")}`,
+        ...params
+      );
+    }
+  }
+
+  return validItems.length;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const authCheck = await verifyIngestionAuth(req.headers);
@@ -17,6 +64,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
     }
 
+    const contentType = req.headers.get("content-type") || "";
+
+    // ── Handle sequential chunk batches (Zero Vercel Timeout for large PDFs) ──
+    if (contentType.includes("application/json")) {
+      const body = await req.json();
+      if (body.action === "embed-batch") {
+        const { pageId, siteId, chunks } = body as {
+          action: string;
+          pageId: string;
+          siteId?: string;
+          chunks: Chunk[];
+        };
+
+        if (!pageId || !Array.isArray(chunks) || chunks.length === 0) {
+          return NextResponse.json({ error: "pageId and non-empty chunks array required" }, { status: 400 });
+        }
+
+        const page = await prisma.page.findUnique({
+          where: { id: pageId },
+          include: { site: { select: { userId: true } } },
+        });
+        if (!page) {
+          return NextResponse.json({ error: "Page not found" }, { status: 404 });
+        }
+        if (page.site.userId && page.site.userId !== authCheck.userId && !authCheck.isAdmin) {
+          return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+        }
+
+        const embedTexts = chunks.map((c) => (c.heading ? `${c.heading}\n\n${c.content}` : c.content));
+        const embeddings = await embedDocuments(embedTexts);
+        const insertedCount = await insertChunksBulk(pageId, chunks, embeddings);
+
+        return NextResponse.json({
+          success: true,
+          insertedCount,
+        });
+      }
+    }
+
+    // ── Handle Initial File Upload ──────────────────────────────────────────
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const siteName = (formData.get("siteName") as string | null)?.trim();
@@ -104,46 +191,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Embed chunks
-    const embedTexts = chunks.map((c) =>
+    // Embed and insert initial batch
+    const initialBatch = chunks.slice(0, INITIAL_CHUNK_BATCH);
+    const initialEmbedTexts = initialBatch.map((c) =>
       c.heading ? `${c.heading}\n\n${c.content}` : c.content
     );
-    const embeddings = await embedDocuments(embedTexts);
-
-    // Insert chunks in multi-row parameterized batches (25 chunks per SQL statement)
-    const validItems = chunks
-      .map((c, idx) => ({ c, emb: embeddings[idx] }))
-      .filter((item): item is { c: typeof chunks[0]; emb: number[] } => Boolean(item.emb));
-
-    const MULTI_ROW_BATCH = 25;
-    for (let i = 0; i < validItems.length; i += MULTI_ROW_BATCH) {
-      const batch = validItems.slice(i, i + MULTI_ROW_BATCH);
-      const placeholders: string[] = [];
-      const params: any[] = [];
-
-      batch.forEach((item, idx) => {
-        const offset = idx * 7;
-        placeholders.push(
-          `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, CAST($${offset + 7} AS vector))`
-        );
-        params.push(
-          createId(),
-          newPage.id,
-          item.c.content,
-          item.c.heading,
-          item.c.order,
-          item.c.isBoilerplate || false,
-          embeddingToSql(item.emb)
-        );
-      });
-
-      if (placeholders.length > 0) {
-        await prisma.$executeRawUnsafe(
-          `INSERT INTO "Chunk" (id, "pageId", content, heading, "order", "isBoilerplate", embedding) VALUES ${placeholders.join(", ")}`,
-          ...params
-        );
-      }
-    }
+    const initialEmbeddings = await embedDocuments(initialEmbedTexts);
+    await insertChunksBulk(newPage.id, initialBatch, initialEmbeddings);
 
     // Ensure a chat session exists
     let session = await prisma.chatSession.findFirst({
@@ -154,14 +208,22 @@ export async function POST(req: NextRequest) {
       session = await prisma.chatSession.create({ data: { siteId } });
     }
 
+    // If file fits within initial batch (<= 25 chunks), we are completely done!
+    const isDone = chunks.length <= INITIAL_CHUNK_BATCH;
+
     return NextResponse.json({
       success: true,
+      done: isDone,
       siteId,
       pageId: newPage.id,
       sessionId: session.id,
       siteName: siteFinalName,
       fileName,
+      totalChunks: chunks.length,
+      processedChunks: initialBatch.length,
       chunkCount: chunks.length,
+      // For large files (>25 chunks), provide pending chunks to client for sequential batching
+      pendingChunks: isDone ? [] : chunks.slice(INITIAL_CHUNK_BATCH),
     });
   } catch (error: any) {
     console.error("[upload error]:", error);

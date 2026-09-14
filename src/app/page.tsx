@@ -157,6 +157,7 @@ function AppInner() {
       }
 
       setModalLoading(true);
+      setModalProgress(null);
       try {
         const formData = new FormData();
         formData.append("file", modalFile);
@@ -171,9 +172,56 @@ function AppInner() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Upload failed");
 
+        // Client-driven chunked batching for large documents (PDF/Docs > 25 chunks)
+        // Completely eliminates Vercel 15s serverless timeout traps
+        if (!data.done && Array.isArray(data.pendingChunks) && data.pendingChunks.length > 0) {
+          const total = data.totalChunks || (data.processedChunks + data.pendingChunks.length);
+          let processed = data.processedChunks || 25;
+          const CHUNK_BATCH_SIZE = 25;
+
+          setModalProgress({
+            current: processed,
+            total,
+            stage: "indexing",
+            percent: Math.round((processed / total) * 100),
+            itemType: "chunk",
+            customLabel: `Indexing chunk ${processed} of ${total}... (${Math.round((processed / total) * 100)}%)`,
+          });
+
+          for (let i = 0; i < data.pendingChunks.length; i += CHUNK_BATCH_SIZE) {
+            const batch = data.pendingChunks.slice(i, i + CHUNK_BATCH_SIZE);
+            const batchRes = await fetch("/api/upload", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                action: "embed-batch",
+                pageId: data.pageId,
+                siteId: data.siteId,
+                chunks: batch,
+              }),
+            });
+
+            if (!batchRes.ok) {
+              const bErr = await batchRes.json();
+              throw new Error(bErr.error || "Failed indexing document chunks");
+            }
+
+            processed += batch.length;
+            const pct = Math.round((processed / total) * 100);
+            setModalProgress({
+              current: processed,
+              total,
+              stage: "indexing",
+              percent: pct,
+              itemType: "chunk",
+              customLabel: `Indexing chunk ${processed} of ${total}... (${pct}%)`,
+            });
+          }
+        }
+
         await loadSites();
         setShowModal(false);
-        addToast(`Bot "${data.siteName}" created (${data.chunkCount} chunks)!`, "success");
+        addToast(`Bot "${data.siteName}" created (${data.totalChunks || data.chunkCount} chunks)!`, "success");
 
         const fresh = await fetch("/api/sites").then((r) => r.json());
         const newSite = (fresh.sites as SiteSummary[]).find((s) => s.id === data.siteId);
@@ -182,6 +230,7 @@ function AppInner() {
         setModalError(err.message || "Failed to upload file");
       } finally {
         setModalLoading(false);
+        setModalProgress(null);
       }
       return;
     }
@@ -207,83 +256,70 @@ function AppInner() {
         if (crawlData.urls?.length > 0) urlsToScrape = crawlData.urls;
       }
 
+      // Process in sequential batches of 3-4 pages to completely eliminate Vercel serverless timeouts
+      const PAGE_BATCH_SIZE = 3;
+      const totalPages = urlsToScrape.length;
+      let processedPages = 0;
+      let createdSiteId: string | null = null;
+      let lastSiteName: string | null = null;
+
       setModalProgress({
         current: 0,
-        total: urlsToScrape.length,
+        total: totalPages,
         stage: "indexing",
         currentUrl: urlsToScrape[0],
         percent: 0,
+        customLabel: `Indexing page 0 of ${totalPages}... (0%)`,
       });
 
-      // 1. Scrape seed page first to initialize site
-      const firstRes: Response = await fetch("/api/scrape", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          url: urlsToScrape[0],
-          name: modalName.trim() || undefined,
-          description: modalDesc.trim() || undefined,
-        }),
-      });
-      const firstData: any = await firstRes.json();
-      if (!firstRes.ok) throw new Error(firstData.error || "Scrape failed");
-      const createdSiteId = firstData.siteId;
+      for (let i = 0; i < urlsToScrape.length; i += PAGE_BATCH_SIZE) {
+        const batchUrls = urlsToScrape.slice(i, i + PAGE_BATCH_SIZE);
+        setModalProgress((prev) =>
+          prev
+            ? {
+                ...prev,
+                currentUrl: batchUrls[0],
+                stage: "indexing",
+              }
+            : null
+        );
 
-      let completed = 1;
-      setModalProgress({
-        current: 1,
-        total: urlsToScrape.length,
-        stage: "indexing",
-        currentUrl: urlsToScrape[0],
-        percent: Math.round((1 / urlsToScrape.length) * 100),
-      });
+        const scrapeRes: Response = await fetch("/api/scrape", {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            urls: batchUrls,
+            siteId: createdSiteId || undefined,
+            name: !createdSiteId ? (modalName.trim() || undefined) : undefined,
+            description: !createdSiteId ? (modalDesc.trim() || undefined) : undefined,
+          }),
+        });
 
-      // 2. Scrape remaining pages using client-side concurrency pool of 3
-      const remaining = urlsToScrape.slice(1);
-      if (remaining.length > 0) {
-        const concurrency = 3;
-        let queueIdx = 0;
+        const scrapeData: any = await scrapeRes.json();
+        if (!scrapeRes.ok) throw new Error(scrapeData.error || "Batch scrape failed");
 
-        async function worker() {
-          while (queueIdx < remaining.length) {
-            const idx = queueIdx++;
-            const pageUrl = remaining[idx];
-            setModalProgress((prev) => (prev ? { ...prev, currentUrl: pageUrl } : null));
-
-            try {
-              await fetch("/api/scrape", {
-                method: "POST",
-                headers,
-                body: JSON.stringify({
-                  url: pageUrl,
-                  siteId: createdSiteId,
-                }),
-              });
-            } catch (err) {
-              console.warn(`[crawl batch] Failed ${pageUrl}:`, err);
-            }
-
-            completed++;
-            setModalProgress((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    current: completed,
-                    percent: Math.round((completed / urlsToScrape.length) * 100),
-                  }
-                : null
-            );
-          }
+        if (!createdSiteId && scrapeData.siteId) {
+          createdSiteId = scrapeData.siteId;
+          lastSiteName = scrapeData.siteName;
         }
 
-        await Promise.all(
-          Array.from({ length: Math.min(concurrency, remaining.length) }, worker)
-        );
+        processedPages += batchUrls.length;
+        const currentCount = Math.min(processedPages, totalPages);
+        const percent = Math.round((currentCount / totalPages) * 100);
+
+        setModalProgress({
+          current: currentCount,
+          total: totalPages,
+          stage: "indexing",
+          currentUrl: batchUrls[batchUrls.length - 1],
+          percent,
+          customLabel: `Indexing page ${currentCount} of ${totalPages}... (${percent}%)`,
+        });
       }
 
       await loadSites();
       setShowModal(false);
-      addToast("Bot created successfully!", "success");
+      addToast(`Bot "${lastSiteName || modalName || "Web Bot"}" created (${totalPages} pages indexed)!`, "success");
 
       const fresh = await fetch("/api/sites").then((r) => r.json());
       const newSite = (fresh.sites as SiteSummary[]).find((s) => s.id === createdSiteId);
@@ -575,8 +611,37 @@ function AppInner() {
                             const res = await fetch("/api/upload", { method: "POST", body: formData });
                             const data = await res.json();
                             if (!res.ok) throw new Error(data.error || "Upload failed");
+
+                            // Chunked batching for large PDFs in side panel
+                            if (!data.done && Array.isArray(data.pendingChunks) && data.pendingChunks.length > 0) {
+                              const total = data.totalChunks || (data.processedChunks + data.pendingChunks.length);
+                              let processed = data.processedChunks || 25;
+                              const CHUNK_BATCH_SIZE = 25;
+
+                              for (let i = 0; i < data.pendingChunks.length; i += CHUNK_BATCH_SIZE) {
+                                const batch = data.pendingChunks.slice(i, i + CHUNK_BATCH_SIZE);
+                                const batchRes = await fetch("/api/upload", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({
+                                    action: "embed-batch",
+                                    pageId: data.pageId,
+                                    siteId: data.siteId,
+                                    chunks: batch,
+                                  }),
+                                });
+                                if (!batchRes.ok) {
+                                  const bErr = await batchRes.json();
+                                  throw new Error(bErr.error || "Failed indexing chunks");
+                                }
+                                processed += batch.length;
+                                const pct = Math.round((processed / total) * 100);
+                                addToast(`Indexing ${f.name}: chunk ${processed}/${total} (${pct}%)`, "info");
+                              }
+                            }
+
                             await loadSites();
-                            addToast(`Added ${f.name} (${data.chunkCount} chunks)!`, "success");
+                            addToast(`Added ${f.name} (${data.totalChunks || data.chunkCount} chunks)!`, "success");
                           } catch (err: any) {
                             addToast(err.message || "Upload failed", "error");
                           } finally {

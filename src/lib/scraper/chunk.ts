@@ -7,6 +7,8 @@ export type TextChunk = {
   isBoilerplate?: boolean;
 };
 
+export type Chunk = TextChunk;
+
 const MAX_CHARS = 1500;
 const OVERLAP = 200;
 const MIN_PARAGRAPH_WORDS = 15;
