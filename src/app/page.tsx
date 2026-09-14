@@ -30,6 +30,9 @@ function AppInner() {
 
   // ── modal ────────────────────────────────────────────────────────────────
   const [showModal, setShowModal] = useState(false);
+  const [modalMode, setModalMode] = useState<"url" | "file">("url");
+  const [modalFile, setModalFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [modalName, setModalName] = useState("");
   const [modalDesc, setModalDesc] = useState("");
   const [modalUrl, setModalUrl] = useState("");
@@ -87,6 +90,8 @@ function AppInner() {
   // ── modal ────────────────────────────────────────────────────────────────
   function openModal() {
     setShowModal(true);
+    setModalMode("url");
+    setModalFile(null);
     setModalName("");
     setModalDesc("");
     setModalUrl("");
@@ -95,9 +100,55 @@ function AppInner() {
     setTimeout(() => modalNameRef.current?.focus(), 80);
   }
 
+  function handleFileSelect(file: File) {
+    setModalFile(file);
+    if (!modalName.trim()) {
+      const base = file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " ");
+      const formatted = base.charAt(0).toUpperCase() + base.slice(1);
+      setModalName(formatted);
+    }
+  }
+
   async function handleAddBot(e: FormEvent) {
     e.preventDefault();
     setModalError(null);
+
+    if (modalMode === "file") {
+      if (!modalFile) {
+        setModalError("Please select a file to upload.");
+        return;
+      }
+
+      setModalLoading(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", modalFile);
+        if (modalName.trim()) formData.append("siteName", modalName.trim());
+        if (modalDesc.trim()) formData.append("siteDescription", modalDesc.trim());
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Upload failed");
+
+        await loadSites();
+        setShowModal(false);
+        addToast(`Bot "${data.siteName}" created (${data.chunkCount} chunks)!`, "success");
+
+        const fresh = await fetch("/api/sites").then((r) => r.json());
+        const newSite = (fresh.sites as SiteSummary[]).find((s) => s.id === data.siteId);
+        if (newSite) openChat(newSite);
+      } catch (err: any) {
+        setModalError(err.message || "Failed to upload file");
+      } finally {
+        setModalLoading(false);
+      }
+      return;
+    }
+
     const url = modalUrl.trim();
     if (!url) { setModalError("URL is required."); return; }
 
@@ -297,6 +348,36 @@ function AppInner() {
                       compact
                       onScraped={async () => { await loadSites(); addToast("Page added!", "success"); }}
                     />
+                    <div className="doc-upload-divider">
+                      <span>or</span>
+                    </div>
+                    <label className="doc-upload-btn">
+                      📎 Upload Document (PDF/TXT)
+                      <input
+                        type="file"
+                        accept=".pdf,.txt,.md,.markdown,.csv,.json"
+                        style={{ display: "none" }}
+                        onChange={async (e) => {
+                          const f = e.target.files?.[0];
+                          if (!f) return;
+                          try {
+                            const formData = new FormData();
+                            formData.append("file", f);
+                            formData.append("siteId", selectedSite.id);
+                            addToast(`Uploading & indexing ${f.name}…`, "info");
+                            const res = await fetch("/api/upload", { method: "POST", body: formData });
+                            const data = await res.json();
+                            if (!res.ok) throw new Error(data.error || "Upload failed");
+                            await loadSites();
+                            addToast(`Added ${f.name} (${data.chunkCount} chunks)!`, "success");
+                          } catch (err: any) {
+                            addToast(err.message || "Upload failed", "error");
+                          } finally {
+                            e.target.value = "";
+                          }
+                        }}
+                      />
+                    </label>
                   </div>
                 </div>
               )}
@@ -313,12 +394,33 @@ function AppInner() {
               <h2 className="modal-title">Add new bot</h2>
               <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
             </header>
+
+            {/* Mode Switcher */}
+            <div className="modal-mode-tabs">
+              <button
+                type="button"
+                className={`mode-tab ${modalMode === "url" ? "active" : ""}`}
+                onClick={() => setModalMode("url")}
+                disabled={modalLoading}
+              >
+                🌐 Website URL
+              </button>
+              <button
+                type="button"
+                className={`mode-tab ${modalMode === "file" ? "active" : ""}`}
+                onClick={() => setModalMode("file")}
+                disabled={modalLoading}
+              >
+                📄 Upload Document (PDF / Text)
+              </button>
+            </div>
+
             <form onSubmit={handleAddBot} className="modal-form">
               <label className="field-label">Bot name</label>
               <input
                 ref={modalNameRef}
                 className="field-input"
-                placeholder="e.g., Next.js Docs"
+                placeholder={modalMode === "file" ? "e.g., Biology Textbook" : "e.g., Next.js Docs"}
                 value={modalName}
                 onChange={(e) => setModalName(e.target.value)}
                 disabled={modalLoading}
@@ -336,46 +438,102 @@ function AppInner() {
                 rows={2}
               />
 
-              <label className="field-label">First page URL</label>
-              <input
-                type="url"
-                className="field-input"
-                placeholder="https://docs.example.com"
-                value={modalUrl}
-                onChange={(e) => setModalUrl(e.target.value)}
-                disabled={modalLoading}
-                required
-              />
-
-              <div className="crawl-options-wrapper">
-                <div className="crawl-options-header">
-                  <span className="crawl-options-title">Crawl Scope</span>
-                  <span className="vercel-badge">⚡ Vercel-Optimized</span>
-                </div>
-                <div className="crawl-pills-grid">
-                  {[
-                    { count: 1, label: "1 Page", tag: "⚡ Single", desc: "Instant (~2s)" },
-                    { count: 5, label: "5 Pages", tag: "🚀 Quick", desc: "Fast & safe (~10s)" },
-                    { count: 15, label: "15 Pages", tag: "⭐ Best", desc: "Recommended (~25s)" },
-                    { count: 30, label: "30 Pages", tag: "📚 Deep", desc: "Thorough (~50s)" },
-                    { count: 100, label: "100 Pages", tag: "🌐 Full", desc: "Complete (2-3m)" },
-                  ].map((opt) => (
-                    <button
-                      key={opt.count}
-                      type="button"
-                      className={`crawl-pill ${modalCrawlLimit === opt.count ? "active" : ""}`}
-                      onClick={() => setModalCrawlLimit(opt.count)}
-                      disabled={modalLoading}
+              {modalMode === "file" ? (
+                <div className="file-dropzone-wrapper">
+                  <label className="field-label">Select Document</label>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.txt,.md,.markdown,.csv,.json"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleFileSelect(f);
+                    }}
+                  />
+                  {!modalFile ? (
+                    <div
+                      className="file-dropzone"
+                      onClick={() => fileInputRef.current?.click()}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const f = e.dataTransfer.files?.[0];
+                        if (f) handleFileSelect(f);
+                      }}
                     >
-                      <div className="pill-top">
-                        <span className="pill-label">{opt.label}</span>
-                        <span className="pill-tag">{opt.tag}</span>
+                      <div className="dropzone-icon">📄</div>
+                      <div className="dropzone-text">
+                        <strong>Click to browse</strong> or drag & drop file
                       </div>
-                      <span className="pill-desc">{opt.desc}</span>
-                    </button>
-                  ))}
+                      <div className="dropzone-sub">
+                        Supports PDF, TXT, Markdown, CSV, JSON
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="file-selected-card">
+                      <div className="file-selected-icon">📄</div>
+                      <div className="file-selected-info">
+                        <span className="file-selected-name">{modalFile.name}</span>
+                        <span className="file-selected-size">
+                          {(modalFile.size / 1024).toFixed(1)} KB
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="file-remove-btn"
+                        onClick={() => setModalFile(null)}
+                        disabled={modalLoading}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
+              ) : (
+                <>
+                  <label className="field-label">First page URL</label>
+                  <input
+                    type="url"
+                    className="field-input"
+                    placeholder="https://docs.example.com"
+                    value={modalUrl}
+                    onChange={(e) => setModalUrl(e.target.value)}
+                    disabled={modalLoading}
+                    required={modalMode === "url"}
+                  />
+
+                  <div className="crawl-options-wrapper">
+                    <div className="crawl-options-header">
+                      <span className="crawl-options-title">Crawl Scope</span>
+                      <span className="vercel-badge">⚡ Vercel-Optimized</span>
+                    </div>
+                    <div className="crawl-pills-grid">
+                      {[
+                        { count: 1, label: "1 Page", tag: "⚡ Single", desc: "Instant (~2s)" },
+                        { count: 5, label: "5 Pages", tag: "🚀 Quick", desc: "Fast & safe (~10s)" },
+                        { count: 15, label: "15 Pages", tag: "⭐ Best", desc: "Recommended (~25s)" },
+                        { count: 30, label: "30 Pages", tag: "📚 Deep", desc: "Thorough (~50s)" },
+                        { count: 100, label: "100 Pages", tag: "🌐 Full", desc: "Complete (2-3m)" },
+                      ].map((opt) => (
+                        <button
+                          key={opt.count}
+                          type="button"
+                          className={`crawl-pill ${modalCrawlLimit === opt.count ? "active" : ""}`}
+                          onClick={() => setModalCrawlLimit(opt.count)}
+                          disabled={modalLoading}
+                        >
+                          <div className="pill-top">
+                            <span className="pill-label">{opt.label}</span>
+                            <span className="pill-tag">{opt.tag}</span>
+                          </div>
+                          <span className="pill-desc">{opt.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
 
               {modalError && <p className="modal-error">{modalError}</p>}
 
@@ -383,11 +541,19 @@ function AppInner() {
                 <button type="button" className="modal-cancel" onClick={() => setShowModal(false)} disabled={modalLoading}>
                   Cancel
                 </button>
-                <button type="submit" className="modal-submit" disabled={modalLoading || !modalUrl.trim()}>
+                <button
+                  type="submit"
+                  className="modal-submit"
+                  disabled={modalLoading || (modalMode === "url" ? !modalUrl.trim() : !modalFile)}
+                >
                   {modalLoading
-                    ? modalProgress
+                    ? modalMode === "file"
+                      ? "Uploading & Indexing…"
+                      : modalProgress
                       ? `Scraping ${modalProgress.current}/${modalProgress.total}…`
                       : "Indexing…"
+                    : modalMode === "file"
+                    ? "Upload & Create Bot"
                     : "Scrape & add"}
                 </button>
               </div>
@@ -816,6 +982,160 @@ function AppInner() {
           transition: opacity 0.15s ease;
         }
         .modal-submit:hover:not(:disabled) { opacity: 0.85; }
+
+        /* ── File Upload & Mode Tabs ────────────────────────────────── */
+        .modal-mode-tabs {
+          display: flex;
+          border-radius: 8px;
+          overflow: hidden;
+          border: 1px solid var(--border);
+          background: var(--bg-input);
+          margin-bottom: 0.5rem;
+        }
+        .mode-tab {
+          flex: 1;
+          padding: 0.6rem 0.8rem;
+          font-size: 0.82rem;
+          font-weight: 500;
+          background: transparent;
+          color: var(--text-muted);
+          border: none;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .mode-tab:hover:not(:disabled) {
+          color: var(--text);
+        }
+        .mode-tab.active {
+          background: var(--accent);
+          color: #fff;
+          font-weight: 600;
+        }
+
+        .file-dropzone-wrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+        }
+        .file-dropzone {
+          border: 2px dashed rgba(255, 255, 255, 0.15);
+          border-radius: var(--radius);
+          padding: 1.5rem 1rem;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 0.35rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          background: rgba(255, 255, 255, 0.02);
+        }
+        .file-dropzone:hover {
+          border-color: var(--accent);
+          background: var(--accent-soft);
+        }
+        .dropzone-icon {
+          font-size: 1.8rem;
+          margin-bottom: 0.2rem;
+        }
+        .dropzone-text {
+          font-size: 0.88rem;
+          color: var(--text);
+        }
+        .dropzone-text strong {
+          color: var(--accent);
+        }
+        .dropzone-sub {
+          font-size: 0.72rem;
+          color: var(--text-muted);
+        }
+
+        .file-selected-card {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem 1rem;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+        }
+        .file-selected-icon {
+          font-size: 1.4rem;
+        }
+        .file-selected-info {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+        }
+        .file-selected-name {
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: var(--text);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .file-selected-size {
+          font-size: 0.72rem;
+          color: var(--text-muted);
+        }
+        .file-remove-btn {
+          background: transparent;
+          border: none;
+          color: var(--text-muted);
+          font-size: 1rem;
+          cursor: pointer;
+          padding: 4px;
+          border-radius: 4px;
+          transition: all 0.15s ease;
+        }
+        .file-remove-btn:hover {
+          color: #ef4444;
+          background: rgba(239, 68, 68, 0.1);
+        }
+
+        .doc-upload-divider {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin: 0.4rem 0;
+          position: relative;
+        }
+        .doc-upload-divider::before {
+          content: "";
+          position: absolute;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: var(--border);
+        }
+        .doc-upload-divider span {
+          position: relative;
+          background: var(--bg-card);
+          padding: 0 0.5rem;
+          font-size: 0.7rem;
+          color: var(--text-muted);
+          text-transform: uppercase;
+        }
+
+        .doc-upload-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.45rem 0.8rem;
+          border: 1px dashed var(--border);
+          border-radius: var(--radius);
+          color: var(--accent);
+          font-size: 0.78rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .doc-upload-btn:hover {
+          border-color: var(--accent);
+          background: var(--accent-soft);
+        }
 
         /* ── Responsive ────────────────────────────────────────────── */
         @media (max-width: 768px) {
