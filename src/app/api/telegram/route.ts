@@ -124,6 +124,71 @@ async function sendLanguageMenu(chatId: number) {
   });
 }
 
+export async function GET(req: NextRequest) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const origin = req.nextUrl.origin || "https://web-rag-two.vercel.app";
+  const webhookUrl = `${origin}/api/telegram`;
+
+  if (!token) {
+    return NextResponse.json({
+      status: "unconfigured",
+      message: "TELEGRAM_BOT_TOKEN is not set in environment variables.",
+      instructions: [
+        "1. Open Telegram and search for @BotFather.",
+        "2. Send /newbot to create a new bot and copy your Bot API Token.",
+        "3. Add TELEGRAM_BOT_TOKEN to your .env file and Vercel project environment variables.",
+        "4. Visit this endpoint with ?setup=1 to automatically link Telegram to this app."
+      ],
+      webhookUrl,
+    });
+  }
+
+  const setupRequested = req.nextUrl.searchParams.get("setup") === "1";
+  if (setupRequested) {
+    try {
+      // 1. Set Telegram Webhook
+      const setRes = await fetch(
+        `https://api.telegram.org/bot${token}/setWebhook?url=${encodeURIComponent(webhookUrl)}`
+      );
+      const setData = await setRes.json();
+
+      // 2. Sync Bot Commands
+      const syncOk = await syncTelegramBotCommands();
+
+      return NextResponse.json({
+        status: "configured",
+        webhookResult: setData,
+        commandsSynced: syncOk,
+        webhookUrl,
+        message: "Telegram Bot webhook and commands successfully initialized!",
+      });
+    } catch (err: any) {
+      return NextResponse.json(
+        { error: "Failed to setup webhook", details: err.message },
+        { status: 500 }
+      );
+    }
+  }
+
+  // Check current webhook info
+  try {
+    const infoRes = await fetch(`https://api.telegram.org/bot${token}/getWebhookInfo`);
+    const infoData = await infoRes.json();
+    return NextResponse.json({
+      status: "ready",
+      tokenConfigured: true,
+      webhookInfo: infoData.result || infoData,
+      setupUrl: `${webhookUrl}?setup=1`,
+    });
+  } catch {
+    return NextResponse.json({
+      status: "ready",
+      tokenConfigured: true,
+      setupUrl: `${webhookUrl}?setup=1`,
+    });
+  }
+}
+
 export async function POST(req: NextRequest) {
   let body: any = null;
   try {
