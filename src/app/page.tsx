@@ -271,11 +271,54 @@ function AppInner() {
         {/* ── HOME VIEW ─────────────────────────────────────────────── */}
         {view === "home" && (
           <div className="home-view">
-            <header className="home-header">
-              <h1 className="home-title">Your Bots</h1>
-              <p className="home-sub">
-                {sites.length} bot{sites.length !== 1 ? "s" : ""} indexed
-              </p>
+            <header className="home-hero">
+              <div className="hero-top-row">
+                <div className="hero-badge">
+                  <span className="badge-pulse" />
+                  <span className="badge-text">Autonomous Knowledge Hub</span>
+                  <span className="badge-sep">•</span>
+                  <span className="badge-pill-tech">Hybrid BM25 + Jina Rerank v2</span>
+                </div>
+                <button type="button" className="hero-create-btn" onClick={openModal}>
+                  <span className="hero-btn-icon">+</span>
+                  <span>New Knowledge Bot</span>
+                </button>
+              </div>
+
+              <div className="hero-headings">
+                <h1 className="hero-title">
+                  Knowledge <span className="hero-title-highlight">Bots</span>
+                </h1>
+                <p className="hero-sub">
+                  Production-grade conversational RAG trained on your web pages and uploaded documents. Multi-turn memory, cross-encoder precision, and 1-line website widget embedding.
+                </p>
+              </div>
+
+              <div className="hero-stats-strip">
+                <div className="stat-card">
+                  <span className="stat-num">{sites.length}</span>
+                  <span className="stat-lbl">Active Bots</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-num">
+                    {sites.reduce((acc, s) => acc + (s.pages?.length || 0), 0).toLocaleString()}
+                  </span>
+                  <span className="stat-lbl">Indexed Sources</span>
+                </div>
+                <div className="stat-card">
+                  <span className="stat-num">
+                    {sites.reduce((acc, s) => acc + (s.totalChunks || 0), 0).toLocaleString()}
+                  </span>
+                  <span className="stat-lbl">Knowledge Chunks</span>
+                </div>
+                <div className="stat-card stat-card-status">
+                  <div className="status-row">
+                    <span className="pulse-dot" />
+                    <span className="status-online">Operational</span>
+                  </div>
+                  <span className="stat-lbl">Llama 3.3 70B · Groq Free</span>
+                </div>
+              </div>
             </header>
 
             {sitesLoading ? (
@@ -295,8 +338,13 @@ function AppInner() {
                   />
                 ))}
                 <button type="button" className="add-bot-card" onClick={openModal}>
-                  <span className="add-bot-icon">+</span>
-                  <span className="add-bot-label">Add new bot</span>
+                  <div className="add-bot-circle">
+                    <span className="add-bot-icon">+</span>
+                  </div>
+                  <div className="add-bot-info">
+                    <span className="add-bot-title">Deploy New Bot</span>
+                    <span className="add-bot-desc">Crawl web URL or drop PDF / Docs</span>
+                  </div>
                 </button>
               </div>
             )}
@@ -623,31 +671,198 @@ function AppInner() {
 
         /* ── Home View ─────────────────────────────────────────────── */
         .home-view {
-          max-width: 960px;
+          max-width: 1040px;
           width: 100%;
           margin: 0 auto;
-          padding: 2.5rem 2rem 4rem;
-          animation: fadeUp 0.4s ease both;
+          padding: 2.5rem 2rem 5rem;
+          animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        .home-header {
-          margin-bottom: 2rem;
+
+        .home-hero {
+          margin-bottom: 2.5rem;
+          padding: 2rem 2.2rem;
+          border-radius: var(--radius-xl);
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.01) 100%),
+                      var(--surface);
+          border: 1px solid var(--border-subtle);
+          box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+          position: relative;
+          overflow: hidden;
         }
-        .home-title {
+
+        .home-hero::before {
+          content: "";
+          position: absolute;
+          top: -80px;
+          right: -60px;
+          width: 360px;
+          height: 360px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(79, 110, 247, 0.16) 0%, transparent 70%);
+          filter: blur(40px);
+          pointer-events: none;
+        }
+
+        .hero-top-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          margin-bottom: 1.25rem;
+          flex-wrap: wrap;
+        }
+
+        .hero-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.3rem 0.75rem;
+          border-radius: 999px;
+          background: rgba(79, 110, 247, 0.08);
+          border: 1px solid rgba(79, 110, 247, 0.22);
+          font-size: 0.76rem;
+          color: #94a3b8;
+          font-weight: 500;
+        }
+
+        .badge-pulse {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #10b981;
+          box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
+          animation: pulse 2s infinite;
+        }
+
+        .badge-text {
+          color: #e2e8f0;
+          font-weight: 600;
+        }
+
+        .badge-sep {
+          color: rgba(255, 255, 255, 0.2);
+        }
+
+        .badge-pill-tech {
+          color: #a5b4fc;
+          font-family: var(--font-mono);
+          font-size: 0.72rem;
+        }
+
+        .hero-create-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.45rem;
+          padding: 0.55rem 1.1rem;
+          border-radius: var(--radius-md);
+          background: linear-gradient(135deg, #4f6ef7 0%, #3b82f6 100%);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: #ffffff;
+          font-size: 0.85rem;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .hero-create-btn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+          background: linear-gradient(135deg, #5b79fc 0%, #4388ff 100%);
+        }
+
+        .hero-btn-icon {
+          font-size: 1.1rem;
+          line-height: 1;
+        }
+
+        .hero-headings {
+          margin-bottom: 1.5rem;
+        }
+
+        .hero-title {
+          margin: 0 0 0.45rem;
+          font-size: 2.2rem;
+          font-weight: 800;
+          letter-spacing: -0.035em;
+          color: #ffffff;
+          line-height: 1.15;
+        }
+
+        .hero-title-highlight {
+          background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
           margin: 0;
-          font-size: 1.8rem;
+          font-size: 0.94rem;
+          color: var(--text-muted);
+          max-width: 620px;
+          line-height: 1.55;
+        }
+
+        .hero-stats-strip {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+          gap: 0.85rem;
+          margin-top: 1.25rem;
+          padding-top: 1.25rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.07);
+        }
+
+        .stat-card {
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+          padding: 0.6rem 0.85rem;
+          border-radius: var(--radius-sm);
+          background: rgba(255, 255, 255, 0.025);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-num {
+          font-size: 1.35rem;
           font-weight: 700;
           letter-spacing: -0.03em;
+          color: #f8fafc;
+          font-family: var(--font-mono);
         }
-        .home-sub {
-          margin: 0.25rem 0 0;
-          font-size: 0.88rem;
-          color: var(--text-muted);
+
+        .stat-lbl {
+          font-size: 0.72rem;
+          font-weight: 500;
+          color: var(--text-dim);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .status-row {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+          margin-bottom: 0.2rem;
+        }
+
+        .pulse-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 50%;
+          background: #10b981;
+          box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+        }
+
+        .status-online {
+          font-size: 0.85rem;
+          font-weight: 600;
+          color: #34d399;
         }
 
         .bot-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 1rem;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 1.25rem;
         }
 
         .add-bot-card {
@@ -655,29 +870,77 @@ function AppInner() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 0.5rem;
-          padding: 1.2rem;
-          background: transparent;
-          border: 1.5px dashed var(--border-active);
-          border-radius: var(--radius-lg);
+          gap: 1rem;
+          padding: 2.2rem 1.5rem;
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 100%);
+          border: 1px dashed rgba(255, 255, 255, 0.16);
+          border-radius: var(--radius-xl);
           color: var(--text-muted);
-          min-height: 180px;
+          min-height: 240px;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          position: relative;
+          overflow: hidden;
         }
+
         .add-bot-card:hover {
+          border-style: solid;
+          border-color: rgba(79, 110, 247, 0.45);
+          background: linear-gradient(135deg, rgba(79, 110, 247, 0.06) 0%, rgba(139, 92, 246, 0.03) 100%);
+          transform: translateY(-2px);
+          box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.4), 0 0 24px -4px rgba(79, 110, 247, 0.2);
+        }
+
+        .add-bot-circle {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+
+        .add-bot-card:hover .add-bot-circle {
+          background: var(--accent);
           border-color: var(--accent);
-          color: var(--accent);
-          background: var(--accent-soft);
+          box-shadow: 0 0 16px rgba(79, 110, 247, 0.6);
+          transform: scale(1.08);
         }
+
         .add-bot-icon {
-          font-size: 1.8rem;
-          font-weight: 300;
+          font-size: 1.4rem;
+          font-weight: 400;
+          color: var(--text);
           line-height: 1;
+          transition: color 0.2s ease;
         }
-        .add-bot-label {
-          font-size: 0.85rem;
-          font-weight: 500;
+
+        .add-bot-card:hover .add-bot-icon {
+          color: #ffffff;
+        }
+
+        .add-bot-info {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.3rem;
+          text-align: center;
+        }
+
+        .add-bot-title {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: var(--text);
+        }
+
+        .add-bot-desc {
+          font-size: 0.78rem;
+          color: var(--text-dim);
+          max-width: 200px;
+          line-height: 1.4;
         }
 
         /* ── Chat View ─────────────────────────────────────────────── */
