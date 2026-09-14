@@ -4,6 +4,14 @@ import { condenseQuery } from "../src/lib/groq";
 async function runTestSuite() {
   const tests = [
     {
+      name: "Greeting history (should NOT rewrite)",
+      history: [
+        { role: "user" as const, content: "hello" },
+        { role: "assistant" as const, content: "Hello! How can I help you today?" }
+      ],
+      query: "erode to tirunelveli"
+    },
+    {
       name: "Pronoun resolution ('it')",
       history: [
         { role: "user" as const, content: "What is Docker?" },

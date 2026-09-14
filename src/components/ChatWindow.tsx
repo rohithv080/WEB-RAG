@@ -472,7 +472,7 @@ export function ChatWindow({
                   </div>
                 </div>
               )}
-              {m.citations && m.citations.length > 0 && (
+              {m.citations && m.citations.length > 0 && !m.content.includes("I couldn't find that in the source.") && (
                 <div className="msg-citations">
                   {m.citations.map((c) => (
                     <CitationCard key={c.chunkId} citation={c} />

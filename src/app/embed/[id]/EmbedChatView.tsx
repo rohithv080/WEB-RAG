@@ -297,7 +297,7 @@ export function EmbedChatView({
               </div>
 
               {/* Citations */}
-              {m.citations && m.citations.length > 0 && (
+              {m.citations && m.citations.length > 0 && !m.content.includes("I couldn't find that in the source.") && (
                 <div className="citations-tray">
                   <span className="citations-label">Sources:</span>
                   <div className="citations-list">

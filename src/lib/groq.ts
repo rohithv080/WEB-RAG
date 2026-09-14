@@ -43,10 +43,9 @@ ANSWERING RULES:
 2. When you use information from a document, cite it inline using the document ID like this: [1], [2], etc.
 3. If multiple documents are relevant, synthesize them into a single coherent answer.
 4. DO NOT USE MARKDOWN TABLES. Use bulleted lists instead.
-5. Ensure your final answer (outside the <thinking> block) is beautifully formatted, concise, and direct.
-
-REFUSAL:
-If the documents do not contain the answer at all, your final answer must be EXACTLY: "${NO_ANSWER_PHRASE}"`;
+5. If the documents do not contain the exact specific answer requested, but contain related or partial information about the topic or entities mentioned (e.g. available services, cities, or related routes), clearly explain what is available in the source and state that the specific detail requested is not listed.
+6. Only if the documents are completely unrelated or completely silent on the topic, your final answer must be EXACTLY: "${NO_ANSWER_PHRASE}"
+7. Ensure your final answer (outside the <thinking> block) is beautifully formatted, concise, and direct.`;
 
 function getSystemPrompt(
   language?: string | null,
@@ -362,13 +361,12 @@ export type ChatHistoryItem = {
   content: string;
 };
 
-const CONDENSE_PROMPT = `Given the chat history and follow-up question, rewrite the follow-up question into a clear, standalone search query that incorporates any missing context or entities from the chat history.
+const CONDENSE_PROMPT = `Given the chat history and follow-up question, rewrite the follow-up question into a clear, standalone search query ONLY IF it depends on conversational context or contains pronouns (it, she, he, they, this, that, her, his, them, etc.).
 
 Rules:
-- Resolve any pronouns (it, she, he, they, this, that, her, his, etc.) using the subject or entity discussed in the chat history.
-- If the question introduces a completely new or already standalone topic, return it as-is.
-- Keep the standalone query concise and focused on keywords for search retrieval.
-- Output ONLY the standalone search query without any explanation, quotes, or filler.
+- If the question is already clear, specific, or introduces a topic (e.g. "erode to tirunelveli", "cab tariff", "who is the CEO"), return it EXACTLY as-is. Do NOT prepend words like "How to..." or alter the user's intent.
+- Resolve any pronouns using the subject or entity discussed in the chat history.
+- Output ONLY the standalone search query without any quotes or explanations.
 
 Examples:
 Chat History:
@@ -381,7 +379,13 @@ Chat History:
 User: Tell me about barbecue marination
 Assistant: Marination tenderizes the meat.
 Follow-up: Why is oil used?
-Standalone: Why is oil used in barbecue marination?`;
+Standalone: Why is oil used in barbecue marination?
+
+Chat History:
+User: What is Docker?
+Assistant: Docker is a container platform.
+Follow-up: Python flask tutorial
+Standalone: Python flask tutorial`;
 
 /**
  * Rephrases follow-up questions using recent chat history into a standalone query
@@ -396,8 +400,20 @@ export async function condenseQuery(
   const GREETING = /^(hi|hey|hello|yo|sup|hola|howdy|ok|okay|thanks|thank you)[\s!?.]*$/i;
   if (GREETING.test(question.trim())) return question;
 
+  // Filter out greetings or greeting responses from history
+  const substantiveHistory = history.filter((m) => {
+    const clean = m.content
+      .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
+      .replace(/\[\d+\]/g, "")
+      .trim();
+    return !GREETING.test(clean) && !/how can i help|welcome/i.test(clean);
+  });
+
+  // If there is no substantive prior conversation, this query is standalone
+  if (substantiveHistory.length === 0) return question;
+
   // Format the last 2-3 turns for compact context
-  const recentHistory = history
+  const recentHistory = substantiveHistory
     .slice(-4)
     .map((m) => {
       const cleanContent = m.content
