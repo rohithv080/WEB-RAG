@@ -13,6 +13,7 @@ import { BotSettingsModal } from "@/components/BotSettingsModal";
 import { AnalyticsModal } from "@/components/AnalyticsModal";
 import { Show, SignInButton, SignUpButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { LandingPage } from "@/components/LandingPage";
+import { CrawlProgressBar, type CrawlProgressState } from "@/components/CrawlProgressBar";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inner app (needs ToastProvider context)
@@ -45,7 +46,7 @@ function AppInner() {
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [modalCrawlLimit, setModalCrawlLimit] = useState<number>(5);
-  const [modalProgress, setModalProgress] = useState<{ current: number; total: number } | null>(null);
+  const [modalProgress, setModalProgress] = useState<CrawlProgressState | null>(null);
   const modalNameRef = useRef<HTMLInputElement>(null);
 
   // ── page manager ─────────────────────────────────────────────────────────
@@ -195,35 +196,89 @@ function AppInner() {
       let urlsToScrape = [url];
 
       if (modalCrawlLimit > 1) {
-        setModalProgress({ current: 0, total: 1 });
+        setModalProgress({ current: 0, total: modalCrawlLimit, stage: "discovering", percent: 0 });
         const crawlRes = await fetch("/api/crawl", {
-          method: "POST", headers, body: JSON.stringify({ url, maxPages: modalCrawlLimit }),
+          method: "POST",
+          headers,
+          body: JSON.stringify({ url, maxPages: modalCrawlLimit }),
         });
-        if (!crawlRes.ok) throw new Error("Crawl failed");
+        if (!crawlRes.ok) throw new Error("Crawl failed to discover links");
         const crawlData = await crawlRes.json();
         if (crawlData.urls?.length > 0) urlsToScrape = crawlData.urls;
       }
 
-      let createdSiteId: string | null = null;
+      setModalProgress({
+        current: 0,
+        total: urlsToScrape.length,
+        stage: "indexing",
+        currentUrl: urlsToScrape[0],
+        percent: 0,
+      });
 
-      for (let i = 0; i < urlsToScrape.length; i++) {
-        if (modalCrawlLimit > 1) setModalProgress({ current: i + 1, total: urlsToScrape.length });
-        const scrapeRes: Response = await fetch("/api/scrape", {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            url: urlsToScrape[i],
-            name: i === 0 ? (modalName.trim() || undefined) : undefined,
-            description: i === 0 ? (modalDesc.trim() || undefined) : undefined,
-            siteId: createdSiteId || undefined,
-          }),
-        });
-        const scrapeData: any = await scrapeRes.json();
-        if (!scrapeRes.ok) {
-          if (i === 0) throw new Error(scrapeData.error || "Scrape failed");
-          else continue;
+      // 1. Scrape seed page first to initialize site
+      const firstRes: Response = await fetch("/api/scrape", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          url: urlsToScrape[0],
+          name: modalName.trim() || undefined,
+          description: modalDesc.trim() || undefined,
+        }),
+      });
+      const firstData: any = await firstRes.json();
+      if (!firstRes.ok) throw new Error(firstData.error || "Scrape failed");
+      const createdSiteId = firstData.siteId;
+
+      let completed = 1;
+      setModalProgress({
+        current: 1,
+        total: urlsToScrape.length,
+        stage: "indexing",
+        currentUrl: urlsToScrape[0],
+        percent: Math.round((1 / urlsToScrape.length) * 100),
+      });
+
+      // 2. Scrape remaining pages using client-side concurrency pool of 3
+      const remaining = urlsToScrape.slice(1);
+      if (remaining.length > 0) {
+        const concurrency = 3;
+        let queueIdx = 0;
+
+        async function worker() {
+          while (queueIdx < remaining.length) {
+            const idx = queueIdx++;
+            const pageUrl = remaining[idx];
+            setModalProgress((prev) => (prev ? { ...prev, currentUrl: pageUrl } : null));
+
+            try {
+              await fetch("/api/scrape", {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                  url: pageUrl,
+                  siteId: createdSiteId,
+                }),
+              });
+            } catch (err) {
+              console.warn(`[crawl batch] Failed ${pageUrl}:`, err);
+            }
+
+            completed++;
+            setModalProgress((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    current: completed,
+                    percent: Math.round((completed / urlsToScrape.length) * 100),
+                  }
+                : null
+            );
+          }
         }
-        if (i === 0) createdSiteId = scrapeData.siteId;
+
+        await Promise.all(
+          Array.from({ length: Math.min(concurrency, remaining.length) }, worker)
+        );
       }
 
       await loadSites();
@@ -684,6 +739,10 @@ function AppInner() {
                     </div>
                   </div>
                 </>
+              )}
+
+              {modalProgress && (
+                <CrawlProgressBar progress={modalProgress} />
               )}
 
               {modalError && <p className="modal-error">{modalError}</p>}

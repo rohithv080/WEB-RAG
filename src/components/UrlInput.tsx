@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { CrawlProgressBar, type CrawlProgressState } from "./CrawlProgressBar";
 
 export type ScrapeResult = {
   siteId: string;
@@ -33,7 +34,7 @@ export function UrlInput({
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [crawlLimit, setCrawlLimit] = useState<number>(1);
-  const [crawlProgress, setCrawlProgress] = useState<{current: number; total: number} | null>(null);
+  const [crawlProgress, setCrawlProgress] = useState<CrawlProgressState | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
@@ -55,7 +56,7 @@ export function UrlInput({
       let urlsToScrape = [trimmed];
 
       if (crawlLimit > 1) {
-        setCrawlProgress({ current: 0, total: 0 });
+        setCrawlProgress({ current: 0, total: crawlLimit, stage: "discovering", percent: 0 });
         const crawlRes = await fetch("/api/crawl", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -64,46 +65,89 @@ export function UrlInput({
         
         if (!crawlRes.ok) throw new Error("Failed to discover URLs");
         const { urls } = await crawlRes.json();
-        urlsToScrape = urls;
-        setCrawlProgress({ current: 0, total: urls.length });
+        if (urls && urls.length > 0) urlsToScrape = urls;
       }
 
       let currentSiteId = siteId;
 
-      for (let i = 0; i < urlsToScrape.length; i++) {
-        const u = urlsToScrape[i];
-        if (crawlLimit > 1) setCrawlProgress({ current: i + 1, total: urlsToScrape.length });
+      setCrawlProgress({
+        current: 0,
+        total: urlsToScrape.length,
+        stage: "indexing",
+        currentUrl: urlsToScrape[0],
+        percent: 0,
+      });
 
-        const res = await fetch("/api/scrape", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: u, siteId: currentSiteId }),
-        });
-        
-        if (res.status === 401) {
-          onUnauthorized?.();
-          throw new Error("Unauthorized");
-        }
-        
-        if (!res.ok) {
-          const data = await res.json().catch(()=>({}));
-          console.warn(`Failed to scrape ${u}: ${data.error}`);
-          continue; // Skip failed pages in deep crawl
-        }
-        
-        const data = await res.json();
-        // The first page sets the siteId for subsequent pages
-        if (!currentSiteId && data.siteId) {
-          currentSiteId = data.siteId;
-        }
-
-        // Only call onScraped at the very end to avoid refreshing UI 50 times
-        if (i === urlsToScrape.length - 1 || crawlLimit === 1) {
-          setStatus(`Indexed ${data.chunkCount} chunks from "${data.title || data.url}"`);
-          onScraped(data as ScrapeResult);
-        }
+      // 1. Scrape first page
+      const firstRes = await fetch("/api/scrape", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: urlsToScrape[0], siteId: currentSiteId }),
+      });
+      
+      if (firstRes.status === 401) {
+        onUnauthorized?.();
+        throw new Error("Unauthorized");
       }
       
+      const firstData = await firstRes.json();
+      if (!firstRes.ok) throw new Error(firstData.error || "Failed to scrape initial page");
+      if (!currentSiteId && firstData.siteId) {
+        currentSiteId = firstData.siteId;
+      }
+
+      let completed = 1;
+      let lastResult = firstData;
+
+      setCrawlProgress({
+        current: 1,
+        total: urlsToScrape.length,
+        stage: "indexing",
+        currentUrl: urlsToScrape[0],
+        percent: Math.round((1 / urlsToScrape.length) * 100),
+      });
+
+      // 2. Scrape remaining pages in parallel concurrency pool of 3
+      const remaining = urlsToScrape.slice(1);
+      if (remaining.length > 0) {
+        const concurrency = 3;
+        let queueIdx = 0;
+
+        async function worker() {
+          while (queueIdx < remaining.length) {
+            const idx = queueIdx++;
+            const u = remaining[idx];
+            setCrawlProgress(prev => prev ? { ...prev, currentUrl: u } : null);
+
+            try {
+              const res = await fetch("/api/scrape", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url: u, siteId: currentSiteId }),
+              });
+              if (res.ok) {
+                lastResult = await res.json();
+              }
+            } catch (err) {
+              console.warn(`[crawl batch] Failed ${u}:`, err);
+            }
+
+            completed++;
+            setCrawlProgress(prev => prev ? {
+              ...prev,
+              current: completed,
+              percent: Math.round((completed / urlsToScrape.length) * 100),
+            } : null);
+          }
+        }
+
+        await Promise.all(
+          Array.from({ length: Math.min(concurrency, remaining.length) }, worker)
+        );
+      }
+
+      setStatus(`Indexed ${urlsToScrape.length} page(s) successfully!`);
+      onScraped(lastResult as ScrapeResult);
       setUrl("");
     } catch (err: any) {
       setError(err instanceof Error ? err.message : "Scrape failed");
@@ -135,6 +179,7 @@ export function UrlInput({
             {loading ? "…" : "Add"}
           </button>
         </div>
+        {crawlProgress && <CrawlProgressBar progress={crawlProgress} compact />}
         {status && <p className="add-page-status">{status}</p>}
         {error && <p className="add-page-error">{error}</p>}
 
@@ -247,6 +292,7 @@ export function UrlInput({
           </div>
         </div>
       )}
+      {crawlProgress && <CrawlProgressBar progress={crawlProgress} />}
       {status && <p className="url-status">{status}</p>}
       {error && <p className="url-error">{error}</p>}
 

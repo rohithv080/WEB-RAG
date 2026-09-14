@@ -51,7 +51,7 @@ async function fetchHtml(url: string): Promise<{ html: string; finalUrl: string 
         "User-Agent": "Mozilla/5.0 (compatible; WebRAGBot/1.0)",
         Accept: "text/html",
       },
-      signal: AbortSignal.timeout(15_000),
+      signal: AbortSignal.timeout(4_000),
     });
     if (!res.ok) return null;
     const contentType = res.headers.get("content-type") || "";
@@ -65,14 +65,12 @@ async function fetchHtml(url: string): Promise<{ html: string; finalUrl: string 
 
 /**
  * Multi-level BFS crawl. Discovers internal links across multiple depth levels.
- *
- * Depth 0 = starting URL
- * Depth 1 = links found on the starting URL
- * Depth 2 = links found on depth-1 pages (the actual content pages!)
- *
- * This is what makes the difference: category pages link to recipe/article pages.
+ * Guarantees a safe response within Vercel's serverless execution window.
  */
 export async function POST(req: NextRequest) {
+  const DEADLINE_MS = 6_500;
+  const startTime = Date.now();
+
   try {
     const authCheck = await verifyIngestionAuth(req.headers);
     if (!authCheck.authorized) {
@@ -94,12 +92,20 @@ export async function POST(req: NextRequest) {
     let queue: [string, number][] = [[startUrl.href, 0]];
 
     while (queue.length > 0 && discovered.length < maxPages) {
+      // Check deadline to guarantee we never trigger Vercel's 15s timeout
+      if (Date.now() - startTime > DEADLINE_MS) {
+        console.log(`[crawl] Approaching Vercel safety deadline (${DEADLINE_MS}ms), returning ${discovered.length} pages`);
+        break;
+      }
+
       // Group by current depth level
       const currentBatch = queue.splice(0, queue.length);
       const nextQueue: [string, number][] = [];
 
       // Process in batches of CONCURRENCY
       for (let i = 0; i < currentBatch.length && discovered.length < maxPages; i += CONCURRENCY) {
+        if (Date.now() - startTime > DEADLINE_MS) break;
+
         const batch = currentBatch.slice(i, i + CONCURRENCY);
 
         const results = await Promise.all(
