@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { fetchPage, ScrapeContentError } from "@/lib/scraper/fetchPage";
 import { chunkDocument } from "@/lib/scraper/chunk";
 import { embedDocuments, embeddingToSql } from "@/lib/embeddings/embed";
+import { syncTelegramBotCommands } from "@/lib/telegram";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -96,6 +97,9 @@ async function indexPage(
         description: siteDescription?.trim() || null,
       },
     });
+
+    // Auto-sync Telegram commands in the background so new bots are immediately available
+    syncTelegramBotCommands().catch((e) => console.error("[scrape] Telegram auto-sync failed:", e));
 
     const newPage = await prisma.page.create({
       data: { siteId: site.id, url: page.url, title: page.title },

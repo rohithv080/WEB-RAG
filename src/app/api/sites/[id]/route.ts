@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { syncTelegramBotCommands } from "@/lib/telegram";
 
 export async function DELETE(
   req: NextRequest,
@@ -15,6 +16,8 @@ export async function DELETE(
     await prisma.site.delete({
       where: { id },
     });
+
+    syncTelegramBotCommands().catch((e) => console.error("[delete site] Telegram auto-sync failed:", e));
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
