@@ -35,6 +35,11 @@ export async function GET() {
           // Backfill name from first page title when Site.name is null
           name: s.name ?? s.pages[0]?.title ?? "Untitled",
           description: s.description ?? null,
+          systemPrompt: s.systemPrompt ?? null,
+          starterQuestions: s.starterQuestions ?? null,
+          tone: (s.tone as "concise" | "balanced" | "detailed") ?? "balanced",
+          isPublic: s.isPublic ?? true,
+          userId: s.userId ?? null,
           scrapedAt: s.scrapedAt,
           lastScrapedAt: lastScrapedAt ?? s.scrapedAt,
           latestSessionId: s.sessions[0]?.id ?? null,

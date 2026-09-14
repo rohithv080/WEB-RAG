@@ -1,5 +1,3 @@
-import { getGroqClient } from "@/lib/groq";
-
 export const EMBEDDING_DIM = 768;
 const EMBED_MODEL = "jina-embeddings-v3";
 

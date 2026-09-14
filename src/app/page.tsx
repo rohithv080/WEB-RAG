@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { EmbedModal } from "@/components/EmbedModal";
+import { BotSettingsModal } from "@/components/BotSettingsModal";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inner app (needs ToastProvider context)
@@ -53,6 +54,23 @@ function AppInner() {
   function openEmbed(site: SiteSummary) {
     setEmbedSite(site);
     setShowEmbedModal(true);
+  }
+
+  // ── bot settings modal ───────────────────────────────────────────────────
+  const [settingsSite, setSettingsSite] = useState<SiteSummary | null>(null);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+
+  function openSettings(site: SiteSummary) {
+    setSettingsSite(site);
+    setShowSettingsModal(true);
+  }
+
+  function handleSaveSettings(updatedSite: SiteSummary) {
+    setSites((prev) => prev.map((s) => (s.id === updatedSite.id ? updatedSite : s)));
+    if (selectedSite?.id === updatedSite.id) {
+      setSelectedSite(updatedSite);
+    }
+    addToast(`Bot "${updatedSite.name}" updated!`, "success");
   }
 
   // ── data loading ─────────────────────────────────────────────────────────
@@ -273,6 +291,7 @@ function AppInner() {
                     onClick={() => openChat(s)}
                     onDelete={handleDeleteSite}
                     onEmbed={openEmbed}
+                    onSettings={openSettings}
                   />
                 ))}
                 <button type="button" className="add-bot-card" onClick={openModal}>
@@ -295,14 +314,24 @@ function AppInner() {
                   <span className="chat-site-desc">{selectedSite.description}</span>
                 )}
               </div>
-              <button
-                type="button"
-                className="chat-embed-btn"
-                onClick={() => openEmbed(selectedSite)}
-                title="Get 1-line embed snippet for your website"
-              >
-                &lt;/&gt; Embed
-              </button>
+              <div className="chat-nav-actions">
+                <button
+                  type="button"
+                  className="chat-settings-btn"
+                  onClick={() => openSettings(selectedSite)}
+                  title="Customize bot persona, tone & prompts"
+                >
+                  ⚙️ Settings
+                </button>
+                <button
+                  type="button"
+                  className="chat-embed-btn"
+                  onClick={() => openEmbed(selectedSite)}
+                  title="Get 1-line embed snippet for your website"
+                >
+                  &lt;/&gt; Embed
+                </button>
+              </div>
             </nav>
 
             <div className="chat-body">
@@ -311,6 +340,7 @@ function AppInner() {
                 sessionId={sessionId}
                 onSessionId={setSessionId}
                 siteTitle={selectedSite.name}
+                starterQuestions={selectedSite.starterQuestions as string[] | null}
               />
             </div>
 
@@ -569,6 +599,14 @@ function AppInner() {
         onClose={() => setShowEmbedModal(false)}
       />
 
+      {/* ── BOT SETTINGS MODAL ───────────────────────────────────── */}
+      <BotSettingsModal
+        site={settingsSite}
+        isOpen={showSettingsModal}
+        onClose={() => setShowSettingsModal(false)}
+        onSave={handleSaveSettings}
+      />
+
       <style jsx>{`
         /* ── App Layout ────────────────────────────────────────────── */
         .app-layout {
@@ -691,8 +729,32 @@ function AppInner() {
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        .chat-embed-btn {
+        .chat-nav-actions {
           margin-left: auto;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .chat-settings-btn {
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.14);
+          color: #c9d1d9;
+          font-size: 0.78rem;
+          font-weight: 600;
+          padding: 5px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .chat-settings-btn:hover {
+          background: rgba(255, 255, 255, 0.12);
+          color: #fff;
+          border-color: rgba(255, 255, 255, 0.25);
+        }
+        .chat-embed-btn {
           background: rgba(56, 189, 248, 0.12);
           border: 1px solid rgba(56, 189, 248, 0.25);
           color: #38bdf8;

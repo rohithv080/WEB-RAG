@@ -27,6 +27,7 @@ type Props = {
   description: string | null;
   accentColor: string;
   initialGreeting?: string;
+  starterQuestions?: string[] | null;
 };
 
 function CopyButton({ text }: { text: string }) {
@@ -73,6 +74,7 @@ export function EmbedChatView({
   description,
   accentColor,
   initialGreeting,
+  starterQuestions,
 }: Props) {
   const greeting =
     initialGreeting ||
@@ -100,10 +102,9 @@ export function EmbedChatView({
     } catch (e) {}
   }
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    const q = input.trim();
-    if (!q || streaming) return;
+  async function askQuestion(q: string) {
+    const questionText = q.trim();
+    if (!questionText || streaming) return;
 
     setInput("");
     setStreaming(true);
@@ -111,7 +112,7 @@ export function EmbedChatView({
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
-      content: q,
+      content: questionText,
     };
     const assistantId = `a-${Date.now()}`;
 
@@ -200,6 +201,11 @@ export function EmbedChatView({
       setStreaming(false);
       inputRef.current?.focus();
     }
+  }
+
+  function handleSubmit(e: FormEvent) {
+    e.preventDefault();
+    askQuestion(input);
   }
 
   return (
@@ -302,6 +308,25 @@ export function EmbedChatView({
             </div>
           </div>
         ))}
+
+        {messages.length === 1 && starterQuestions && starterQuestions.length > 0 && (
+          <div className="starter-questions-tray">
+            <span className="starter-tray-label">Suggested questions:</span>
+            <div className="starter-pills-list">
+              {starterQuestions.map((q, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  className="starter-question-pill"
+                  onClick={() => askQuestion(q)}
+                >
+                  💬 {q}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div ref={bottomRef} />
       </main>
 
@@ -593,6 +618,46 @@ export function EmbedChatView({
         }
         .citation-pill:hover {
           text-decoration: underline;
+        }
+
+        .starter-questions-tray {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-top: 4px;
+          margin-left: 34px;
+          animation: fadeIn 0.3s ease;
+        }
+        .starter-tray-label {
+          font-size: 0.72rem;
+          color: #8b949e;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+        .starter-pills-list {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          align-items: flex-start;
+        }
+        .starter-question-pill {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 12px;
+          padding: 6px 12px;
+          color: #c9d1d9;
+          font-size: 0.8rem;
+          text-align: left;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          line-height: 1.35;
+        }
+        .starter-question-pill:hover {
+          background: rgba(56, 189, 248, 0.15);
+          border-color: var(--accent);
+          color: #fff;
+          transform: translateX(3px);
         }
 
         .embed-footer {

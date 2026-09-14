@@ -37,3 +37,14 @@ next-env.d.ts
 
 # transformers.js model cache
 /.cache
+
+# scratch & test files
+check.js
+check_sites.js
+test.js
+test_search.js
+test-webhook*.js
+poll.js
+add-lang.*
+payload.json
+sql_telegram_state.sql

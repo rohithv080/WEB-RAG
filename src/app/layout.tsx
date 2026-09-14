@@ -19,6 +19,8 @@ export const metadata: Metadata = {
   description: "Scrape a page, embed chunks, chat with Groq over retrieved context",
 };
 
+import { AuthProvider } from "@/components/AuthProvider";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${plexSans.variable} ${plexMono.variable}`} suppressHydrationWarning>
@@ -31,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           } as React.CSSProperties
         }
       >
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

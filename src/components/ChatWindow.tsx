@@ -18,6 +18,7 @@ type Props = {
   sessionId: string | null;
   onSessionId: (id: string) => void;
   siteTitle?: string | null;
+  starterQuestions?: string[] | null;
 };
 
 function CopyButton({ text }: { text: string }) {
@@ -92,7 +93,13 @@ function TypingIndicator() {
   );
 }
 
-export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle }: Props) {
+export function ChatWindow({
+  siteId,
+  sessionId,
+  onSessionId,
+  siteTitle,
+  starterQuestions,
+}: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -223,6 +230,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle }: Props)
           <WelcomeScreen
             siteName={siteTitle || "this site"}
             onSuggest={(q) => submitQuestion(q)}
+            starterQuestions={starterQuestions}
           />
         ) : (
           messages.map((m) => (

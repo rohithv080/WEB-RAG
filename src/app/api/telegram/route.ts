@@ -283,11 +283,15 @@ export async function POST(req: NextRequest) {
     let sessionId = state.length > 0 ? state[0].sessionId : null;
     const userLanguage = state.length > 0 ? state[0].language : null;
     let siteNamePrefix = "";
+    let sitePrompt: string | null = null;
+    let siteTone: string | null = null;
 
     if (siteId) {
       const site = await prisma.site.findUnique({ where: { id: siteId } });
       if (site) {
         siteNamePrefix = `[Searching ${site.name}]\n\n`;
+        sitePrompt = site.systemPrompt ?? null;
+        siteTone = site.tone ?? null;
       } else {
         siteId = null; // Site was deleted
       }
@@ -352,7 +356,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const answer = await getAnswer(text, context, userLanguage, history);
+    const answer = await getAnswer(text, context, userLanguage, history, sitePrompt, siteTone);
     // Strip out the CoT <thinking> block so it doesn't break Telegram HTML parsing
     const cleanAnswer = answer.replace(/<thinking>[\s\S]*?<\/thinking>/gi, "").trim();
 

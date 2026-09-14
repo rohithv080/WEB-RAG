@@ -12,6 +12,11 @@ export type SiteSummary = {
   id: string;
   name: string;
   description: string | null;
+  systemPrompt?: string | null;
+  starterQuestions?: string[] | null;
+  tone?: "concise" | "balanced" | "detailed" | null;
+  isPublic?: boolean;
+  userId?: string | null;
   scrapedAt: string;
   lastScrapedAt: string;
   latestSessionId: string | null;
@@ -80,9 +85,10 @@ export type BotCardProps = {
   onClick: () => void;
   onDelete?: (id: string) => void;
   onEmbed?: (site: SiteSummary) => void;
+  onSettings?: (site: SiteSummary) => void;
 };
 
-export function BotCard({ site, onClick, onDelete, onEmbed }: BotCardProps) {
+export function BotCard({ site, onClick, onDelete, onEmbed, onSettings }: BotCardProps) {
   const { accent, glow } = pickColor(site.name);
   const abbr = initials(site.name) || "?";
   const favicon = getFavicon(site.pages);
@@ -107,6 +113,13 @@ export function BotCard({ site, onClick, onDelete, onEmbed }: BotCardProps) {
           )}
         </div>
         <div className="bot-badges">
+          {site.isPublic === false && <span className="badge badge-private" title="Private workspace">🔒 Private</span>}
+          {site.systemPrompt && <span className="badge badge-custom" title="Custom persona active">✨ Custom</span>}
+          {site.tone && site.tone !== "balanced" && (
+            <span className="badge badge-tone" title={`Response tone: ${site.tone}`}>
+              {site.tone === "concise" ? "⚡ Concise" : "📚 Detailed"}
+            </span>
+          )}
           <span className="badge">{site.pages.length} page{site.pages.length !== 1 ? "s" : ""}</span>
           <span className="badge">{site.totalChunks} chunks</span>
         </div>
@@ -130,6 +143,15 @@ export function BotCard({ site, onClick, onDelete, onEmbed }: BotCardProps) {
               title="Delete bot"
             >
               🗑️
+            </button>
+          )}
+          {onSettings && (
+            <button
+              className="bot-settings-btn"
+              onClick={(e) => { e.stopPropagation(); onSettings(site); }}
+              title="Customize bot persona, tone & starter questions"
+            >
+              ⚙️
             </button>
           )}
           {onEmbed && (
@@ -213,6 +235,21 @@ export function BotCard({ site, onClick, onDelete, onEmbed }: BotCardProps) {
           color: var(--text-muted);
           white-space: nowrap;
         }
+        .badge-custom {
+          border-color: rgba(234, 179, 8, 0.4);
+          color: #facc15;
+          background: rgba(234, 179, 8, 0.1);
+        }
+        .badge-tone {
+          border-color: rgba(56, 189, 248, 0.4);
+          color: #38bdf8;
+          background: rgba(56, 189, 248, 0.1);
+        }
+        .badge-private {
+          border-color: rgba(248, 113, 113, 0.4);
+          color: #f87171;
+          background: rgba(248, 113, 113, 0.1);
+        }
 
         .bot-body { flex: 1; }
         .bot-name {
@@ -276,6 +313,25 @@ export function BotCard({ site, onClick, onDelete, onEmbed }: BotCardProps) {
         }
         .bot-delete-btn:hover {
           opacity: 1 !important;
+        }
+        .bot-settings-btn {
+          padding: 0.4rem 0.55rem;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.06);
+          color: #c9d1d9;
+          font-size: 0.82rem;
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+        }
+        .bot-settings-btn:hover {
+          background: rgba(255, 255, 255, 0.14);
+          color: #fff;
+          border-color: rgba(255, 255, 255, 0.25);
+          transform: rotate(20deg);
         }
         .bot-embed-btn {
           padding: 0.4rem 0.75rem;

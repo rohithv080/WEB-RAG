@@ -48,11 +48,29 @@ ANSWERING RULES:
 REFUSAL:
 If the documents do not contain the answer at all, your final answer must be EXACTLY: "${NO_ANSWER_PHRASE}"`;
 
-function getSystemPrompt(language?: string | null) {
+function getSystemPrompt(
+  language?: string | null,
+  customPrompt?: string | null,
+  tone?: string | null
+) {
+  let prompt = BASE_SYSTEM_PROMPT;
+
+  if (customPrompt && customPrompt.trim()) {
+    prompt += `\n\nCUSTOM BOT INSTRUCTIONS & PERSONA:\n${customPrompt.trim()}`;
+  }
+
+  if (tone === "concise") {
+    prompt += `\n\nTONE & LENGTH REQUIREMENT:\nProvide ultra-concise, direct, bullet-pointed or 1-2 sentence answers with zero fluff or unnecessary intro phrases.`;
+  } else if (tone === "detailed") {
+    prompt += `\n\nTONE & LENGTH REQUIREMENT:\nProvide comprehensive, deeply detailed answers with thorough step-by-step explanations, in-depth breakdowns, and rich context extracted from the source documents.`;
+  } else if (tone === "balanced") {
+    prompt += `\n\nTONE & LENGTH REQUIREMENT:\nMaintain a balanced, clear, and informative response style.`;
+  }
+
   if (language && language !== 'auto') {
-    return BASE_SYSTEM_PROMPT + `\n\nLANGUAGE OVERRIDE:\nThe user has explicitly selected to receive answers in ${language}. You MUST translate your final response entirely into ${language}, regardless of the language of the source documents or the user's query.`;
+    return prompt + `\n\nLANGUAGE OVERRIDE:\nThe user has explicitly selected to receive answers in ${language}. You MUST translate your final response entirely into ${language}, regardless of the language of the source documents or the user's query.`;
   } else {
-    return BASE_SYSTEM_PROMPT + `\n\nLANGUAGE MATCHING:\nDetect the language of the user's latest query. Provide your response entirely in that same language. Do not switch back to English simply because the retrieved context documents are written in English. When citing terms, translate or transcribe naturally unless it is a proper noun or code identifier.`;
+    return prompt + `\n\nLANGUAGE MATCHING:\nDetect the language of the user's latest query. Provide your response entirely in that same language. Do not switch back to English simply because the retrieved context documents are written in English. When citing terms, translate or transcribe naturally unless it is a proper noun or code identifier.`;
   }
 }
 
@@ -424,10 +442,12 @@ export async function streamAnswer(
   question: string,
   context: string,
   language?: string | null,
-  history: ChatHistoryItem[] = []
+  history: ChatHistoryItem[] = [],
+  customPrompt?: string | null,
+  tone?: string | null
 ) {
   const messages: Groq.Chat.ChatCompletionMessageParam[] = [
-    { role: "system", content: getSystemPrompt(language) },
+    { role: "system", content: getSystemPrompt(language, customPrompt, tone) },
   ];
 
   // Inject recent chat history (up to last 4 messages)
@@ -461,9 +481,11 @@ export async function getAnswer(
   question: string,
   context: string,
   language?: string | null,
-  history: ChatHistoryItem[] = []
+  history: ChatHistoryItem[] = [],
+  customPrompt?: string | null,
+  tone?: string | null
 ): Promise<string> {
-  const stream = await streamAnswer(question, context, language, history);
+  const stream = await streamAnswer(question, context, language, history, customPrompt, tone);
   let answer = "";
   for await (const part of stream) {
     answer += part.choices[0]?.delta?.content ?? "";

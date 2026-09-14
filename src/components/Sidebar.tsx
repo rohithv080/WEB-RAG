@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { SiteSummary } from "./BotCard";
+import { AuthBar } from "./AuthBar";
 
 type Props = {
   sites: SiteSummary[];
@@ -112,6 +113,9 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
         <span className="sidebar-add-icon">+</span>
         Add new bot
       </button>
+
+      {/* Auth bar */}
+      <AuthBar />
 
       {/* Footer */}
       <div className="sidebar-footer">

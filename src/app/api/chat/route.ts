@@ -113,7 +113,14 @@ export async function POST(req: NextRequest) {
 
     let groqStream;
     try {
-      groqStream = await streamAnswer(question, context, language, history);
+      groqStream = await streamAnswer(
+        question,
+        context,
+        language,
+        history,
+        site.systemPrompt,
+        site.tone
+      );
     } catch (err) {
       if (err instanceof GroqBusyError) {
         return NextResponse.json({ error: GROQ_BUSY_MESSAGE }, { status: 429 });

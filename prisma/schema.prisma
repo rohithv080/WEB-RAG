@@ -10,12 +10,19 @@ datasource db {
 }
 
 model Site {
-  id          String        @id @default(cuid())
-  name        String? // display name for the bot card
-  description String? // short blurb shown on the card
-  scrapedAt   DateTime      @default(now())
-  pages       Page[]
-  sessions    ChatSession[]
+  id               String        @id @default(cuid())
+  name             String? // display name for the bot card
+  description      String? // short blurb shown on the card
+  systemPrompt     String? // custom persona/instructions for the LLM
+  starterQuestions Json? // list of clickable starter prompts ["Question 1", "Question 2"]
+  tone             String?       @default("balanced") // "concise" | "balanced" | "detailed"
+  userId           String? // owner user id for multi-tenancy / Clerk Auth
+  isPublic         Boolean       @default(true) // public or private bot
+  scrapedAt        DateTime      @default(now())
+  pages            Page[]
+  sessions         ChatSession[]
+
+  @@index([userId])
 }
 
 model Page {
@@ -39,6 +46,7 @@ model Chunk {
   order         Int // position in doc
   isBoilerplate Boolean                    @default(false)
   embedding     Unsupported("vector(768)") // nomic-embed-text-v1 is 768-dim
+  tsv           Unsupported("tsvector")?
 
   @@index([pageId])
 }
@@ -59,4 +67,11 @@ model Message {
   content   String
   citations Json? // [{ chunkId, heading, snippet, pageUrl }]
   createdAt DateTime    @default(now())
+}
+
+model TelegramState {
+  chatId    BigInt  @id
+  siteId    String?
+  sessionId String?
+  language  String?
 }

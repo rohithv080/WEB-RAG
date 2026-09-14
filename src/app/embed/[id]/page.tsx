@@ -34,14 +34,14 @@ export default async function EmbedPage({
 
   let site = await prisma.site.findUnique({
     where: { id },
-    select: { id: true, name: true, description: true },
+    select: { id: true, name: true, description: true, starterQuestions: true },
   });
 
   if (!site) {
     // Check if ID was passed as case-insensitive site name
     site = await prisma.site.findFirst({
       where: { name: { equals: id, mode: "insensitive" } },
-      select: { id: true, name: true, description: true },
+      select: { id: true, name: true, description: true, starterQuestions: true },
     });
   }
 
@@ -56,6 +56,7 @@ export default async function EmbedPage({
       description={site.description}
       accentColor={color || "#3d9cf0"}
       initialGreeting={greeting}
+      starterQuestions={site.starterQuestions as string[] | null}
     />
   );
 }

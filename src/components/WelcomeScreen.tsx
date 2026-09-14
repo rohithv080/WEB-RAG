@@ -3,16 +3,22 @@
 type Props = {
   siteName: string;
   onSuggest: (question: string) => void;
+  starterQuestions?: string[] | null;
 };
 
-const SUGGESTIONS = [
+const DEFAULT_SUGGESTIONS = [
   "What is this website about?",
   "Summarize the main content",
   "What are the key topics covered?",
   "Give me a quick overview",
 ];
 
-export function WelcomeScreen({ siteName, onSuggest }: Props) {
+export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) {
+  const chips =
+    starterQuestions && starterQuestions.length > 0
+      ? starterQuestions
+      : DEFAULT_SUGGESTIONS;
+
   return (
     <div className="welcome">
       <div className="welcome-icon">💬</div>
@@ -21,7 +27,7 @@ export function WelcomeScreen({ siteName, onSuggest }: Props) {
         Ask anything about the indexed pages. Answers are grounded in the scraped content.
       </p>
       <div className="welcome-chips">
-        {SUGGESTIONS.map((s) => (
+        {chips.map((s) => (
           <button key={s} className="chip" onClick={() => onSuggest(s)}>
             {s}
           </button>
