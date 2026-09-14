@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { EmbedModal } from "@/components/EmbedModal";
 import { BotSettingsModal } from "@/components/BotSettingsModal";
+import { Show, SignInButton, SignUpButton, SignOutButton } from "@clerk/nextjs";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inner app (needs ToastProvider context)
@@ -311,6 +312,31 @@ function AppInner() {
                     <span className="hero-btn-icon">+</span>
                     <span>New Knowledge Bot</span>
                   </button>
+
+                  <div className="hero-auth-slot">
+                    <Show when="signed-in">
+                      <SignOutButton>
+                        <button className="hero-logout-btn" title="Sign out / Log out">
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                            <polyline points="16 17 21 12 16 7" />
+                            <line x1="21" y1="12" x2="9" y2="12" />
+                          </svg>
+                          <span>Log Out</span>
+                        </button>
+                      </SignOutButton>
+                    </Show>
+                    <Show when="signed-out">
+                      <div className="hero-guest-auth">
+                        <SignInButton mode="modal">
+                          <button className="hero-signin-btn">Sign In</button>
+                        </SignInButton>
+                        <SignUpButton mode="modal">
+                          <button className="hero-signup-btn">Sign Up</button>
+                        </SignUpButton>
+                      </div>
+                    </Show>
+                  </div>
                 </div>
               </div>
 
@@ -834,6 +860,72 @@ function AppInner() {
           transform: translateY(-1px);
           box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
           background: linear-gradient(135deg, #5b79fc 0%, #4388ff 100%);
+        }
+
+        .hero-auth-slot {
+          display: flex;
+          align-items: center;
+        }
+
+        .hero-logout-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.4rem;
+          padding: 0.55rem 0.95rem;
+          border-radius: var(--radius-md);
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: var(--text-muted);
+          font-size: 0.82rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .hero-logout-btn:hover {
+          color: #f87171;
+          border-color: rgba(248, 113, 113, 0.4);
+          background: rgba(248, 113, 113, 0.08);
+        }
+
+        .hero-guest-auth {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .hero-signin-btn {
+          padding: 0.52rem 0.9rem;
+          border-radius: var(--radius-md);
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: var(--text);
+          font-size: 0.82rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .hero-signin-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.22);
+          color: #ffffff;
+        }
+
+        .hero-signup-btn {
+          padding: 0.52rem 0.95rem;
+          border-radius: var(--radius-md);
+          background: linear-gradient(135deg, rgba(79, 110, 247, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
+          border: 1px solid rgba(129, 140, 248, 0.4);
+          color: #e0e7ff;
+          font-size: 0.82rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .hero-signup-btn:hover {
+          background: linear-gradient(135deg, rgba(79, 110, 247, 0.4) 0%, rgba(139, 92, 246, 0.4) 100%);
+          border-color: rgba(129, 140, 248, 0.6);
+          color: #ffffff;
+          box-shadow: 0 0 16px rgba(79, 110, 247, 0.3);
         }
 
         .hero-btn-icon {
