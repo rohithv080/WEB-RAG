@@ -1,4 +1,5 @@
 import { prisma } from "../src/lib/db";
+import { Prisma } from "@prisma/client";
 import { streamAnswer } from "../src/lib/groq";
 
 async function main() {
@@ -48,7 +49,7 @@ async function main() {
     where: { id: site.id },
     data: {
       systemPrompt: null,
-      starterQuestions: null,
+      starterQuestions: Prisma.DbNull,
       tone: "balanced",
     },
   });

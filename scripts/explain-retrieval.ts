@@ -14,6 +14,10 @@ async function main() {
   }
 
   const emb = await embedQuery("What is retrieval-augmented generation?");
+  if (!emb) {
+    console.error("Failed to embed query.");
+    process.exit(1);
+  }
   const vectorSql = embeddingToSql(emb);
 
   const plan = await prisma.$queryRawUnsafe<Array<{ "QUERY PLAN": string }>>(
