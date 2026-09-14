@@ -11,7 +11,8 @@ import { ToastProvider, useToast } from "@/components/Toast";
 import { EmbedModal } from "@/components/EmbedModal";
 import { BotSettingsModal } from "@/components/BotSettingsModal";
 import { AnalyticsModal } from "@/components/AnalyticsModal";
-import { Show, SignInButton, SignUpButton, SignOutButton } from "@clerk/nextjs";
+import { Show, SignInButton, SignUpButton, SignOutButton, useUser } from "@clerk/nextjs";
+import { LandingPage } from "@/components/LandingPage";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inner app (needs ToastProvider context)
@@ -290,11 +291,11 @@ function AppInner() {
           <div className="home-view">
             <header className="home-hero">
               <div className="hero-top-row">
-                <div className="hero-badge">
-                  <span className="badge-pulse" />
-                  <span className="badge-text">Autonomous Knowledge Hub</span>
-                  <span className="badge-sep">•</span>
-                  <span className="badge-pill-tech">Hybrid BM25 + Jina Rerank v2</span>
+                <div className="hero-headings">
+                  <h1 className="hero-title">Knowledge Bases</h1>
+                  <p className="hero-sub">
+                    Manage indexed documents, web crawls, and deploy autonomous knowledge assistants.
+                  </p>
                 </div>
 
                 <div className="hero-top-actions">
@@ -313,14 +314,14 @@ function AppInner() {
                         onClick={() => setAdminScope("all")}
                         title="View all bots created across the system"
                       >
-                        🛡️ God Mode (All)
+                        All Bots
                       </button>
                     </div>
                   )}
 
                   <button type="button" className="hero-create-btn" onClick={openModal}>
                     <span className="hero-btn-icon">+</span>
-                    <span>New Knowledge Bot</span>
+                    <span>New Bot</span>
                   </button>
 
                   <div className="hero-auth-slot">
@@ -350,15 +351,6 @@ function AppInner() {
                 </div>
               </div>
 
-              <div className="hero-headings">
-                <h1 className="hero-title">
-                  Knowledge <span className="hero-title-highlight">Bots</span>
-                </h1>
-                <p className="hero-sub">
-                  Production-grade conversational RAG trained on your web pages and uploaded documents. Multi-turn memory, cross-encoder precision, and 1-line website widget embedding.
-                </p>
-              </div>
-
               <div className="hero-stats-strip">
                 <div className="stat-card">
                   <span className="stat-num">{sites.length}</span>
@@ -381,7 +373,7 @@ function AppInner() {
                     <span className="pulse-dot" />
                     <span className="status-online">Operational</span>
                   </div>
-                  <span className="stat-lbl">Llama 3.3 70B · Groq Free</span>
+                  <span className="stat-lbl">Llama 3.3 70B</span>
                 </div>
               </div>
             </header>
@@ -404,12 +396,10 @@ function AppInner() {
                   />
                 ))}
                 <button type="button" className="add-bot-card" onClick={openModal}>
-                  <div className="add-bot-circle">
-                    <span className="add-bot-icon">+</span>
-                  </div>
+                  <span className="add-bot-icon">+</span>
                   <div className="add-bot-info">
                     <span className="add-bot-title">Deploy New Bot</span>
-                    <span className="add-bot-desc">Crawl web URL or drop PDF / Docs</span>
+                    <span className="add-bot-desc">Index a web URL or upload document</span>
                   </div>
                 </button>
               </div>
@@ -435,7 +425,12 @@ function AppInner() {
                   onClick={() => openAnalytics(selectedSite)}
                   title="View bot analytics, query logs & metrics"
                 >
-                  📊 Analytics
+                  <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2}>
+                    <line x1="18" y1="20" x2="18" y2="10" />
+                    <line x1="12" y1="20" x2="12" y2="4" />
+                    <line x1="6" y1="20" x2="6" y2="14" />
+                  </svg>
+                  <span>Analytics</span>
                 </button>
                 <button
                   type="button"
@@ -443,7 +438,11 @@ function AppInner() {
                   onClick={() => openSettings(selectedSite)}
                   title="Customize bot persona, tone & prompts"
                 >
-                  ⚙️ Settings
+                  <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2}>
+                    <circle cx="12" cy="12" r="3" />
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                  </svg>
+                  <span>Settings</span>
                 </button>
                 <button
                   type="button"
@@ -451,7 +450,8 @@ function AppInner() {
                   onClick={() => openEmbed(selectedSite)}
                   title="Get 1-line embed snippet for your website"
                 >
-                  &lt;/&gt; Embed
+                  <span>&lt;/&gt;</span>
+                  <span>Embed</span>
                 </button>
               </div>
             </nav>
@@ -657,8 +657,7 @@ function AppInner() {
 
                   <div className="crawl-options-wrapper">
                     <div className="crawl-options-header">
-                      <span className="crawl-options-title">Crawl Scope</span>
-                      <span className="vercel-badge">⚡ Vercel-Optimized</span>
+                      <span className="crawl-options-title">Crawl Depth</span>
                     </div>
                     <div className="crawl-pills-grid">
                       {[
@@ -752,140 +751,104 @@ function AppInner() {
 
         /* ── Home View ─────────────────────────────────────────────── */
         .home-view {
-          max-width: 1040px;
+          max-width: 1080px;
           width: 100%;
           margin: 0 auto;
-          padding: 2.5rem 2rem 5rem;
-          animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+          padding: 2rem 2.5rem 5rem;
+          animation: fadeUp 0.3s ease both;
         }
 
         .home-hero {
-          margin-bottom: 2.5rem;
-          padding: 2rem 2.2rem;
-          border-radius: var(--radius-xl);
-          background: linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0%, rgba(255, 255, 255, 0.01) 100%),
-                      var(--surface);
-          border: 1px solid var(--border-subtle);
-          box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-          position: relative;
-          overflow: hidden;
-        }
-
-        .home-hero::before {
-          content: "";
-          position: absolute;
-          top: -80px;
-          right: -60px;
-          width: 360px;
-          height: 360px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(79, 110, 247, 0.16) 0%, transparent 70%);
-          filter: blur(40px);
-          pointer-events: none;
+          margin-bottom: 2rem;
+          padding: 0 0 1.75rem;
+          border-bottom: 1px solid var(--border);
         }
 
         .hero-top-row {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: space-between;
-          gap: 1rem;
-          margin-bottom: 1.25rem;
+          gap: 1.5rem;
+          margin-bottom: 1.5rem;
           flex-wrap: wrap;
         }
 
-        .hero-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.3rem 0.75rem;
-          border-radius: 999px;
-          background: rgba(79, 110, 247, 0.08);
-          border: 1px solid rgba(79, 110, 247, 0.22);
-          font-size: 0.76rem;
-          color: #94a3b8;
-          font-weight: 500;
+        .hero-headings {
+          flex: 1;
+          min-width: 280px;
         }
 
-        .badge-pulse {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background: #10b981;
-          box-shadow: 0 0 8px rgba(16, 185, 129, 0.8);
-          animation: pulse 2s infinite;
-        }
-
-        .badge-text {
-          color: #e2e8f0;
+        .hero-title {
+          margin: 0 0 0.35rem;
+          font-size: 1.45rem;
           font-weight: 600;
+          letter-spacing: -0.025em;
+          color: #f7f7f8;
         }
 
-        .badge-sep {
-          color: rgba(255, 255, 255, 0.2);
-        }
-
-        .badge-pill-tech {
-          color: #a5b4fc;
-          font-family: var(--font-mono);
-          font-size: 0.72rem;
+        .hero-sub {
+          margin: 0;
+          font-size: 0.82rem;
+          color: var(--text-muted);
+          line-height: 1.5;
+          max-width: 540px;
         }
 
         .hero-top-actions {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.5rem;
           flex-wrap: wrap;
         }
 
         .admin-scope-toggle {
           display: flex;
           align-items: center;
-          background: rgba(0, 0, 0, 0.4);
-          border: 1px solid rgba(192, 132, 252, 0.3);
-          border-radius: var(--radius-md);
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid var(--border);
+          border-radius: 6px;
           padding: 2px;
-          box-shadow: 0 0 12px rgba(192, 132, 252, 0.15);
         }
 
         .admin-toggle-btn {
-          padding: 0.38rem 0.75rem;
-          border: 1px solid transparent;
+          padding: 0.32rem 0.65rem;
+          border: none;
           background: transparent;
           color: var(--text-muted);
-          font-size: 0.76rem;
-          font-weight: 600;
-          border-radius: 6px;
+          font-size: 0.74rem;
+          font-weight: 500;
+          border-radius: 4px;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
 
         .admin-toggle-btn.active {
-          background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(129, 140, 248, 0.25) 100%);
-          color: #f1f5f9;
-          border-color: rgba(192, 132, 252, 0.4);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+          background: rgba(255, 255, 255, 0.08);
+          color: #ffffff;
         }
 
         .hero-create-btn {
           display: inline-flex;
           align-items: center;
-          gap: 0.45rem;
-          padding: 0.55rem 1.1rem;
-          border-radius: var(--radius-md);
-          background: linear-gradient(135deg, #4f6ef7 0%, #3b82f6 100%);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+          gap: 0.35rem;
+          padding: 0.42rem 0.8rem;
+          border-radius: 6px;
+          background: var(--accent);
+          border: 1px solid transparent;
           color: #ffffff;
-          font-size: 0.85rem;
-          font-weight: 600;
+          font-size: 0.78rem;
+          font-weight: 500;
           cursor: pointer;
-          box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
-          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: all 0.12s ease;
         }
 
         .hero-create-btn:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
-          background: linear-gradient(135deg, #5b79fc 0%, #4388ff 100%);
+          background: #6e6eff;
+        }
+
+        .hero-btn-icon {
+          font-size: 0.95rem;
+          line-height: 1;
         }
 
         .hero-auth-slot {
@@ -896,156 +859,117 @@ function AppInner() {
         .hero-logout-btn {
           display: inline-flex;
           align-items: center;
-          gap: 0.4rem;
-          padding: 0.55rem 0.95rem;
-          border-radius: var(--radius-md);
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          gap: 0.35rem;
+          padding: 0.42rem 0.75rem;
+          border-radius: 6px;
+          background: transparent;
+          border: 1px solid var(--border);
           color: var(--text-muted);
-          font-size: 0.82rem;
-          font-weight: 600;
+          font-size: 0.78rem;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
         .hero-logout-btn:hover {
           color: #f87171;
-          border-color: rgba(248, 113, 113, 0.4);
-          background: rgba(248, 113, 113, 0.08);
+          border-color: rgba(248, 113, 113, 0.3);
+          background: rgba(248, 113, 113, 0.06);
         }
 
         .hero-guest-auth {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
+          gap: 0.45rem;
         }
 
         .hero-signin-btn {
-          padding: 0.52rem 0.9rem;
-          border-radius: var(--radius-md);
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          color: var(--text);
-          font-size: 0.82rem;
-          font-weight: 600;
+          padding: 0.42rem 0.75rem;
+          border-radius: 6px;
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
+          font-size: 0.78rem;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
         .hero-signin-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.22);
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(255, 255, 255, 0.16);
           color: #ffffff;
         }
 
         .hero-signup-btn {
-          padding: 0.52rem 0.95rem;
-          border-radius: var(--radius-md);
-          background: linear-gradient(135deg, rgba(79, 110, 247, 0.25) 0%, rgba(139, 92, 246, 0.25) 100%);
-          border: 1px solid rgba(129, 140, 248, 0.4);
-          color: #e0e7ff;
-          font-size: 0.82rem;
-          font-weight: 600;
+          padding: 0.42rem 0.8rem;
+          border-radius: 6px;
+          background: var(--accent);
+          border: 1px solid transparent;
+          color: #ffffff;
+          font-size: 0.78rem;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
         .hero-signup-btn:hover {
-          background: linear-gradient(135deg, rgba(79, 110, 247, 0.4) 0%, rgba(139, 92, 246, 0.4) 100%);
-          border-color: rgba(129, 140, 248, 0.6);
-          color: #ffffff;
-          box-shadow: 0 0 16px rgba(79, 110, 247, 0.3);
-        }
-
-        .hero-btn-icon {
-          font-size: 1.1rem;
-          line-height: 1;
-        }
-
-        .hero-headings {
-          margin-bottom: 1.5rem;
-        }
-
-        .hero-title {
-          margin: 0 0 0.45rem;
-          font-size: 2.2rem;
-          font-weight: 800;
-          letter-spacing: -0.035em;
-          color: #ffffff;
-          line-height: 1.15;
-        }
-
-        .hero-title-highlight {
-          background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-
-        .hero-sub {
-          margin: 0;
-          font-size: 0.94rem;
-          color: var(--text-muted);
-          max-width: 620px;
-          line-height: 1.55;
+          background: #6e6eff;
         }
 
         .hero-stats-strip {
           display: grid;
           grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap: 0.85rem;
-          margin-top: 1.25rem;
-          padding-top: 1.25rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.07);
+          gap: 0.65rem;
         }
 
         .stat-card {
           display: flex;
           flex-direction: column;
           gap: 0.15rem;
-          padding: 0.6rem 0.85rem;
-          border-radius: var(--radius-sm);
-          background: rgba(255, 255, 255, 0.025);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          padding: 0.65rem 0.85rem;
+          border-radius: 6px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
         }
 
         .stat-num {
-          font-size: 1.35rem;
-          font-weight: 700;
-          letter-spacing: -0.03em;
-          color: #f8fafc;
+          font-size: 1.15rem;
+          font-weight: 600;
+          letter-spacing: -0.02em;
+          color: #f7f7f8;
           font-family: var(--font-mono);
         }
 
         .stat-lbl {
-          font-size: 0.72rem;
+          font-size: 0.66rem;
           font-weight: 500;
           color: var(--text-dim);
           text-transform: uppercase;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.04em;
         }
 
         .status-row {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
-          margin-bottom: 0.2rem;
+          gap: 0.35rem;
+          margin-bottom: 0.15rem;
         }
 
         .pulse-dot {
-          width: 7px;
-          height: 7px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
-          background: #10b981;
-          box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+          background: #34d399;
         }
 
         .status-online {
-          font-size: 0.85rem;
+          font-size: 0.78rem;
           font-weight: 600;
           color: #34d399;
         }
 
         .bot-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 1.25rem;
+          grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+          gap: 1rem;
         }
 
         .add-bot-card {
@@ -1053,76 +977,53 @@ function AppInner() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 1rem;
-          padding: 2.2rem 1.5rem;
-          background: linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.005) 100%);
-          border: 1px dashed rgba(255, 255, 255, 0.16);
-          border-radius: var(--radius-xl);
+          gap: 0.65rem;
+          padding: 1.75rem 1.25rem;
+          background: transparent;
+          border: 1px dashed rgba(255, 255, 255, 0.12);
+          border-radius: var(--radius-lg);
           color: var(--text-muted);
-          min-height: 240px;
+          min-height: 180px;
           cursor: pointer;
-          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-          position: relative;
-          overflow: hidden;
+          transition: all 0.15s ease;
         }
 
         .add-bot-card:hover {
-          border-style: solid;
-          border-color: rgba(79, 110, 247, 0.45);
-          background: linear-gradient(135deg, rgba(79, 110, 247, 0.06) 0%, rgba(139, 92, 246, 0.03) 100%);
-          transform: translateY(-2px);
-          box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.4), 0 0 24px -4px rgba(79, 110, 247, 0.2);
-        }
-
-        .add-bot-circle {
-          width: 48px;
-          height: 48px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-        }
-
-        .add-bot-card:hover .add-bot-circle {
-          background: var(--accent);
           border-color: var(--accent);
-          box-shadow: 0 0 16px rgba(79, 110, 247, 0.6);
-          transform: scale(1.08);
+          background: rgba(124, 124, 255, 0.03);
+          transform: translateY(-1px);
         }
 
         .add-bot-icon {
           font-size: 1.4rem;
-          font-weight: 400;
-          color: var(--text);
+          font-weight: 300;
+          color: var(--text-dim);
           line-height: 1;
-          transition: color 0.2s ease;
+          transition: color 0.15s ease;
         }
 
         .add-bot-card:hover .add-bot-icon {
-          color: #ffffff;
+          color: var(--accent);
         }
 
         .add-bot-info {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 0.3rem;
+          gap: 0.2rem;
           text-align: center;
         }
 
         .add-bot-title {
-          font-size: 0.95rem;
-          font-weight: 600;
+          font-size: 0.85rem;
+          font-weight: 500;
           color: var(--text);
         }
 
         .add-bot-desc {
-          font-size: 0.78rem;
+          font-size: 0.72rem;
           color: var(--text-dim);
-          max-width: 200px;
+          max-width: 190px;
           line-height: 1.4;
         }
 
@@ -1131,30 +1032,35 @@ function AppInner() {
           display: flex;
           flex-direction: column;
           height: 100vh;
-          max-width: 860px;
+          max-width: 880px;
           width: 100%;
           margin: 0 auto;
           padding: 0 1.5rem;
-          animation: fadeUp 0.3s ease both;
+          animation: fadeUp 0.2s ease both;
         }
         .chat-nav {
           display: flex;
           align-items: center;
           gap: 0.75rem;
-          padding: 0.9rem 0;
+          padding: 0.75rem 0;
           border-bottom: 1px solid var(--border);
         }
         .back-btn {
-          border: none;
+          border: 1px solid var(--border);
           background: transparent;
-          color: var(--accent);
-          font-size: 0.85rem;
+          color: var(--text-muted);
+          font-size: 0.78rem;
           font-weight: 500;
-          padding: 0.3rem 0.6rem;
+          padding: 0.35rem 0.65rem;
           border-radius: 6px;
-          transition: background 0.12s ease;
+          cursor: pointer;
+          transition: all 0.12s ease;
         }
-        .back-btn:hover { background: var(--accent-soft); }
+        .back-btn:hover {
+          background: rgba(255, 255, 255, 0.04);
+          color: var(--text);
+          border-color: rgba(255, 255, 255, 0.16);
+        }
         .chat-site-info {
           flex: 1;
           min-width: 0;
@@ -1162,15 +1068,16 @@ function AppInner() {
           flex-direction: column;
         }
         .chat-site-name {
-          font-size: 0.95rem;
+          font-size: 0.88rem;
           font-weight: 600;
+          color: #f7f7f8;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
         .chat-site-desc {
-          font-size: 0.75rem;
-          color: var(--text-muted);
+          font-size: 0.72rem;
+          color: var(--text-dim);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -1179,64 +1086,30 @@ function AppInner() {
           margin-left: auto;
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
         }
-        .chat-analytics-btn {
-          background: rgba(167, 139, 250, 0.12);
-          border: 1px solid rgba(167, 139, 250, 0.25);
-          color: #c084fc;
-          font-size: 0.78rem;
-          font-weight: 600;
-          padding: 5px 12px;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.15s ease;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-        }
-        .chat-analytics-btn:hover {
-          background: rgba(167, 139, 250, 0.22);
-          color: #fff;
-          border-color: #c084fc;
-        }
-        .chat-settings-btn {
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.14);
-          color: #c9d1d9;
-          font-size: 0.78rem;
-          font-weight: 600;
-          padding: 5px 12px;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.15s ease;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-        }
-        .chat-settings-btn:hover {
-          background: rgba(255, 255, 255, 0.12);
-          color: #fff;
-          border-color: rgba(255, 255, 255, 0.25);
-        }
+        .chat-analytics-btn,
+        .chat-settings-btn,
         .chat-embed-btn {
-          background: rgba(56, 189, 248, 0.12);
-          border: 1px solid rgba(56, 189, 248, 0.25);
-          color: #38bdf8;
-          font-size: 0.78rem;
-          font-weight: 600;
-          padding: 5px 12px;
-          border-radius: 8px;
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
+          font-size: 0.76rem;
+          font-weight: 500;
+          padding: 0.35rem 0.65rem;
+          border-radius: 6px;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: 5px;
         }
+        .chat-analytics-btn:hover,
+        .chat-settings-btn:hover,
         .chat-embed-btn:hover {
-          background: rgba(56, 189, 248, 0.22);
-          color: #fff;
-          border-color: #38bdf8;
+          background: rgba(255, 255, 255, 0.04);
+          color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.16);
         }
         .chat-body {
           flex: 1;
@@ -1255,7 +1128,7 @@ function AppInner() {
           border: none;
           background: transparent;
           color: var(--text-muted);
-          font-size: 0.78rem;
+          font-size: 0.76rem;
           font-weight: 500;
           padding: 0.25rem 0;
           cursor: pointer;
@@ -1274,12 +1147,16 @@ function AppInner() {
           padding: 0;
           display: flex;
           flex-direction: column;
-          gap: 0.3rem;
+          gap: 0.25rem;
         }
         .page-row {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          padding: 0.35rem 0.5rem;
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid var(--border);
         }
         .page-info {
           flex: 1;
@@ -1288,36 +1165,37 @@ function AppInner() {
           flex-direction: column;
         }
         .page-url {
-          font-size: 0.8rem;
-          color: var(--accent);
+          font-size: 0.78rem;
+          color: var(--text);
           text-decoration: none;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        .page-url:hover { text-decoration: underline; }
+        .page-url:hover { color: var(--accent); }
         .page-meta {
-          font-size: 0.68rem;
-          color: var(--text-muted);
+          font-size: 0.65rem;
+          color: var(--text-dim);
           font-family: var(--font-mono);
         }
         .refresh-btn {
           flex-shrink: 0;
-          width: 28px;
-          height: 28px;
+          width: 24px;
+          height: 24px;
           border: 1px solid var(--border);
-          border-radius: 6px;
+          border-radius: 4px;
           background: transparent;
           color: var(--text-muted);
-          font-size: 0.85rem;
+          font-size: 0.8rem;
           display: flex;
           align-items: center;
           justify-content: center;
+          cursor: pointer;
           transition: all 0.12s ease;
         }
         .refresh-btn:hover:not(:disabled) {
-          color: var(--accent);
-          border-color: var(--accent-dim);
+          color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.2);
         }
         .add-page-wrap {
           border-top: 1px solid var(--border);
@@ -1328,8 +1206,8 @@ function AppInner() {
         .modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.6);
-          backdrop-filter: blur(4px);
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1340,48 +1218,56 @@ function AppInner() {
         .modal {
           width: 100%;
           max-width: 480px;
+          background: var(--bg-elevated);
+          border: 1px solid var(--border);
           border-radius: var(--radius-lg);
           overflow: hidden;
-          animation: scaleIn 0.2s ease;
+          animation: scaleIn 0.18s ease;
+          box-shadow: 0 24px 48px rgba(0, 0, 0, 0.6);
         }
         .modal-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 1.1rem 1.25rem;
+          padding: 1rem 1.25rem;
           border-bottom: 1px solid var(--border);
         }
         .modal-title {
           margin: 0;
-          font-size: 1.05rem;
+          font-size: 0.95rem;
           font-weight: 600;
+          color: #f7f7f8;
         }
         .modal-close {
           border: none;
           background: transparent;
           color: var(--text-muted);
-          font-size: 0.9rem;
-          width: 28px;
-          height: 28px;
-          border-radius: 6px;
+          font-size: 0.85rem;
+          width: 26px;
+          height: 26px;
+          border-radius: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: background 0.12s ease;
+          cursor: pointer;
+          transition: all 0.12s ease;
         }
-        .modal-close:hover { background: rgba(255,255,255,0.06); }
+        .modal-close:hover {
+          background: rgba(255, 255, 255, 0.06);
+          color: #ffffff;
+        }
         .modal-form {
           padding: 1.25rem;
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.45rem;
         }
         .field-label {
-          font-size: 0.78rem;
+          font-size: 0.76rem;
           font-weight: 500;
           color: var(--text-muted);
-          letter-spacing: 0.02em;
-          margin-top: 0.25rem;
+          letter-spacing: 0.01em;
+          margin-top: 0.2rem;
         }
         .field-optional {
           font-weight: 400;
@@ -1389,19 +1275,19 @@ function AppInner() {
         }
         .field-input, .field-textarea {
           width: 100%;
-          padding: 0.65rem 0.85rem;
+          padding: 0.55rem 0.75rem;
           border: 1px solid var(--border);
-          border-radius: var(--radius);
+          border-radius: 6px;
           background: var(--bg-input);
           color: var(--text);
-          font-size: 0.9rem;
+          font-size: 0.84rem;
           outline: none;
-          transition: border-color 0.15s ease;
+          transition: all 0.12s ease;
           resize: vertical;
         }
         .field-input:focus, .field-textarea:focus {
           border-color: var(--accent);
-          box-shadow: 0 0 0 2px var(--accent-soft);
+          box-shadow: 0 0 0 1px var(--accent);
         }
         .crawl-options-wrapper {
           display: flex;
@@ -1415,17 +1301,9 @@ function AppInner() {
           justify-content: space-between;
         }
         .crawl-options-title {
-          font-size: 0.8rem;
+          font-size: 0.76rem;
           font-weight: 500;
           color: var(--text-muted);
-        }
-        .vercel-badge {
-          font-size: 0.7rem;
-          color: var(--accent);
-          background: var(--accent-soft);
-          padding: 0.15rem 0.5rem;
-          border-radius: 4px;
-          font-weight: 600;
         }
         .crawl-pills-grid {
           display: grid;
@@ -1436,22 +1314,22 @@ function AppInner() {
           display: flex;
           flex-direction: column;
           align-items: flex-start;
-          gap: 0.2rem;
-          padding: 0.5rem 0.65rem;
+          gap: 0.15rem;
+          padding: 0.45rem 0.6rem;
           background: var(--bg-input);
           border: 1px solid var(--border);
-          border-radius: var(--radius);
+          border-radius: 6px;
           cursor: pointer;
           text-align: left;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
         .crawl-pill:hover:not(:disabled) {
-          border-color: var(--border-active);
-          background: var(--bg-card);
+          border-color: rgba(255, 255, 255, 0.14);
+          background: rgba(255, 255, 255, 0.03);
         }
         .crawl-pill.active {
           border-color: var(--accent);
-          background: var(--accent-soft);
+          background: rgba(124, 124, 255, 0.08);
         }
         .pill-top {
           display: flex;
@@ -1460,24 +1338,24 @@ function AppInner() {
           width: 100%;
         }
         .pill-label {
-          font-size: 0.8rem;
-          font-weight: 600;
+          font-size: 0.78rem;
+          font-weight: 500;
           color: var(--text);
         }
         .crawl-pill.active .pill-label {
           color: var(--accent);
         }
         .pill-tag {
-          font-size: 0.68rem;
-          color: var(--text-muted);
+          font-size: 0.65rem;
+          color: var(--text-dim);
         }
         .pill-desc {
-          font-size: 0.68rem;
-          color: var(--text-muted);
+          font-size: 0.65rem;
+          color: var(--text-dim);
         }
         .modal-error {
           margin: 0;
-          font-size: 0.82rem;
+          font-size: 0.78rem;
           color: var(--danger);
         }
         .modal-actions {
@@ -1487,56 +1365,62 @@ function AppInner() {
           margin-top: 0.5rem;
         }
         .modal-cancel {
-          padding: 0.6rem 1rem;
+          padding: 0.45rem 0.85rem;
           border: 1px solid var(--border);
-          border-radius: var(--radius);
+          border-radius: 6px;
           background: transparent;
           color: var(--text-muted);
-          font-size: 0.88rem;
+          font-size: 0.8rem;
+          cursor: pointer;
+          transition: all 0.12s ease;
         }
         .modal-cancel:hover:not(:disabled) {
-          border-color: var(--text-muted);
+          border-color: rgba(255, 255, 255, 0.16);
           color: var(--text);
         }
         .modal-submit {
-          padding: 0.6rem 1.25rem;
-          border: none;
-          border-radius: var(--radius);
+          padding: 0.45rem 1rem;
+          border: 1px solid transparent;
+          border-radius: 6px;
           background: var(--accent);
           color: #fff;
-          font-size: 0.88rem;
-          font-weight: 600;
-          transition: opacity 0.15s ease;
+          font-size: 0.8rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.12s ease;
         }
-        .modal-submit:hover:not(:disabled) { opacity: 0.85; }
+        .modal-submit:hover:not(:disabled) {
+          background: #6e6eff;
+        }
 
         /* ── File Upload & Mode Tabs ────────────────────────────────── */
         .modal-mode-tabs {
           display: flex;
-          border-radius: 8px;
+          border-radius: 6px;
           overflow: hidden;
           border: 1px solid var(--border);
           background: var(--bg-input);
           margin-bottom: 0.5rem;
+          padding: 2px;
         }
         .mode-tab {
           flex: 1;
-          padding: 0.6rem 0.8rem;
-          font-size: 0.82rem;
+          padding: 0.45rem 0.65rem;
+          font-size: 0.78rem;
           font-weight: 500;
           background: transparent;
           color: var(--text-muted);
           border: none;
+          border-radius: 4px;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
         .mode-tab:hover:not(:disabled) {
           color: var(--text);
         }
         .mode-tab.active {
-          background: var(--accent);
+          background: rgba(255, 255, 255, 0.08);
           color: #fff;
-          font-weight: 600;
         }
 
         .file-dropzone-wrapper {
@@ -1545,49 +1429,49 @@ function AppInner() {
           gap: 0.4rem;
         }
         .file-dropzone {
-          border: 2px dashed rgba(255, 255, 255, 0.15);
-          border-radius: var(--radius);
+          border: 1px dashed rgba(255, 255, 255, 0.14);
+          border-radius: 6px;
           padding: 1.5rem 1rem;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 0.35rem;
+          gap: 0.3rem;
           cursor: pointer;
-          transition: all 0.2s ease;
+          transition: all 0.15s ease;
           background: rgba(255, 255, 255, 0.02);
         }
         .file-dropzone:hover {
           border-color: var(--accent);
-          background: var(--accent-soft);
+          background: rgba(124, 124, 255, 0.03);
         }
         .dropzone-icon {
-          font-size: 1.8rem;
-          margin-bottom: 0.2rem;
+          font-size: 1.5rem;
+          margin-bottom: 0.1rem;
         }
         .dropzone-text {
-          font-size: 0.88rem;
+          font-size: 0.82rem;
           color: var(--text);
         }
         .dropzone-text strong {
           color: var(--accent);
         }
         .dropzone-sub {
-          font-size: 0.72rem;
-          color: var(--text-muted);
+          font-size: 0.68rem;
+          color: var(--text-dim);
         }
 
         .file-selected-card {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          padding: 0.75rem 1rem;
-          background: rgba(255, 255, 255, 0.05);
+          gap: 0.65rem;
+          padding: 0.65rem 0.85rem;
+          background: rgba(255, 255, 255, 0.03);
           border: 1px solid var(--border);
-          border-radius: var(--radius);
+          border-radius: 6px;
         }
         .file-selected-icon {
-          font-size: 1.4rem;
+          font-size: 1.2rem;
         }
         .file-selected-info {
           flex: 1;
@@ -1596,30 +1480,29 @@ function AppInner() {
           flex-direction: column;
         }
         .file-selected-name {
-          font-size: 0.88rem;
-          font-weight: 600;
+          font-size: 0.82rem;
+          font-weight: 500;
           color: var(--text);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
         .file-selected-size {
-          font-size: 0.72rem;
-          color: var(--text-muted);
+          font-size: 0.68rem;
+          color: var(--text-dim);
         }
         .file-remove-btn {
           background: transparent;
           border: none;
-          color: var(--text-muted);
-          font-size: 1rem;
+          color: var(--text-dim);
+          font-size: 0.9rem;
           cursor: pointer;
-          padding: 4px;
-          border-radius: 4px;
-          transition: all 0.15s ease;
+          padding: 2px 5px;
+          border-radius: 3px;
+          transition: all 0.12s ease;
         }
         .file-remove-btn:hover {
-          color: #ef4444;
-          background: rgba(239, 68, 68, 0.1);
+          color: #f87171;
         }
 
         .doc-upload-divider {
@@ -1641,8 +1524,8 @@ function AppInner() {
           position: relative;
           background: var(--bg-card);
           padding: 0 0.5rem;
-          font-size: 0.7rem;
-          color: var(--text-muted);
+          font-size: 0.65rem;
+          color: var(--text-dim);
           text-transform: uppercase;
         }
 
@@ -1650,18 +1533,18 @@ function AppInner() {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 0.45rem 0.8rem;
+          padding: 0.42rem 0.75rem;
           border: 1px dashed var(--border);
-          border-radius: var(--radius);
-          color: var(--accent);
-          font-size: 0.78rem;
+          border-radius: 6px;
+          color: var(--text-muted);
+          font-size: 0.75rem;
           font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
         .doc-upload-btn:hover {
-          border-color: var(--accent);
-          background: var(--accent-soft);
+          border-color: rgba(255, 255, 255, 0.16);
+          color: var(--text);
         }
 
         /* ── Responsive ────────────────────────────────────────────── */
@@ -1670,13 +1553,16 @@ function AppInner() {
             margin-left: 0;
           }
           .home-view {
-            padding: 4rem 1rem 3rem;
+            padding: 3.5rem 1rem 3rem;
           }
           .chat-view {
             padding: 0 0.75rem;
           }
           .bot-grid {
             grid-template-columns: 1fr;
+          }
+          .hero-stats-strip {
+            grid-template-columns: 1fr 1fr;
           }
         }
       `}</style>
@@ -1688,10 +1574,29 @@ function AppInner() {
 // Outer wrapper with ToastProvider
 // ─────────────────────────────────────────────────────────────────────────────
 
-export default function HomePage() {
+function AuthGate() {
+  const { isSignedIn, isLoaded } = useUser();
+
+  // While Clerk is loading, show nothing to avoid flash
+  if (!isLoaded) {
+    return (
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 32, height: 32, border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "lpSpin 0.8s linear infinite" }} />
+      </div>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <LandingPage />;
+  }
+
   return (
     <ToastProvider>
       <AppInner />
     </ToastProvider>
   );
+}
+
+export default function HomePage() {
+  return <AuthGate />;
 }

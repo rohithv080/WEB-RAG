@@ -9,9 +9,21 @@ import {
   type ChatHistoryItem,
 } from "@/lib/groq";
 import { searchChunks, formatContext, buildCitations } from "@/lib/retrieval/search";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
+import { auth } from "@clerk/nextjs/server";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, x-admin-secret",
+};
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
 
 type ChatBody = {
   question?: string;
@@ -22,10 +34,42 @@ type ChatBody = {
 
 export async function POST(req: NextRequest) {
   try {
+    // 1. Abuse defense: IP/User rate limiting (protects free-tier Groq quotas)
+    let userId: string | null = null;
+    try {
+      const authData = await auth();
+      userId = authData.userId;
+    } catch {}
+
+    const clientIp = getClientIp(req);
+    const rateKey = userId ? `chat:user:${userId}` : `chat:ip:${clientIp}`;
+    const limit = userId ? 60 : 30; // 60 msgs / 10 min for signed in users; 30 for anonymous
+    const windowSeconds = 600;
+
+    const rateResult = await rateLimit(rateKey, limit, windowSeconds);
+    if (!rateResult.success) {
+      return NextResponse.json(
+        {
+          error: `Rate limit reached. Please wait ${rateResult.retryAfterSeconds} seconds before sending more queries.`,
+          retryAfter: rateResult.retryAfterSeconds,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateResult.retryAfterSeconds),
+            "X-RateLimit-Limit": String(rateResult.limit),
+            "X-RateLimit-Remaining": String(rateResult.remaining),
+            "X-RateLimit-Reset": String(rateResult.reset),
+            ...corsHeaders,
+          },
+        }
+      );
+    }
+
     if (!process.env.GROQ_API_KEY && !process.env.GROQ_API_KEYS) {
       return NextResponse.json(
         { error: "GROQ_API_KEY or GROQ_API_KEYS is not configured" },
-        { status: 500 }
+        { status: 500, headers: corsHeaders }
       );
     }
 
@@ -38,13 +82,13 @@ export async function POST(req: NextRequest) {
     if (!question || !siteId) {
       return NextResponse.json(
         { error: "question and siteId are required" },
-        { status: 400 }
+        { status: 400, headers: corsHeaders }
       );
     }
 
     const site = await prisma.site.findUnique({ where: { id: siteId } });
     if (!site) {
-      return NextResponse.json({ error: "Site not found" }, { status: 404 });
+      return NextResponse.json({ error: "Site not found" }, { status: 404, headers: corsHeaders });
     }
 
     const startTime = Date.now();
@@ -54,7 +98,7 @@ export async function POST(req: NextRequest) {
         where: { id: sessionId, siteId },
       });
       if (!session) {
-        return NextResponse.json({ error: "Session not found" }, { status: 404 });
+        return NextResponse.json({ error: "Session not found" }, { status: 404, headers: corsHeaders });
       }
     } else {
       const session = await prisma.chatSession.create({ data: { siteId } });
@@ -95,7 +139,7 @@ export async function POST(req: NextRequest) {
       if (chunks.length === 0) {
         return NextResponse.json(
           { error: "No indexed chunks for this site. Scrape a URL first." },
-          { status: 422 }
+          { status: 422, headers: corsHeaders }
         );
       }
 
@@ -125,13 +169,13 @@ export async function POST(req: NextRequest) {
       );
     } catch (err) {
       if (err instanceof GroqBusyError) {
-        return NextResponse.json({ error: GROQ_BUSY_MESSAGE }, { status: 429 });
+        return NextResponse.json({ error: GROQ_BUSY_MESSAGE }, { status: 429, headers: corsHeaders });
       }
       const message = err instanceof Error ? err.message : "Groq request failed";
       const friendly = /rate limit|413|request too large|tokens per minute/i.test(message)
         ? GROQ_BUSY_MESSAGE
         : message;
-      return NextResponse.json({ error: friendly }, { status: 429 });
+      return NextResponse.json({ error: friendly }, { status: 429, headers: corsHeaders });
     }
 
     const encoder = new TextEncoder();
@@ -180,11 +224,14 @@ export async function POST(req: NextRequest) {
         "Content-Type": "text/event-stream; charset=utf-8",
         "Cache-Control": "no-cache, no-transform",
         Connection: "keep-alive",
+        "X-RateLimit-Limit": String(rateResult.limit),
+        "X-RateLimit-Remaining": String(rateResult.remaining),
+        ...corsHeaders,
       },
     });
   } catch (err) {
     console.error("[chat]", err);
     const message = err instanceof Error ? err.message : "Chat failed";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return NextResponse.json({ error: message }, { status: 500, headers: corsHeaders });
   }
 }

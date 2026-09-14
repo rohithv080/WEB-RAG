@@ -38,3 +38,40 @@ export async function getAuthUser(): Promise<AuthContext> {
     return { userId: null, email: null, isAdmin: false };
   }
 }
+
+/**
+ * Verifies that an incoming request is authorized to ingest data (scrape, upload, crawl).
+ * Permitted if:
+ * 1. Has an active Clerk user session (`userId`).
+ * 2. OR provides a valid `x-admin-secret` header matching ADMIN_SECRET.
+ */
+export async function verifyIngestionAuth(headers?: Headers): Promise<{
+  authorized: boolean;
+  userId: string | null;
+  isAdmin: boolean;
+  error?: string;
+  status: number;
+}> {
+  // 1. Check admin secret header (CLI scripts / maintenance tools)
+  const adminSecret = process.env.ADMIN_SECRET;
+  if (adminSecret && headers) {
+    const providedSecret = headers.get("x-admin-secret");
+    if (providedSecret && providedSecret === adminSecret) {
+      return { authorized: true, userId: null, isAdmin: true, status: 200 };
+    }
+  }
+
+  // 2. Check Clerk user session
+  const { userId, isAdmin } = await getAuthUser();
+  if (userId) {
+    return { authorized: true, userId, isAdmin, status: 200 };
+  }
+
+  return {
+    authorized: false,
+    userId: null,
+    isAdmin: false,
+    error: "Authentication required to create or modify knowledge bots. Please sign in.",
+    status: 401,
+  };
+}

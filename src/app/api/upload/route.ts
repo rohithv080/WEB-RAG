@@ -5,13 +5,18 @@ import { chunkDocument } from "@/lib/scraper/chunk";
 import { embedDocuments, embeddingToSql } from "@/lib/embeddings/embed";
 import { syncTelegramBotCommands } from "@/lib/telegram";
 import { extractText } from "unpdf";
-import { auth } from "@clerk/nextjs/server";
+import { verifyIngestionAuth } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
 
 export async function POST(req: NextRequest) {
   try {
+    const authCheck = await verifyIngestionAuth(req.headers);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
+
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
     const siteName = (formData.get("siteName") as string | null)?.trim();
@@ -60,21 +65,18 @@ export async function POST(req: NextRequest) {
       if (!existingSite) {
         return NextResponse.json({ error: "Target site not found" }, { status: 404 });
       }
+      if (existingSite.userId && existingSite.userId !== authCheck.userId && !authCheck.isAdmin) {
+        return NextResponse.json({ error: "Unauthorized to add files to this bot" }, { status: 403 });
+      }
       siteFinalName = existingSite.name;
     } else {
-      let currentUserId: string | null = null;
-      try {
-        const authData = await auth();
-        currentUserId = authData.userId;
-      } catch {}
-
       // Create new site
       const defaultName = siteName || fileName.replace(/\.[^/.]+$/, "");
       const newSite = await prisma.site.create({
         data: {
           name: defaultName,
           description: siteDescription || `Created from ${fileName}`,
-          userId: currentUserId || null,
+          userId: authCheck.userId,
         },
       });
       siteId = newSite.id;

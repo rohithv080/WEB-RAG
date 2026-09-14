@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { JSDOM } from "jsdom";
+import { verifyIngestionAuth } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
@@ -73,6 +74,11 @@ async function fetchHtml(url: string): Promise<{ html: string; finalUrl: string 
  */
 export async function POST(req: NextRequest) {
   try {
+    const authCheck = await verifyIngestionAuth(req.headers);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
+
     const body = await req.json();
     const url = body.url;
     const maxPages = Math.min(Math.max(Number(body.maxPages) || 15, 1), 100);

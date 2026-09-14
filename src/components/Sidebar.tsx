@@ -23,12 +23,6 @@ function getFavicon(site: SiteSummary): string {
   }
 }
 
-function freshness(iso: string): "fresh" | "stale" | "old" {
-  const diff = Date.now() - new Date(iso).getTime();
-  if (diff < 3600_000) return "fresh";       // < 1 hour
-  if (diff < 86400_000) return "stale";      // < 24 hours
-  return "old";
-}
 
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
@@ -55,29 +49,19 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
       {/* Logo */}
       <button className="sidebar-brand" onClick={() => { onHome(); setMobileOpen(false); }}>
         <div className="sidebar-logo-box">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="url(#brandGrad)" stroke="none" />
-            <defs>
-              <linearGradient id="brandGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#60a5fa" />
-                <stop offset="1" stopColor="#a855f7" />
-              </linearGradient>
-            </defs>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" stroke="none" />
           </svg>
         </div>
         <div className="sidebar-brand-text">
-          <div className="sidebar-title-row">
-            <span className="sidebar-title">Web RAG</span>
-            <span className="sidebar-pro-pill">PRO</span>
-          </div>
-          <div className="sidebar-sub">Neural Knowledge Engine</div>
+          <span className="sidebar-title">Web RAG</span>
         </div>
       </button>
 
       {/* Search */}
       <div className="sidebar-search-wrap">
         <div className="sidebar-search-box">
-          <svg className="sidebar-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <svg className="sidebar-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -96,7 +80,6 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
       <nav className="sidebar-list">
         {filtered.map((site) => {
           const favicon = getFavicon(site);
-          const fresh = freshness(site.lastScrapedAt);
           const isActive = site.id === activeSiteId;
 
           return (
@@ -108,7 +91,7 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
               {isActive && <span className="active-pill" />}
               <div className="sidebar-item-icon">
                 {favicon ? (
-                  <img src={favicon} alt="" width={18} height={18} style={{ borderRadius: 4 }} />
+                  <img src={favicon} alt="" width={16} height={16} style={{ borderRadius: 3 }} />
                 ) : (
                   <span className="sidebar-item-letter">
                     {site.name.charAt(0).toUpperCase()}
@@ -121,7 +104,6 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
                   {site.totalChunks} chunks · {relativeTime(site.lastScrapedAt)}
                 </span>
               </div>
-              <span className={`sidebar-dot dot-${fresh}`} title={`Status: ${fresh}`} />
             </button>
           );
         })}
@@ -139,7 +121,7 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
       {/* Footer */}
       <div className="sidebar-footer">
         <span className="footer-status-dot" />
-        <span>Hybrid RAG Engine Online</span>
+        <span>RAG Engine Online</span>
       </div>
 
       <style jsx>{`
@@ -151,10 +133,8 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
           left: 0;
           display: flex;
           flex-direction: column;
-          background: rgba(10, 14, 23, 0.85);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
-          border-right: 1px solid var(--border-subtle);
+          background: var(--bg-sidebar);
+          border-right: 1px solid var(--border);
           z-index: 50;
           padding: 0;
           overflow: hidden;
@@ -164,73 +144,49 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
         .sidebar-brand {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
-          padding: 1.15rem 1rem;
+          gap: 0.65rem;
+          padding: 0.9rem 0.9rem;
           border: none;
           background: transparent;
           color: var(--text);
           cursor: pointer;
           text-align: left;
           width: 100%;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-          transition: background 0.15s ease;
+          border-bottom: 1px solid var(--border-subtle);
+          transition: background 0.12s ease;
         }
         .sidebar-brand:hover {
           background: rgba(255, 255, 255, 0.02);
         }
 
         .sidebar-logo-box {
-          width: 34px;
-          height: 34px;
-          border-radius: 9px;
-          background: linear-gradient(135deg, rgba(79, 110, 247, 0.2) 0%, rgba(168, 85, 247, 0.2) 100%);
-          border: 1px solid rgba(129, 140, 248, 0.3);
+          width: 26px;
+          height: 26px;
+          border-radius: 6px;
+          background: rgba(124, 124, 255, 0.12);
+          border: 1px solid rgba(124, 124, 255, 0.25);
+          color: var(--accent);
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 0 16px rgba(79, 110, 247, 0.25);
           flex-shrink: 0;
         }
 
         .sidebar-brand-text {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .sidebar-title-row {
           display: flex;
           align-items: center;
-          gap: 0.45rem;
         }
 
         .sidebar-title {
-          font-size: 0.95rem;
-          font-weight: 700;
-          letter-spacing: -0.025em;
-          color: #f8fafc;
-        }
-
-        .sidebar-pro-pill {
-          font-size: 0.62rem;
-          font-weight: 700;
-          letter-spacing: 0.05em;
-          padding: 1px 5px;
-          border-radius: 4px;
-          background: rgba(79, 110, 247, 0.2);
-          border: 1px solid rgba(79, 110, 247, 0.4);
-          color: #93c5fd;
-        }
-
-        .sidebar-sub {
-          font-size: 0.68rem;
-          color: var(--text-dim);
-          margin-top: 2px;
-          letter-spacing: -0.01em;
+          font-size: 0.88rem;
+          font-weight: 600;
+          letter-spacing: -0.015em;
+          color: #f7f7f8;
         }
 
         /* Search */
         .sidebar-search-wrap {
-          padding: 0.75rem 0.75rem 0.35rem;
+          padding: 0.6rem 0.6rem 0.25rem;
         }
 
         .sidebar-search-box {
@@ -242,27 +198,27 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
 
         .sidebar-search-icon {
           position: absolute;
-          left: 0.65rem;
+          left: 0.6rem;
           color: var(--text-dim);
           pointer-events: none;
         }
 
         .sidebar-search {
           width: 100%;
-          padding: 0.45rem 1.8rem 0.45rem 2rem;
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.03);
+          padding: 0.4rem 1.8rem 0.4rem 1.85rem;
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.025);
           color: var(--text);
-          font-size: 0.8rem;
+          font-size: 0.78rem;
           outline: none;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
 
         .sidebar-search:focus {
-          border-color: rgba(79, 110, 247, 0.5);
-          background: rgba(255, 255, 255, 0.05);
-          box-shadow: 0 0 0 2px rgba(79, 110, 247, 0.15);
+          border-color: var(--accent);
+          background: rgba(255, 255, 255, 0.04);
+          box-shadow: 0 0 0 1px var(--accent);
         }
 
         .sidebar-search::placeholder {
@@ -272,13 +228,13 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
         .sidebar-search-kbd {
           position: absolute;
           right: 0.5rem;
-          font-size: 0.64rem;
+          font-size: 0.62rem;
           font-family: var(--font-mono);
           color: var(--text-dim);
           padding: 1px 4px;
-          border-radius: 4px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 3px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.06);
           pointer-events: none;
         }
 
@@ -286,73 +242,71 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
         .sidebar-list {
           flex: 1;
           overflow-y: auto;
-          padding: 0.5rem 0.6rem;
+          padding: 0.4rem 0.5rem;
           display: flex;
           flex-direction: column;
-          gap: 3px;
+          gap: 2px;
         }
 
         .sidebar-item {
           display: flex;
           align-items: center;
-          gap: 0.65rem;
-          padding: 0.55rem 0.65rem;
+          gap: 0.55rem;
+          padding: 0.42rem 0.55rem;
           border: 1px solid transparent;
           background: transparent;
-          color: var(--text);
-          border-radius: 8px;
+          color: var(--text-muted);
+          border-radius: 6px;
           cursor: pointer;
           text-align: left;
           width: 100%;
           position: relative;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
 
         .sidebar-item:hover {
-          background: rgba(255, 255, 255, 0.04);
+          background: rgba(255, 255, 255, 0.035);
+          color: var(--text);
         }
 
         .sidebar-item-active {
-          background: linear-gradient(90deg, rgba(79, 110, 247, 0.12) 0%, rgba(79, 110, 247, 0.03) 100%);
-          border-color: rgba(79, 110, 247, 0.25);
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+          background: rgba(255, 255, 255, 0.06);
+          color: #ffffff;
         }
 
         .active-pill {
           position: absolute;
-          left: -0.6rem;
+          left: -0.5rem;
           top: 50%;
           transform: translateY(-50%);
-          width: 3px;
-          height: 18px;
-          border-radius: 0 4px 4px 0;
+          width: 2.5px;
+          height: 16px;
+          border-radius: 0 2px 2px 0;
           background: var(--accent);
-          box-shadow: 0 0 8px var(--accent-glow);
         }
 
         .sidebar-item-icon {
-          width: 26px;
-          height: 26px;
+          width: 22px;
+          height: 22px;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          border-radius: 6px;
+          border-radius: 4px;
           background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.06);
         }
 
         .sidebar-item-letter {
-          width: 26px;
-          height: 26px;
-          border-radius: 6px;
-          background: rgba(79, 110, 247, 0.15);
-          color: #93c5fd;
+          width: 22px;
+          height: 22px;
+          border-radius: 4px;
+          background: rgba(255, 255, 255, 0.06);
+          color: var(--text);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 0.76rem;
-          font-weight: 700;
+          font-size: 0.72rem;
+          font-weight: 600;
         }
 
         .sidebar-item-info {
@@ -363,80 +317,74 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
         }
 
         .sidebar-item-name {
-          font-size: 0.82rem;
-          font-weight: 600;
-          color: #f1f5f9;
+          font-size: 0.8rem;
+          font-weight: 500;
+          color: var(--text);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
+        .sidebar-item-active .sidebar-item-name {
+          color: #ffffff;
+          font-weight: 600;
+        }
+
         .sidebar-item-meta {
-          font-size: 0.68rem;
+          font-size: 0.65rem;
           color: var(--text-dim);
           font-family: var(--font-mono);
           margin-top: 1px;
         }
-
-        .sidebar-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-        .dot-fresh { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.7); }
-        .dot-stale { background: #f59e0b; }
-        .dot-old   { background: #475569; }
 
         /* Add button */
         .sidebar-add {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.45rem;
-          margin: 0.4rem 0.6rem 0.5rem;
-          padding: 0.55rem 0.75rem;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.03);
-          color: #cbd5e1;
-          font-size: 0.8rem;
-          font-weight: 600;
+          gap: 0.4rem;
+          margin: 0.35rem 0.5rem 0.45rem;
+          padding: 0.48rem 0.65rem;
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          background: transparent;
+          color: var(--text-muted);
+          font-size: 0.78rem;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
 
         .sidebar-add:hover {
-          border-color: rgba(79, 110, 247, 0.4);
+          border-color: rgba(255, 255, 255, 0.16);
           color: #ffffff;
-          background: rgba(79, 110, 247, 0.1);
+          background: rgba(255, 255, 255, 0.04);
         }
 
         .sidebar-add-icon {
-          font-size: 1.05rem;
-          font-weight: 300;
+          font-size: 0.95rem;
+          font-weight: 400;
           line-height: 1;
         }
 
         /* Footer */
         .sidebar-footer {
-          padding: 0.7rem 1rem;
-          font-size: 0.66rem;
+          padding: 0.6rem 0.85rem;
+          font-size: 0.64rem;
           font-family: var(--font-mono);
           color: var(--text-dim);
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          border-top: 1px solid var(--border-subtle);
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.45rem;
+          gap: 0.4rem;
         }
 
         .footer-status-dot {
-          width: 6px;
-          height: 6px;
+          width: 5px;
+          height: 5px;
           border-radius: 50%;
-          background: #10b981;
-          box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+          background: #34d399;
         }
 
         /* ── Mobile ──────────────────────────────────────────────────── */

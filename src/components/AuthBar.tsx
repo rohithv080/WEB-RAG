@@ -72,15 +72,15 @@ export function AuthBar() {
             <div className="user-text-col">
               <span className="user-name">{displayName}</span>
               {isAdmin ? (
-                <span className="admin-badge-pill">🛡️ Super Admin</span>
+                <span className="admin-badge-pill">Admin</span>
               ) : (
-                <span className="user-sub">Personal Account</span>
+                <span className="user-sub">Personal</span>
               )}
             </div>
           </div>
           <SignOutButton>
             <button className="logout-icon-btn" title="Sign out / Log out">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />
@@ -114,11 +114,11 @@ export function AuthBar() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.45rem 0.65rem;
-          background: rgba(255, 255, 255, 0.035);
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius);
-          transition: all 0.15s ease;
+          padding: 0.4rem 0.55rem;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid var(--border);
+          border-radius: 6px;
+          transition: all 0.12s ease;
         }
         .signed-in-card:hover {
           background: rgba(255, 255, 255, 0.05);
@@ -135,49 +135,48 @@ export function AuthBar() {
         .user-text-col {
           display: flex;
           flex-direction: column;
-          gap: 1px;
           min-width: 0;
         }
 
         .user-name {
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: #f1f5f9;
+          font-size: 0.78rem;
+          font-weight: 500;
+          color: var(--text);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
         .user-sub {
-          font-size: 0.64rem;
+          font-size: 0.62rem;
           color: var(--text-dim);
         }
 
         .admin-badge-pill {
           font-size: 0.62rem;
-          font-weight: 700;
-          color: #c084fc;
+          font-weight: 600;
+          color: var(--accent);
           letter-spacing: 0.02em;
         }
 
         .logout-icon-btn {
-          width: 28px;
-          height: 28px;
-          border-radius: 6px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(255, 255, 255, 0.03);
-          color: var(--text-muted);
+          width: 24px;
+          height: 24px;
+          border-radius: 4px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: var(--text-dim);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
           flex-shrink: 0;
         }
         .logout-icon-btn:hover {
           color: #f87171;
-          border-color: rgba(248, 113, 113, 0.4);
-          background: rgba(248, 113, 113, 0.1);
+          border-color: rgba(248, 113, 113, 0.3);
+          background: rgba(248, 113, 113, 0.08);
         }
 
         .auth-button-group {
@@ -190,34 +189,32 @@ export function AuthBar() {
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 0.5rem 0.6rem;
-          border-radius: 8px;
-          font-size: 0.78rem;
-          font-weight: 600;
+          padding: 0.42rem 0.55rem;
+          border-radius: 6px;
+          font-size: 0.75rem;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
         }
 
         .sign-in-btn {
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: var(--text);
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
         }
         .sign-in-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.2);
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(255, 255, 255, 0.16);
           color: #ffffff;
         }
 
         .sign-up-btn {
-          background: linear-gradient(135deg, rgba(79, 110, 247, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%);
-          border: 1px solid rgba(129, 140, 248, 0.35);
-          color: #c7d2fe;
+          background: var(--accent);
+          border: 1px solid transparent;
+          color: #ffffff;
         }
         .sign-up-btn:hover {
-          background: linear-gradient(135deg, rgba(79, 110, 247, 0.35) 0%, rgba(139, 92, 246, 0.35) 100%);
-          border-color: rgba(129, 140, 248, 0.5);
-          color: #ffffff;
+          background: #6e6eff;
         }
       `}</style>
     </div>

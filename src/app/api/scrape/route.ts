@@ -5,7 +5,7 @@ import { fetchPage, ScrapeContentError } from "@/lib/scraper/fetchPage";
 import { chunkDocument } from "@/lib/scraper/chunk";
 import { embedDocuments, embeddingToSql } from "@/lib/embeddings/embed";
 import { syncTelegramBotCommands } from "@/lib/telegram";
-import { auth } from "@clerk/nextjs/server";
+import { verifyIngestionAuth } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -189,8 +189,13 @@ function errorResponse(err: unknown) {
  *  - Requires x-admin-secret when ADMIN_SECRET is configured.
  */
 export async function POST(req: NextRequest) {
-
   try {
+    // Ingestion auth defense: require valid Clerk session or admin secret
+    const authCheck = await verifyIngestionAuth(req.headers);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
+
     const body = await req.json();
     const url = typeof body.url === "string" ? body.url.trim() : "";
     const siteId =
@@ -203,6 +208,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "url is required" }, { status: 400 });
     }
 
+    // If appending to an existing bot, verify ownership
+    if (siteId) {
+      const existingSite = await prisma.site.findUnique({
+        where: { id: siteId },
+        select: { userId: true },
+      });
+      if (!existingSite) {
+        return NextResponse.json({ error: "Site not found" }, { status: 404 });
+      }
+      if (existingSite.userId && existingSite.userId !== authCheck.userId && !authCheck.isAdmin) {
+        return NextResponse.json({ error: "Unauthorized to add pages to this bot" }, { status: 403 });
+      }
+    }
+
     let parsed: URL;
     try {
       parsed = new URL(url);
@@ -213,17 +232,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
     }
 
-    let currentUserId: string | null = null;
-    try {
-      const authData = await auth();
-      currentUserId = authData.userId;
-    } catch {}
-
     const result = await indexPage(parsed.toString(), {
       existingSiteId: siteId,
       siteName: name,
       siteDescription: description,
-      userId: currentUserId,
+      userId: authCheck.userId,
     });
     return NextResponse.json(result);
   } catch (err) {
@@ -234,11 +247,15 @@ export async function POST(req: NextRequest) {
 /**
  * PATCH { pageId }
  *  - Re-scrapes an existing page and replaces its chunks.
- *  - Requires x-admin-secret when ADMIN_SECRET is configured.
+ *  - Requires authentication.
  */
 export async function PATCH(req: NextRequest) {
-
   try {
+    const authCheck = await verifyIngestionAuth(req.headers);
+    if (!authCheck.authorized) {
+      return NextResponse.json({ error: authCheck.error }, { status: authCheck.status });
+    }
+
     const body = await req.json();
     const pageId = typeof body.pageId === "string" ? body.pageId.trim() : "";
 
@@ -246,9 +263,16 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "pageId is required" }, { status: 400 });
     }
 
-    const page = await prisma.page.findUnique({ where: { id: pageId } });
+    const page = await prisma.page.findUnique({
+      where: { id: pageId },
+      include: { site: { select: { userId: true } } },
+    });
     if (!page) {
       return NextResponse.json({ error: "Page not found" }, { status: 404 });
+    }
+
+    if (page.site.userId && page.site.userId !== authCheck.userId && !authCheck.isAdmin) {
+      return NextResponse.json({ error: "Unauthorized to re-scrape this page" }, { status: 403 });
     }
 
     const result = await indexPage(page.url, { existingPageId: pageId });

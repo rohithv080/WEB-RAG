@@ -8,10 +8,20 @@ const isPublicRoute = createRouteMatcher([
   "/api/chat(.*)",
   "/api/telegram(.*)",
   "/api/sites(.*)",
+  "/api/feedback(.*)",
 ]);
 
-export default clerkMiddleware(async (_auth, _request) => {
-  // Clerk attaches user session info to all matching requests.
+export default clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    // Permit CLI scripts / automated runners with valid admin secret
+    const adminSecret = process.env.ADMIN_SECRET;
+    const providedSecret = request.headers.get("x-admin-secret");
+    if (adminSecret && providedSecret && providedSecret === adminSecret) {
+      return;
+    }
+
+    await auth.protect();
+  }
 });
 
 export const config = {
