@@ -1,4 +1,4 @@
-import Groq from "groq-sdk";
+import Groq, { toFile } from "groq-sdk";
 
 const apiKeys = (process.env.GROQ_API_KEYS || process.env.GROQ_API_KEY || "")
   .split(",")
@@ -552,3 +552,27 @@ export async function expandQuery(query: string): Promise<string> {
     return query;
   }
 }
+
+/**
+ * Transcribes audio (OGG, MP3, WAV, M4A) to text using Groq's high-speed Whisper model.
+ * Whisper is included for free (up to 2,000 minutes/day) on Groq free-tier.
+ */
+export async function transcribeAudio(
+  buffer: Buffer | Uint8Array,
+  filename = "audio.ogg",
+  language?: string | null
+): Promise<string> {
+  const groq = getGroqClient();
+  const file = await toFile(buffer, filename);
+
+  const transcription = await groq.audio.transcriptions.create({
+    file,
+    model: "whisper-large-v3-turbo",
+    response_format: "json",
+    language: language ? language.toLowerCase().slice(0, 2) : undefined,
+    temperature: 0.0,
+  });
+
+  return transcription.text.trim();
+}
+

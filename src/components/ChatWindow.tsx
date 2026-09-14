@@ -110,6 +110,132 @@ export function ChatWindow({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [language, setLanguage] = useState<string>("auto");
+  const [isListening, setIsListening] = useState(false);
+  const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
+  const recognitionRef = useRef<any>(null);
+
+  useEffect(() => {
+    return () => {
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch {}
+      }
+    };
+  }, []);
+
+  function cleanMarkdownForSpeech(text: string): string {
+    return text
+      .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
+      .replace(/```[\s\S]*?```/g, "Code block omitted.")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\[\^?\d+\]/g, "")
+      .replace(/\[(.*?)\]\((.*?)\)/g, "$1")
+      .replace(/[*_~#]/g, "")
+      .replace(/\n+/g, " ")
+      .trim();
+  }
+
+  function toggleSpeak(msgId: string, content: string) {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+      alert("Text-to-speech is not supported by your browser.");
+      return;
+    }
+
+    if (speakingMsgId === msgId) {
+      window.speechSynthesis.cancel();
+      setSpeakingMsgId(null);
+      return;
+    }
+
+    window.speechSynthesis.cancel();
+    const cleanText = cleanMarkdownForSpeech(content);
+    if (!cleanText) return;
+
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    const voices = window.speechSynthesis.getVoices();
+
+    if (language === "Tamil") {
+      const v = voices.find((v) => v.lang.startsWith("ta"));
+      if (v) utterance.voice = v;
+    } else if (language === "Hindi") {
+      const v = voices.find((v) => v.lang.startsWith("hi"));
+      if (v) utterance.voice = v;
+    } else if (language === "Spanish") {
+      const v = voices.find((v) => v.lang.startsWith("es"));
+      if (v) utterance.voice = v;
+    } else if (language === "French") {
+      const v = voices.find((v) => v.lang.startsWith("fr"));
+      if (v) utterance.voice = v;
+    } else {
+      const v = voices.find((v) => v.lang.startsWith("en") && (v.name.includes("Google") || v.name.includes("Natural")));
+      if (v) utterance.voice = v;
+    }
+
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    utterance.onend = () => setSpeakingMsgId(null);
+    utterance.onerror = () => setSpeakingMsgId(null);
+
+    setSpeakingMsgId(msgId);
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function toggleListening() {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition =
+      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in this browser. Please use Google Chrome, Edge, or Safari.");
+      return;
+    }
+
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      if (language === "Tamil") recognition.lang = "ta-IN";
+      else if (language === "Hindi") recognition.lang = "hi-IN";
+      else if (language === "Spanish") recognition.lang = "es-ES";
+      else if (language === "French") recognition.lang = "fr-FR";
+      else recognition.lang = "en-US";
+
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results)
+          .map((r: any) => r[0].transcript)
+          .join("");
+        setInput(transcript);
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn("[speech recognition error]", event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error("[speech recognition start error]", err);
+      setIsListening(false);
+    }
+  }
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -286,6 +412,28 @@ export function ChatWindow({
                   <div className="feedback-group">
                     <button
                       type="button"
+                      className={`speak-pill ${speakingMsgId === m.id ? "active-speaking" : ""}`}
+                      onClick={() => toggleSpeak(m.id, m.content)}
+                      title={speakingMsgId === m.id ? "Stop reading aloud" : "Read aloud (Voice)"}
+                    >
+                      {speakingMsgId === m.id ? (
+                        <>
+                          <span className="speaking-waves">
+                            <span className="sw-bar" />
+                            <span className="sw-bar" />
+                            <span className="sw-bar" />
+                          </span>
+                          <span>Stop</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>🔊</span>
+                          <span>Listen</span>
+                        </>
+                      )}
+                    </button>
+                    <button
+                      type="button"
                       className={`feedback-pill ${m.rating === "up" ? "active-up" : ""}`}
                       onClick={() => handleRateMessage(m.id, "up")}
                       title="Good response"
@@ -343,10 +491,31 @@ export function ChatWindow({
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={ready ? "Ask about this site…" : "Index a page first"}
+          placeholder={
+            isListening
+              ? "🎙️ Listening... speak your question now"
+              : ready
+              ? "Ask about this site…"
+              : "Index a page first"
+          }
           disabled={!ready || streaming}
-          className="chat-input"
+          className={`chat-input ${isListening ? "is-listening" : ""}`}
         />
+        <button
+          type="button"
+          onClick={toggleListening}
+          disabled={!ready || streaming}
+          className={`chat-mic-btn ${isListening ? "listening" : ""}`}
+          title={isListening ? "Stop voice listening" : "Speak question (Voice input)"}
+        >
+          {isListening ? (
+            <span className="mic-pulse-ring">
+              <span className="mic-dot" />
+            </span>
+          ) : (
+            "🎙️"
+          )}
+        </button>
         <button
           type="submit"
           disabled={!ready || streaming || !input.trim()}
@@ -468,6 +637,109 @@ export function ChatWindow({
           background: rgba(248, 113, 113, 0.15);
           border-color: rgba(248, 113, 113, 0.4);
           color: #f87171;
+        }
+
+        .speak-pill {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: var(--text-muted);
+          padding: 3px 8px;
+          border-radius: 6px;
+          font-size: 0.75rem;
+          font-weight: 500;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .speak-pill:hover {
+          color: #fff;
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+        .speak-pill.active-speaking {
+          color: #38bdf8;
+          background: rgba(56, 189, 248, 0.15);
+          border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .speaking-waves {
+          display: flex;
+          align-items: center;
+          gap: 2px;
+          height: 10px;
+        }
+        .sw-bar {
+          width: 2px;
+          height: 8px;
+          background: #38bdf8;
+          border-radius: 1px;
+          animation: waveScale 0.6s ease-in-out infinite alternate;
+        }
+        .sw-bar:nth-child(2) { animation-delay: 0.2s; height: 12px; }
+        .sw-bar:nth-child(3) { animation-delay: 0.4s; height: 6px; }
+
+        @keyframes waveScale {
+          0% { transform: scaleY(0.4); }
+          100% { transform: scaleY(1.2); }
+        }
+
+        .chat-mic-btn {
+          width: 42px;
+          height: 42px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          background: var(--bg-input);
+          color: var(--text);
+          font-size: 1.15rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.18s ease;
+          position: relative;
+        }
+        .chat-mic-btn:hover:not(:disabled) {
+          border-color: var(--accent);
+          color: var(--accent);
+          background: rgba(255, 255, 255, 0.05);
+        }
+        .chat-mic-btn.listening {
+          background: rgba(239, 68, 68, 0.15);
+          border-color: #ef4444;
+          color: #ef4444;
+          box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .mic-pulse-ring {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .mic-dot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: #ef4444;
+          animation: micPulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes micPulse {
+          0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+          }
+          50% {
+            transform: scale(1.25);
+            box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+          }
+        }
+
+        .chat-input.is-listening {
+          border-color: #ef4444;
+          background: rgba(239, 68, 68, 0.04);
+          box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
         }
 
         .feedback-toast {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { expandQuery, getAnswer, condenseQuery, type ChatHistoryItem } from "@/lib/groq";
+import { expandQuery, getAnswer, condenseQuery, transcribeAudio, type ChatHistoryItem } from "@/lib/groq";
 import { searchChunks, formatContext } from "@/lib/retrieval/search";
 import { syncTelegramBotCommands } from "@/lib/telegram";
 
@@ -289,14 +289,54 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
-    // 2. Handle Text Messages
+    // 2. Handle Text & Voice Messages
     const message = body.message;
-    if (!message || !message.text) return NextResponse.json({ ok: true });
-    
+    if (!message) return NextResponse.json({ ok: true });
+
     const chatId = message.chat.id;
-    const text = message.text.trim();
     sendTypingAction(chatId);
-    
+
+    // State lookup (site, language, session)
+    const state = await prisma.$queryRaw<any[]>`SELECT "siteId", "language", "sessionId" FROM "TelegramState" WHERE "chatId" = ${chatId} LIMIT 1`;
+    let siteId = state.length > 0 ? state[0].siteId : null;
+    let sessionId = state.length > 0 ? state[0].sessionId : null;
+    const userLanguage = state.length > 0 ? state[0].language : null;
+    let siteNamePrefix = "";
+    let sitePrompt: string | null = null;
+    let siteTone: string | null = null;
+
+    let text = message.text ? message.text.trim() : "";
+
+    // If message is a voice note or audio file, transcribe via Groq Whisper!
+    if (!text && (message.voice || message.audio) && token) {
+      const voiceObj = message.voice || message.audio;
+      try {
+        const fileRes = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${voiceObj.file_id}`);
+        const fileData = await fileRes.json();
+        if (fileData.ok && fileData.result?.file_path) {
+          const downloadUrl = `https://api.telegram.org/file/bot${token}/${fileData.result.file_path}`;
+          const audioRes = await fetch(downloadUrl);
+          const audioArrayBuffer = await audioRes.arrayBuffer();
+          const audioBuffer = Buffer.from(audioArrayBuffer);
+
+          const transcribed = await transcribeAudio(audioBuffer, "voice.ogg", userLanguage);
+          if (transcribed && transcribed.trim()) {
+            text = transcribed.trim();
+            await sendTelegramMessage(chatId, `🎙️ <i>"${text}"</i>`);
+          } else {
+            await sendTelegramMessage(chatId, "⚠️ Could not understand the voice message clearly. Please try speaking again or type your question.");
+            return NextResponse.json({ ok: true });
+          }
+        }
+      } catch (voiceErr) {
+        console.error("[telegram voice error]", voiceErr);
+        await sendTelegramMessage(chatId, "⚠️ Failed to process audio. Please type your question.");
+        return NextResponse.json({ ok: true });
+      }
+    }
+
+    if (!text) return NextResponse.json({ ok: true });
+
     // Command handling
     if (text === "/language") {
       await sendLanguageMenu(chatId);
@@ -341,15 +381,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ ok: true });
       }
     }
-    
-    // State lookup
-    const state = await prisma.$queryRaw<any[]>`SELECT "siteId", "language", "sessionId" FROM "TelegramState" WHERE "chatId" = ${chatId} LIMIT 1`;
-    let siteId = state.length > 0 ? state[0].siteId : null;
-    let sessionId = state.length > 0 ? state[0].sessionId : null;
-    const userLanguage = state.length > 0 ? state[0].language : null;
-    let siteNamePrefix = "";
-    let sitePrompt: string | null = null;
-    let siteTone: string | null = null;
 
     if (siteId) {
       const site = await prisma.site.findUnique({ where: { id: siteId } });
