@@ -184,12 +184,14 @@ export async function searchChunks(
   siteId: string | null,
   question: string,
   topK = 6,
-  maxTotalChars = 12000
+  maxTotalChars = 12000,
+  keywordQuery?: string
 ): Promise<RetrievedChunk[]> {
   const queryEmbedding = await embedQuery(question);
 
-  // Run BM25 always; vector search only when we have an embedding
-  const bm25Promise = bm25Search(siteId, question, 40);
+  // Run BM25 with keywordQuery (e.g. expanded terms) if provided, otherwise the natural question
+  const bm25Term = keywordQuery && keywordQuery.trim() ? keywordQuery : question;
+  const bm25Promise = bm25Search(siteId, bm25Term, 40);
   const vectorPromise = queryEmbedding
     ? vectorSearch(siteId, embeddingToSql(queryEmbedding), 40)
     : Promise.resolve([] as RetrievedChunk[]);

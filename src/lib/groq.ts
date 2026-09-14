@@ -410,7 +410,9 @@ export async function condenseQuery(
     .join("\n");
 
   try {
-    const { stream } = await createChatStreamWithRetry({
+    const client = getGroqClient();
+    const completion = await client.chat.completions.create({
+      model: "openai/gpt-oss-20b",
       messages: [
         { role: "system", content: CONDENSE_PROMPT },
         {
@@ -418,17 +420,20 @@ export async function condenseQuery(
           content: `Chat History:\n${recentHistory}\n\nLatest: ${question}\nStandalone:`,
         },
       ],
-      temperature: 0.1,
-      max_tokens: 250,
+      // @ts-expect-error groq sdk reasoning_effort option
+      reasoning_effort: "low",
+      temperature: 0.0,
+      max_tokens: 300,
     });
 
-    let condensed = "";
-    for await (const part of stream) {
-      condensed += part.choices[0]?.delta?.content ?? "";
-    }
+    const raw = completion.choices[0]?.message?.content ?? "";
+    const result = raw
+      .trim()
+      .replace(/^["']|["']$/g, "")
+      .replace(/^(standalone(\s*query)?|rewritten(\s*query)?):\s*/i, "")
+      .trim();
 
-    const result = condensed.trim().replace(/^["']|["']$/g, "");
-    if (!result) return question;
+    if (!result || result.length < 2) return question;
 
     console.log(`[query condense] "${question}" → "${result}"`);
     return result;
@@ -526,22 +531,21 @@ export async function expandQuery(query: string): Promise<string> {
   if (wordCount > 6) return query;
   
   try {
-    const { stream } = await createChatStreamWithRetry({
+    const client = getGroqClient();
+    const completion = await client.chat.completions.create({
+      model: "openai/gpt-oss-20b",
       messages: [
         { role: "system", content: EXPAND_PROMPT },
         { role: "user", content: query },
       ],
+      // @ts-expect-error groq sdk reasoning_effort option
+      reasoning_effort: "low",
       temperature: 0.1,
-      max_tokens: 150,
+      max_tokens: 250,
     });
 
-    let expanded = "";
-    for await (const part of stream) {
-      const delta = part.choices[0]?.delta?.content ?? "";
-      expanded += delta;
-    }
-
-    const result = expanded.trim();
+    const raw = completion.choices[0]?.message?.content ?? "";
+    const result = raw.trim().replace(/^["']|["']$/g, "");
     if (!result) return query;
     
     console.log(`[query expand] "${query}" → "${result}"`);

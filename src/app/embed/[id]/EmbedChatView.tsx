@@ -19,6 +19,7 @@ type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   citations?: Citation[];
+  standaloneQuery?: string;
 };
 
 type Props = {
@@ -164,7 +165,13 @@ export function EmbedChatView({
             citations = payload.citations;
             setMessages((prev) =>
               prev.map((m) =>
-                m.id === assistantId ? { ...m, citations: payload.citations } : m
+                m.id === assistantId
+                  ? {
+                      ...m,
+                      citations: payload.citations,
+                      standaloneQuery: payload.standaloneQuery,
+                    }
+                  : m
               )
             );
           } else if (payload.type === "token" && payload.content) {
@@ -266,6 +273,15 @@ export function EmbedChatView({
               </div>
             )}
             <div className="bubble-wrapper">
+              {m.role === "assistant" && m.standaloneQuery && (
+                <div className="embed-search-chip" title="Contextual search query">
+                  <svg className="chip-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75">
+                    <circle cx="7" cy="7" r="4.5" />
+                    <path d="M10.5 10.5L14 14" strokeLinecap="round" />
+                  </svg>
+                  <span>Context: <strong>{m.standaloneQuery}</strong></span>
+                </div>
+              )}
               <div className="bubble">
                 {m.content ? (
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
@@ -529,6 +545,33 @@ export function EmbedChatView({
           display: flex;
           flex-direction: column;
           max-width: 100%;
+        }
+
+        .embed-search-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 0.7rem;
+          color: #888894;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 6px;
+          padding: 2px 7px;
+          margin-bottom: 5px;
+          width: fit-content;
+          font-family: monospace;
+        }
+
+        .chip-icon {
+          width: 10px;
+          height: 10px;
+          color: var(--accent);
+          flex-shrink: 0;
+        }
+
+        .embed-search-chip strong {
+          color: #d4d4d8;
+          font-weight: 500;
         }
 
         .bubble {

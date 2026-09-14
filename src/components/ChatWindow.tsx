@@ -13,6 +13,7 @@ export type ChatMessage = {
   content: string;
   citations?: Citation[];
   rating?: "up" | "down" | null;
+  standaloneQuery?: string;
 };
 
 type Props = {
@@ -303,7 +304,13 @@ export function ChatWindow({
               citations = payload.citations;
               setMessages((prev) =>
                 prev.map((m) =>
-                  m.id === assistantId ? { ...m, citations: payload.citations } : m
+                  m.id === assistantId
+                    ? {
+                        ...m,
+                        citations: payload.citations,
+                        standaloneQuery: payload.standaloneQuery,
+                      }
+                    : m
                 )
               );
             } else if (payload.type === "token" && payload.content) {
@@ -391,6 +398,15 @@ export function ChatWindow({
         ) : (
           messages.map((m) => (
             <div key={m.id} className={`msg msg-${m.role}`}>
+              {m.role === "assistant" && m.standaloneQuery && (
+                <div className="msg-search-chip" title="Follow-up query resolved using conversation context">
+                  <svg className="search-chip-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75">
+                    <circle cx="7" cy="7" r="4.5" />
+                    <path d="M10.5 10.5L14 14" strokeLinecap="round" />
+                  </svg>
+                  <span>Contextual query: <strong>{m.standaloneQuery}</strong></span>
+                </div>
+              )}
               <div className="msg-bubble">
                 {m.role === "assistant" && m.content && <CopyButton text={m.content} />}
                 {m.role === "assistant" ? (
@@ -556,6 +572,30 @@ export function ChatWindow({
         .msg-assistant {
           align-self: flex-start;
           align-items: flex-start;
+        }
+
+        .msg-search-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 0.72rem;
+          color: var(--text-muted);
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 6px;
+          padding: 2px 7px;
+          margin-bottom: 5px;
+          font-family: var(--font-mono, monospace);
+        }
+        .search-chip-icon {
+          width: 11px;
+          height: 11px;
+          color: var(--accent);
+          flex-shrink: 0;
+        }
+        .msg-search-chip strong {
+          color: var(--text);
+          font-weight: 500;
         }
 
         .msg-bubble {

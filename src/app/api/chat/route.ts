@@ -125,17 +125,19 @@ export async function POST(req: NextRequest) {
 
     let context = "";
     let citations: any[] = [];
+    let standaloneQuery: string | undefined;
 
     if (!isGreeting) {
       // 1. Condense follow-up questions using recent chat history into a standalone query
-      const standaloneQuery = await condenseQuery(question, history);
+      standaloneQuery = await condenseQuery(question, history);
       console.log(`[chat] question="${question}", standalone="${standaloneQuery}"`);
 
-      // 2. Expand short queries for better semantic coverage
+      // 2. Expand short queries for better keyword/BM25 coverage
       const expandedQuery = await expandQuery(standaloneQuery);
       console.log(`[chat] standalone="${standaloneQuery}", expanded="${expandedQuery}"`);
 
-      const chunks = await searchChunks(siteId, expandedQuery, 6);
+      // 3. Decoupled search: vector & reranker use standaloneQuery, BM25 uses expandedQuery
+      const chunks = await searchChunks(siteId, standaloneQuery, 6, 12000, expandedQuery);
       if (chunks.length === 0) {
         return NextResponse.json(
           { error: "No indexed chunks for this site. Scrape a URL first." },
@@ -188,7 +190,16 @@ export async function POST(req: NextRequest) {
         };
 
         try {
-          send({ type: "meta", sessionId, citations });
+          const isRewritten =
+            Boolean(standaloneQuery) &&
+            standaloneQuery!.toLowerCase().trim() !== question.toLowerCase().trim();
+
+          send({
+            type: "meta",
+            sessionId,
+            citations,
+            standaloneQuery: isRewritten ? standaloneQuery : undefined,
+          });
 
           for await (const part of groqStream) {
             const delta = part.choices[0]?.delta?.content ?? "";
