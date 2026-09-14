@@ -1,11 +1,33 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { auth } from "@clerk/nextjs/server";
 
 export const runtime = "nodejs";
 
 export async function GET() {
   try {
+    let currentUserId: string | null = null;
+    try {
+      const authData = await auth();
+      currentUserId = authData.userId;
+    } catch {
+      // Clerk keys unconfigured or request not authenticated
+    }
+
+    // Tenant Isolation:
+    // If a user is logged in, show only bots they created + legacy bots (created before auth)
+    // If user is unauthenticated, show public bots
+    const whereClause: any = currentUserId
+      ? {
+          OR: [
+            { userId: currentUserId },
+            { userId: null },
+          ],
+        }
+      : { isPublic: true };
+
     const sites = await prisma.site.findMany({
+      where: whereClause,
       orderBy: { scrapedAt: "desc" },
       include: {
         pages: {

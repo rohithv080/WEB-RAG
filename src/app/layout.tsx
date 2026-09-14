@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { AuthProvider } from "@/components/AuthProvider";
+import { ClerkProvider } from "@clerk/nextjs";
 
 const sansFont = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -22,17 +22,19 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sansFont.variable} ${monoFont.variable}`} suppressHydrationWarning>
-      <body
-        suppressHydrationWarning
-        style={
-          {
-            fontFamily: "var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif",
-          } as React.CSSProperties
-        }
-      >
-        <AuthProvider>{children}</AuthProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" className={`${sansFont.variable} ${monoFont.variable}`} suppressHydrationWarning>
+        <body
+          suppressHydrationWarning
+          style={
+            {
+              fontFamily: "var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif",
+            } as React.CSSProperties
+          }
+        >
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

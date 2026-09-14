@@ -5,6 +5,7 @@ import { fetchPage, ScrapeContentError } from "@/lib/scraper/fetchPage";
 import { chunkDocument } from "@/lib/scraper/chunk";
 import { embedDocuments, embeddingToSql } from "@/lib/embeddings/embed";
 import { syncTelegramBotCommands } from "@/lib/telegram";
+import { auth } from "@clerk/nextjs/server";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -35,17 +36,18 @@ type IndexResult = {
  *  - neither         → create a brand-new site + first page
  */
 async function indexPage(
-  url: string,
-  opts: {
-    existingSiteId?: string;
+  rawUrl: string,
+  options: {
     existingPageId?: string;
+    existingSiteId?: string;
     siteName?: string;
     siteDescription?: string;
+    userId?: string | null;
   } = {}
 ): Promise<IndexResult> {
-  const { existingSiteId, existingPageId, siteName, siteDescription } = opts;
+  const { existingPageId, existingSiteId, siteName, siteDescription, userId } = options;
 
-  const page = await fetchPage(url);
+  const page = await fetchPage(rawUrl);
   const chunks = chunkDocument(page.textContent);
 
   if (chunks.length === 0) {
@@ -53,12 +55,12 @@ async function indexPage(
   }
 
   let siteId: string;
-  let siteFinalName: string | null;
+  let siteFinalName: string | null = null;
   let pageId: string;
   let scrapedAt: Date;
 
   if (existingPageId) {
-    // Re-scrape an existing page: replace its chunks, update metadata
+    // Refresh an existing page
     const existing = await prisma.page.findUnique({
       where: { id: existingPageId },
       include: { site: true },
@@ -95,6 +97,7 @@ async function indexPage(
       data: {
         name: siteName?.trim() || page.title || null,
         description: siteDescription?.trim() || null,
+        userId: userId || null,
       },
     });
 
@@ -210,10 +213,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
     }
 
+    let currentUserId: string | null = null;
+    try {
+      const authData = await auth();
+      currentUserId = authData.userId;
+    } catch {}
+
     const result = await indexPage(parsed.toString(), {
       existingSiteId: siteId,
       siteName: name,
       siteDescription: description,
+      userId: currentUserId,
     });
     return NextResponse.json(result);
   } catch (err) {

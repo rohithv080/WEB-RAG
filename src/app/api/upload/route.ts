@@ -5,6 +5,7 @@ import { chunkDocument } from "@/lib/scraper/chunk";
 import { embedDocuments, embeddingToSql } from "@/lib/embeddings/embed";
 import { syncTelegramBotCommands } from "@/lib/telegram";
 import { extractText } from "unpdf";
+import { auth } from "@clerk/nextjs/server";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -61,12 +62,19 @@ export async function POST(req: NextRequest) {
       }
       siteFinalName = existingSite.name;
     } else {
+      let currentUserId: string | null = null;
+      try {
+        const authData = await auth();
+        currentUserId = authData.userId;
+      } catch {}
+
       // Create new site
       const defaultName = siteName || fileName.replace(/\.[^/.]+$/, "");
       const newSite = await prisma.site.create({
         data: {
           name: defaultName,
           description: siteDescription || `Created from ${fileName}`,
+          userId: currentUserId || null,
         },
       });
       siteId = newSite.id;

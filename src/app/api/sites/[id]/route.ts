@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { syncTelegramBotCommands } from "@/lib/telegram";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(
   req: NextRequest,
@@ -40,6 +41,22 @@ export async function PATCH(
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ error: "Missing site ID" }, { status: 400 });
+    }
+
+    const existing = await prisma.site.findUnique({ where: { id }, select: { userId: true } });
+    if (!existing) {
+      return NextResponse.json({ error: "Site not found" }, { status: 404 });
+    }
+
+    let currentUserId: string | null = null;
+    try {
+      const authData = await auth();
+      currentUserId = authData.userId;
+    } catch {}
+
+    // Protect bot settings: if a bot is owned by a specific user, reject updates from other users
+    if (existing.userId && existing.userId !== currentUserId) {
+      return NextResponse.json({ error: "Unauthorized to modify this bot" }, { status: 403 });
     }
 
     const body = await req.json();
@@ -91,6 +108,22 @@ export async function DELETE(
       return NextResponse.json({ error: "Missing site ID" }, { status: 400 });
     }
 
+    const existing = await prisma.site.findUnique({ where: { id }, select: { userId: true } });
+    if (!existing) {
+      return NextResponse.json({ error: "Site not found" }, { status: 404 });
+    }
+
+    let currentUserId: string | null = null;
+    try {
+      const authData = await auth();
+      currentUserId = authData.userId;
+    } catch {}
+
+    // Protect deletion: prevent any other user from deleting this bot
+    if (existing.userId && existing.userId !== currentUserId) {
+      return NextResponse.json({ error: "Unauthorized to delete this bot" }, { status: 403 });
+    }
+
     // Since we added onDelete: Cascade, deleting the Site will delete Pages, Chunks, and ChatSessions
     await prisma.site.delete({
       where: { id },
@@ -107,3 +140,4 @@ export async function DELETE(
     );
   }
 }
+

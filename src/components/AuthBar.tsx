@@ -1,8 +1,7 @@
 "use client";
 
 import {
-  SignedIn,
-  SignedOut,
+  Show,
   SignInButton,
   UserButton,
 } from "@clerk/nextjs";
@@ -57,20 +56,20 @@ export function AuthBar() {
 
   return (
     <div className="auth-bar">
-      <SignedIn>
+      <Show when="signed-in">
         <div className="signed-in-user">
           <UserButton />
           <span className="user-label">My Workspace</span>
         </div>
-      </SignedIn>
+      </Show>
 
-      <SignedOut>
+      <Show when="signed-out">
         <SignInButton mode="modal">
           <button className="sign-in-btn">
             <span>👤 Sign In / Register</span>
           </button>
         </SignInButton>
-      </SignedOut>
+      </Show>
 
       <style jsx>{`
         .auth-bar {
