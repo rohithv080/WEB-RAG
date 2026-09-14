@@ -339,23 +339,131 @@ export async function createChatStreamWithRetry(args: CreateArgs): Promise<{
   });
 }
 
-export async function streamAnswer(question: string, context: string, language?: string | null) {
+export type ChatHistoryItem = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+const CONDENSE_PROMPT = `Given the chat history and follow-up question, rewrite the follow-up question into a clear, standalone search query that incorporates any missing context or entities from the chat history.
+
+Rules:
+- Resolve any pronouns (it, she, he, they, this, that, her, his, etc.) using the subject or entity discussed in the chat history.
+- If the question introduces a completely new or already standalone topic, return it as-is.
+- Keep the standalone query concise and focused on keywords for search retrieval.
+- Output ONLY the standalone search query without any explanation, quotes, or filler.
+
+Examples:
+Chat History:
+User: Who is Daji in HOK?
+Assistant: Daji is a hero in Honor of Kings. He is a Mage.
+Follow-up: What are her counters?
+Standalone: What are Daji's counters in Honor of Kings?
+
+Chat History:
+User: Tell me about barbecue marination
+Assistant: Marination tenderizes the meat.
+Follow-up: Why is oil used?
+Standalone: Why is oil used in barbecue marination?`;
+
+/**
+ * Rephrases follow-up questions using recent chat history into a standalone query
+ * that vector & keyword search can accurately retrieve.
+ */
+export async function condenseQuery(
+  question: string,
+  history: ChatHistoryItem[] = []
+): Promise<string> {
+  if (!history || history.length === 0) return question;
+
+  const GREETING = /^(hi|hey|hello|yo|sup|hola|howdy|ok|okay|thanks|thank you)[\s!?.]*$/i;
+  if (GREETING.test(question.trim())) return question;
+
+  // Format the last 2-3 turns for compact context
+  const recentHistory = history
+    .slice(-4)
+    .map((m) => {
+      const cleanContent = m.content
+        .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
+        .replace(/\[\d+\]/g, "")
+        .trim();
+      const snippet = cleanContent.length > 250 ? cleanContent.slice(0, 250) + "…" : cleanContent;
+      return `${m.role === "user" ? "User" : "Assistant"}: ${snippet}`;
+    })
+    .join("\n");
+
+  try {
+    const { stream } = await createChatStreamWithRetry({
+      messages: [
+        { role: "system", content: CONDENSE_PROMPT },
+        {
+          role: "user",
+          content: `Chat History:\n${recentHistory}\n\nLatest: ${question}\nStandalone:`,
+        },
+      ],
+      temperature: 0.1,
+      max_tokens: 250,
+    });
+
+    let condensed = "";
+    for await (const part of stream) {
+      condensed += part.choices[0]?.delta?.content ?? "";
+    }
+
+    const result = condensed.trim().replace(/^["']|["']$/g, "");
+    if (!result) return question;
+
+    console.log(`[query condense] "${question}" → "${result}"`);
+    return result;
+  } catch (err) {
+    console.warn("[query condense] failed, using original:", err);
+    return question;
+  }
+}
+
+export async function streamAnswer(
+  question: string,
+  context: string,
+  language?: string | null,
+  history: ChatHistoryItem[] = []
+) {
+  const messages: Groq.Chat.ChatCompletionMessageParam[] = [
+    { role: "system", content: getSystemPrompt(language) },
+  ];
+
+  // Inject recent chat history (up to last 4 messages)
+  if (history && history.length > 0) {
+    const recent = history.slice(-4);
+    for (const msg of recent) {
+      const clean = msg.content.replace(/<thinking>[\s\S]*?<\/thinking>/gi, "").trim();
+      if (!clean) continue;
+      const snippet = clean.length > 400 ? clean.slice(0, 400) + "…" : clean;
+      messages.push({
+        role: msg.role === "assistant" ? "assistant" : "user",
+        content: snippet,
+      });
+    }
+  }
+
+  messages.push({
+    role: "user",
+    content: `Context:\n${context}\n\nQuestion: ${question}`,
+  });
+
   const { stream } = await createChatStreamWithRetry({
-    messages: [
-      { role: "system", content: getSystemPrompt(language) },
-      {
-        role: "user",
-        content: `Context:\n${context}\n\nQuestion: ${question}`,
-      },
-    ],
+    messages,
     temperature: 0.2,
     max_tokens: 2048,
   });
   return stream;
 }
 
-export async function getAnswer(question: string, context: string, language?: string | null): Promise<string> {
-  const stream = await streamAnswer(question, context, language);
+export async function getAnswer(
+  question: string,
+  context: string,
+  language?: string | null,
+  history: ChatHistoryItem[] = []
+): Promise<string> {
+  const stream = await streamAnswer(question, context, language, history);
   let answer = "";
   for await (const part of stream) {
     answer += part.choices[0]?.delta?.content ?? "";

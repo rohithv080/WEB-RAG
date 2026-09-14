@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { streamAnswer, GroqBusyError, GROQ_BUSY_MESSAGE, expandQuery } from "@/lib/groq";
+import {
+  streamAnswer,
+  GroqBusyError,
+  GROQ_BUSY_MESSAGE,
+  expandQuery,
+  condenseQuery,
+  type ChatHistoryItem,
+} from "@/lib/groq";
 import { searchChunks, formatContext, buildCitations } from "@/lib/retrieval/search";
 
 export const runtime = "nodejs";
@@ -52,6 +59,20 @@ export async function POST(req: NextRequest) {
       sessionId = session.id;
     }
 
+    // Fetch recent chat history from this session for multi-turn conversational memory
+    const recentDbMessages = await prisma.message.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: "desc" },
+      take: 6,
+      select: { role: true, content: true },
+    });
+    const history: ChatHistoryItem[] = recentDbMessages
+      .reverse()
+      .map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      }));
+
     // Fast-path: detect greetings/chitchat — skip expensive search pipeline
     const GREETING_PATTERNS = /^(hi|hey|hello|yo|sup|hola|howdy|good\s*(morning|afternoon|evening|night)|what'?s?\s*up|how\s*are\s*you|thanks?|thank\s*you|bye|goodbye|see\s*ya|ok|okay|cool|nice|great|awesome|got\s*it)[\s!?.]*$/i;
     const isGreeting = GREETING_PATTERNS.test(question);
@@ -60,9 +81,13 @@ export async function POST(req: NextRequest) {
     let citations: any[] = [];
 
     if (!isGreeting) {
-      // Expand short queries for better retrieval
-      const expandedQuery = await expandQuery(question);
-      console.log(`[chat] original="${question}", expanded="${expandedQuery}"`);
+      // 1. Condense follow-up questions using recent chat history into a standalone query
+      const standaloneQuery = await condenseQuery(question, history);
+      console.log(`[chat] question="${question}", standalone="${standaloneQuery}"`);
+
+      // 2. Expand short queries for better semantic coverage
+      const expandedQuery = await expandQuery(standaloneQuery);
+      console.log(`[chat] standalone="${standaloneQuery}", expanded="${expandedQuery}"`);
 
       const chunks = await searchChunks(siteId, expandedQuery, 6);
       if (chunks.length === 0) {
@@ -88,7 +113,7 @@ export async function POST(req: NextRequest) {
 
     let groqStream;
     try {
-      groqStream = await streamAnswer(question, context, language);
+      groqStream = await streamAnswer(question, context, language, history);
     } catch (err) {
       if (err instanceof GroqBusyError) {
         return NextResponse.json({ error: GROQ_BUSY_MESSAGE }, { status: 429 });

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { expandQuery, getAnswer } from "@/lib/groq";
+import { expandQuery, getAnswer, condenseQuery, type ChatHistoryItem } from "@/lib/groq";
 import { searchChunks, formatContext } from "@/lib/retrieval/search";
 
 export const runtime = "nodejs";
@@ -172,6 +172,7 @@ export async function POST(req: NextRequest) {
     if (text === "/sync" || text === "/start") {
       await syncCommands(chatId);
       if (text === "/start") {
+        await prisma.$executeRaw`UPDATE "TelegramState" SET "sessionId" = NULL WHERE "chatId" = ${chatId};`;
         await sendTelegramMessage(chatId, "Welcome! Type <code>/</code> to see a list of websites you can search, or just ask me anything!");
         await sendLanguageMenu(chatId); // Show language menu on start
       }
@@ -179,7 +180,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (text === "/all") {
-      await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId") VALUES (${chatId}, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = NULL;`;
+      await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, NULL, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = NULL, "sessionId" = NULL;`;
       await sendTelegramMessage(chatId, "🌍 <b>Now searching ALL websites.</b>\nWhat would you like to know?");
       return NextResponse.json({ ok: true });
     }
@@ -190,15 +191,16 @@ export async function POST(req: NextRequest) {
       const matchedSite = sites.find(s => (s.name || s.id).toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 32) === commandName);
       
       if (matchedSite) {
-        await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId") VALUES (${chatId}, ${matchedSite.id}) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = ${matchedSite.id};`;
+        await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, ${matchedSite.id}, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = ${matchedSite.id}, "sessionId" = NULL;`;
         await sendTelegramMessage(chatId, `🎯 <b>Locked onto: ${matchedSite.name}</b>\nAnswers will now come ONLY from this website.\n\nWhat would you like to know?`);
         return NextResponse.json({ ok: true });
       }
     }
     
     // State lookup
-    const state = await prisma.$queryRaw<any[]>`SELECT "siteId", "language" FROM "TelegramState" WHERE "chatId" = ${chatId} LIMIT 1`;
+    const state = await prisma.$queryRaw<any[]>`SELECT "siteId", "language", "sessionId" FROM "TelegramState" WHERE "chatId" = ${chatId} LIMIT 1`;
     let siteId = state.length > 0 ? state[0].siteId : null;
+    let sessionId = state.length > 0 ? state[0].sessionId : null;
     const userLanguage = state.length > 0 ? state[0].language : null;
     let siteNamePrefix = "";
 
@@ -210,11 +212,46 @@ export async function POST(req: NextRequest) {
         siteId = null; // Site was deleted
       }
     }
+
+    // Ensure a chat session exists for multi-turn conversational history
+    if (!sessionId) {
+      let sessionSiteId = siteId;
+      if (!sessionSiteId) {
+        const anySite = await prisma.site.findFirst({ select: { id: true } });
+        sessionSiteId = anySite?.id ?? null;
+      }
+      if (sessionSiteId) {
+        const session = await prisma.chatSession.create({
+          data: { siteId: sessionSiteId },
+        });
+        sessionId = session.id;
+        await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, ${siteId}, ${sessionId}) ON CONFLICT ("chatId") DO UPDATE SET "sessionId" = ${sessionId};`;
+      }
+    }
+
+    // Fetch recent conversation history
+    let history: ChatHistoryItem[] = [];
+    if (sessionId) {
+      const recentDbMessages = await prisma.message.findMany({
+        where: { sessionId },
+        orderBy: { createdAt: "desc" },
+        take: 6,
+        select: { role: true, content: true },
+      });
+      history = recentDbMessages
+        .reverse()
+        .map((m) => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        }));
+    }
     
     const GREETING = /^(hi|hey|hello|yo|sup|hola|howdy)[\s!?.]*$/i;
     let context = "";
     if (!GREETING.test(text)) {
-      const expandedQuery = await expandQuery(text);
+      const standaloneQuery = await condenseQuery(text, history);
+      console.log(`[telegram] question="${text}", standalone="${standaloneQuery}"`);
+      const expandedQuery = await expandQuery(standaloneQuery);
       const chunks = await searchChunks(siteId, expandedQuery, 6);
       
       if (chunks.length === 0) {
@@ -224,9 +261,32 @@ export async function POST(req: NextRequest) {
       context = formatContext(chunks);
     }
     
-    const answer = await getAnswer(text, context, userLanguage);
+    // Save user question to session
+    if (sessionId) {
+      await prisma.message.create({
+        data: {
+          sessionId,
+          role: "user",
+          content: text,
+        },
+      });
+    }
+
+    const answer = await getAnswer(text, context, userLanguage, history);
     // Strip out the CoT <thinking> block so it doesn't break Telegram HTML parsing
     const cleanAnswer = answer.replace(/<thinking>[\s\S]*?<\/thinking>/gi, "").trim();
+
+    // Save assistant response to session
+    if (sessionId) {
+      await prisma.message.create({
+        data: {
+          sessionId,
+          role: "assistant",
+          content: cleanAnswer,
+        },
+      });
+    }
+
     await sendTelegramMessage(chatId, siteNamePrefix + cleanAnswer);
     
     return NextResponse.json({ ok: true });
