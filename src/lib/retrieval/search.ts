@@ -210,12 +210,37 @@ export async function searchChunks(
 
   if (candidates.length === 0) return [];
 
-  // Rerank with cross-encoder for final precision
-  const documents = candidates.map((c) =>
+  // Filter out noise, image badges, and boilerplate before reranking
+  const cleanCandidates = candidates.filter((c) => {
+    if (c.isBoilerplate) return false;
+    const stripped = c.content.replace(/!\[.*?\]\(.*?\)/g, "").replace(/\[.*?\]\(.*?\)/g, "").trim();
+    return stripped.length >= 35;
+  });
+
+  const pool = cleanCandidates.length > 0 ? cleanCandidates : candidates;
+
+  // Prepare documents with section heading for cross-encoder context
+  const documents = pool.map((c) =>
     c.heading ? `${c.heading}\n\n${c.content}` : c.content
   );
-  const topIndices = await rerankDocuments(question, documents, topK);
-  const reranked = topIndices.map((index) => candidates[index]);
+
+  // Rerank candidates with Jina Cross-Encoder
+  const rerankResults = await rerankDocuments(question, documents, topK);
+
+  // Filter out irrelevant chunks below relevance threshold
+  const MIN_RELEVANCE_SCORE = 0.08;
+  const validResults = rerankResults.filter((r) => r.score >= MIN_RELEVANCE_SCORE);
+
+  // If even the top chunk does not meet the minimum threshold, no relevant context exists
+  if (validResults.length === 0) {
+    console.log(`[search] No chunks met relevance threshold (${MIN_RELEVANCE_SCORE}). Best was: ${rerankResults[0]?.score ?? 0}`);
+    return [];
+  }
+
+  const reranked: RetrievedChunk[] = validResults.map((r) => ({
+    ...pool[r.index],
+    score: Math.round(r.score * 100) / 100,
+  }));
 
   // Enforce context character budget to prevent exceeding LLM rate limits (TPM)
   let totalChars = 0;

@@ -104,19 +104,27 @@ export function embeddingToSql(vector: number[]): string {
   return `[${vector.join(",")}]`;
 }
 
+export type RerankResultItem = {
+  index: number;
+  score: number;
+};
+
 /**
  * Rerank: uses Jina AI Cross-Encoder API for high precision.
- * Returns top-K indices of the most relevant documents.
+ * Returns top-K results with original indices and cross-encoder relevance scores (0 to 1).
  */
 export async function rerankDocuments(
   query: string,
   documents: string[],
   topK = 5
-): Promise<number[]> {
+): Promise<RerankResultItem[]> {
   const apiKey = process.env.JINA_API_KEY;
   if (!apiKey || documents.length === 0) {
     console.warn("[rerank] No JINA_API_KEY found (or no docs). Skipping rerank.");
-    return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => i);
+    return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => ({
+      index: i,
+      score: Math.max(0.1, 1.0 - i * 0.15),
+    }));
   }
 
   try {
@@ -130,21 +138,37 @@ export async function rerankDocuments(
         model: "jina-reranker-v2-base-multilingual",
         query: query,
         documents: documents,
-        top_n: topK
+        top_n: Math.min(topK, documents.length)
       })
     });
     
     if (!res.ok) {
       const errorText = await res.text();
       console.warn("[rerank] Jina API failed:", errorText);
-      return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => i);
+      return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => ({
+        index: i,
+        score: Math.max(0.1, 1.0 - i * 0.15),
+      }));
     }
 
     const data = await res.json();
-    return data.results.map((r: any) => r.index);
+    if (!Array.isArray(data.results)) {
+      return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => ({
+        index: i,
+        score: Math.max(0.1, 1.0 - i * 0.15),
+      }));
+    }
+
+    return data.results.map((r: any) => ({
+      index: Number(r.index),
+      score: Number(r.relevance_score ?? 0),
+    }));
   } catch (error) {
     console.warn("[rerank] Jina API error:", error);
-    return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => i);
+    return Array.from({ length: Math.min(topK, documents.length) }, (_, i) => ({
+      index: i,
+      score: Math.max(0.1, 1.0 - i * 0.15),
+    }));
   }
 }
 
