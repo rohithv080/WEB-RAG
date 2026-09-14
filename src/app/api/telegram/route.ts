@@ -106,8 +106,9 @@ async function sendLanguageMenu(chatId: number) {
 }
 
 export async function POST(req: NextRequest) {
+  let body: any = null;
   try {
-    const body = await req.json();
+    body = await req.json();
     const token = process.env.TELEGRAM_BOT_TOKEN;
 
     // 1. Handle Callback Queries (Inline button clicks)
@@ -214,7 +215,7 @@ export async function POST(req: NextRequest) {
     let context = "";
     if (!GREETING.test(text)) {
       const expandedQuery = await expandQuery(text);
-      const chunks = await searchChunks(siteId, expandedQuery, 15);
+      const chunks = await searchChunks(siteId, expandedQuery, 6);
       
       if (chunks.length === 0) {
         await sendTelegramMessage(chatId, `${siteNamePrefix}I don't have any information on that.`);
@@ -231,6 +232,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     console.error("[telegram] Webhook Error:", error);
+    try {
+      const message = error instanceof Error ? error.message : String(error);
+      const friendly = /rate limit|413|request too large|tokens per minute/i.test(message)
+        ? "⚠️ High demand right now, please try again in a moment."
+        : "⚠️ Sorry, I encountered an error processing your request. Please try again.";
+      if (body?.message?.chat?.id) {
+        await sendTelegramMessage(body.message.chat.id, friendly);
+      }
+    } catch {}
     return NextResponse.json({ ok: false, error: error.stack || String(error) }, { status: 500 });
   }
 }

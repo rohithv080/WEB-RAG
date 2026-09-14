@@ -183,7 +183,8 @@ function reciprocalRankFusion(
 export async function searchChunks(
   siteId: string | null,
   question: string,
-  topK = 10
+  topK = 6,
+  maxTotalChars = 12000
 ): Promise<RetrievedChunk[]> {
   const queryEmbedding = await embedQuery(question);
 
@@ -214,16 +215,38 @@ export async function searchChunks(
     c.heading ? `${c.heading}\n\n${c.content}` : c.content
   );
   const topIndices = await rerankDocuments(question, documents, topK);
+  const reranked = topIndices.map((index) => candidates[index]);
 
-  return topIndices.map((index) => candidates[index]);
+  // Enforce context character budget to prevent exceeding LLM rate limits (TPM)
+  let totalChars = 0;
+  const budgeted: RetrievedChunk[] = [];
+  for (const chunk of reranked) {
+    if (totalChars + chunk.content.length > maxTotalChars && budgeted.length > 0) {
+      break;
+    }
+    budgeted.push(chunk);
+    totalChars += chunk.content.length;
+  }
+
+  return budgeted;
 }
 
 // ---------------------------------------------------------------------------
 // Formatting helpers
 // ---------------------------------------------------------------------------
 
-export function formatContext(chunks: RetrievedChunk[]): string {
-  return chunks
+export function formatContext(chunks: RetrievedChunk[], maxChars = 12000): string {
+  let totalChars = 0;
+  const selected: RetrievedChunk[] = [];
+  for (const chunk of chunks) {
+    if (totalChars + chunk.content.length > maxChars && selected.length > 0) {
+      break;
+    }
+    selected.push(chunk);
+    totalChars += chunk.content.length;
+  }
+
+  return selected
     .map((c, i) => {
       const headingText = c.heading ? ` heading="${c.heading.replace(/"/g, '&quot;')}"` : "";
       return `<document id="${i + 1}"${headingText}>\n${c.content}\n</document>`;

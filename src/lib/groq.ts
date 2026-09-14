@@ -99,8 +99,10 @@ function isRateLimitError(err: unknown): boolean {
   const e = err as { status?: number; error?: { code?: string }; message?: string };
   return (
     e.status === 429 ||
+    e.status === 413 ||
     e.error?.code === "rate_limit_exceeded" ||
-    (typeof e.message === "string" && e.message.toLowerCase().includes("rate limit"))
+    (typeof e.message === "string" && e.message.toLowerCase().includes("rate limit")) ||
+    (typeof e.message === "string" && e.message.toLowerCase().includes("request too large"))
   );
 }
 
@@ -347,6 +349,7 @@ export async function streamAnswer(question: string, context: string, language?:
       },
     ],
     temperature: 0.2,
+    max_tokens: 2048,
   });
   return stream;
 }

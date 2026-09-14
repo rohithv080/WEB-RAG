@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       const expandedQuery = await expandQuery(question);
       console.log(`[chat] original="${question}", expanded="${expandedQuery}"`);
 
-      const chunks = await searchChunks(siteId, expandedQuery, 15);
+      const chunks = await searchChunks(siteId, expandedQuery, 6);
       if (chunks.length === 0) {
         return NextResponse.json(
           { error: "No indexed chunks for this site. Scrape a URL first." },
@@ -94,7 +94,9 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: GROQ_BUSY_MESSAGE }, { status: 429 });
       }
       const message = err instanceof Error ? err.message : "Groq request failed";
-      const friendly = /rate limit/i.test(message) ? GROQ_BUSY_MESSAGE : message;
+      const friendly = /rate limit|413|request too large|tokens per minute/i.test(message)
+        ? GROQ_BUSY_MESSAGE
+        : message;
       return NextResponse.json({ error: friendly }, { status: 429 });
     }
 
