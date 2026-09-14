@@ -113,23 +113,30 @@ async function indexPage(
   );
   const embeddings = await embedDocuments(embedTexts);
 
-  for (let i = 0; i < chunks.length; i++) {
-    const c = chunks[i];
-    const embRaw = embeddings[i];
-    if (!embRaw) continue; // skip if embedding unavailable (serverless mode)
-    const emb = embeddingToSql(embRaw);
-    await prisma.$executeRawUnsafe(
-      `
-      INSERT INTO "Chunk" (id, "pageId", content, heading, "order", "isBoilerplate", embedding)
-      VALUES ($1, $2, $3, $4, $5, $6, CAST($7 AS vector))
-      `,
-      createId(),
-      pageId,
-      c.content,
-      c.heading,
-      c.order,
-      c.isBoilerplate || false,
-      emb
+  // Insert chunks in parallel batches of 10 to minimize remote DB round-trip latency
+  const CHUNK_BATCH_SIZE = 10;
+  for (let i = 0; i < chunks.length; i += CHUNK_BATCH_SIZE) {
+    const slice = chunks.slice(i, i + CHUNK_BATCH_SIZE);
+    await Promise.all(
+      slice.map(async (c, sliceIdx) => {
+        const globalIdx = i + sliceIdx;
+        const embRaw = embeddings[globalIdx];
+        if (!embRaw) return; // skip if embedding unavailable
+        const emb = embeddingToSql(embRaw);
+        await prisma.$executeRawUnsafe(
+          `
+          INSERT INTO "Chunk" (id, "pageId", content, heading, "order", "isBoilerplate", embedding)
+          VALUES ($1, $2, $3, $4, $5, $6, CAST($7 AS vector))
+          `,
+          createId(),
+          pageId,
+          c.content,
+          c.heading,
+          c.order,
+          c.isBoilerplate || false,
+          emb
+        );
+      })
     );
   }
 

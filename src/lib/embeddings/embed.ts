@@ -51,11 +51,50 @@ export async function embedQuery(text: string): Promise<number[] | null> {
 }
 
 export async function embedDocuments(texts: string[]): Promise<(number[] | null)[]> {
-  const results: (number[] | null)[] = [];
-  for (const text of texts) {
-    results.push(await embedDocument(text));
+  const apiKey = process.env.JINA_API_KEY;
+  if (!apiKey || texts.length === 0) return texts.map(() => null);
+
+  const BATCH_SIZE = 32; // Batch chunks to minimize network round-trips
+  const allEmbeddings: (number[] | null)[] = [];
+
+  for (let i = 0; i < texts.length; i += BATCH_SIZE) {
+    const batch = texts.slice(i, i + BATCH_SIZE);
+    try {
+      const res = await fetch("https://api.jina.ai/v1/embeddings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model: EMBED_MODEL,
+          dimensions: EMBEDDING_DIM,
+          normalized: true,
+          embedding_type: "float",
+          input: batch,
+          task: "retrieval.passage",
+        }),
+      });
+
+      if (!res.ok) {
+        console.warn("[embed] Jina batch embed failed:", await res.text());
+        allEmbeddings.push(...batch.map(() => null));
+        continue;
+      }
+
+      const data = await res.json();
+      const batchEmbeddings = (data.data as Array<{ index: number; embedding: number[] }>)
+        .sort((a, b) => a.index - b.index)
+        .map((d) => d.embedding);
+
+      allEmbeddings.push(...batchEmbeddings);
+    } catch (err) {
+      console.error("[embed] Jina batch embed error:", err);
+      allEmbeddings.push(...batch.map(() => null));
+    }
   }
-  return results;
+
+  return allEmbeddings;
 }
 
 export function embeddingToSql(vector: number[]): string {

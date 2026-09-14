@@ -3,7 +3,6 @@ import { JSDOM } from "jsdom";
 import TurndownService from "turndown";
 // @ts-ignore
 import { tables } from "turndown-plugin-gfm";
-import { describeImage } from "./vision";
 
 export const MIN_CONTENT_CHARS = 200;
 
@@ -52,42 +51,6 @@ export async function fetchPage(url: string): Promise<ScrapedPage> {
     "[role='navigation']", "[role='banner']", "[role='contentinfo']", ".sidebar"
   ];
   mainNode.querySelectorAll(unwantedSelectors.join(", ")).forEach(el => el.remove());
-
-  // --- VISION: Analyze up to 5 images ---
-  const images = Array.from(mainNode.querySelectorAll("img")).filter(img => {
-    const width = parseInt(img.getAttribute("width") || "0");
-    const height = parseInt(img.getAttribute("height") || "0");
-    // Ignore small icons
-    if (width > 0 && width < 50) return false;
-    if (height > 0 && height < 50) return false;
-    return img.getAttribute("src") || img.getAttribute("data-src");
-  }).slice(0, 5);
-
-  if (images.length > 0) {
-    console.log(`[scrape] Analyzing ${images.length} images with Groq Vision on ${url}...`);
-    const descriptions = await Promise.all(
-      images.map(async (img) => {
-        let src = img.getAttribute("src") || img.getAttribute("data-src") || "";
-        // Convert relative URL to absolute
-        try {
-          src = new URL(src, url).href;
-          return await describeImage(src);
-        } catch {
-          return null;
-        }
-      })
-    );
-    
-    images.forEach((img, i) => {
-      const desc = descriptions[i];
-      if (desc) {
-        const caption = document.createElement("p");
-        caption.innerHTML = `<strong>[Image: ${desc}]</strong>`;
-        img.insertAdjacentElement("afterend", caption);
-      }
-    });
-  }
-  // --------------------------------------
 
   const turndownService = new TurndownService({ headingStyle: "atx", codeBlockStyle: "fenced" });
   turndownService.use(tables);
