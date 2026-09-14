@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/Sidebar";
 import { Skeleton } from "@/components/Skeleton";
 import { EmptyState } from "@/components/EmptyState";
 import { ToastProvider, useToast } from "@/components/Toast";
+import { EmbedModal } from "@/components/EmbedModal";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inner app (needs ToastProvider context)
@@ -41,6 +42,15 @@ function AppInner() {
   // ── page manager ─────────────────────────────────────────────────────────
   const [pagesOpen, setPagesOpen] = useState(false);
   const [refreshingPageId, setRefreshingPageId] = useState<string | null>(null);
+
+  // ── embed modal ──────────────────────────────────────────────────────────
+  const [embedSite, setEmbedSite] = useState<SiteSummary | null>(null);
+  const [showEmbedModal, setShowEmbedModal] = useState(false);
+
+  function openEmbed(site: SiteSummary) {
+    setEmbedSite(site);
+    setShowEmbedModal(true);
+  }
 
   // ── data loading ─────────────────────────────────────────────────────────
   const loadSites = useCallback(async () => {
@@ -206,7 +216,13 @@ function AppInner() {
             ) : (
               <div className="bot-grid">
                 {sites.map((s) => (
-                  <BotCard key={s.id} site={s} onClick={() => openChat(s)} onDelete={handleDeleteSite} />
+                  <BotCard
+                    key={s.id}
+                    site={s}
+                    onClick={() => openChat(s)}
+                    onDelete={handleDeleteSite}
+                    onEmbed={openEmbed}
+                  />
                 ))}
                 <button type="button" className="add-bot-card" onClick={openModal}>
                   <span className="add-bot-icon">+</span>
@@ -228,6 +244,14 @@ function AppInner() {
                   <span className="chat-site-desc">{selectedSite.description}</span>
                 )}
               </div>
+              <button
+                type="button"
+                className="chat-embed-btn"
+                onClick={() => openEmbed(selectedSite)}
+                title="Get 1-line embed snippet for your website"
+              >
+                &lt;/&gt; Embed
+              </button>
             </nav>
 
             <div className="chat-body">
@@ -372,6 +396,13 @@ function AppInner() {
         </div>
       )}
 
+      {/* ── EMBED WIDGET MODAL ─────────────────────────────────────── */}
+      <EmbedModal
+        site={embedSite}
+        isOpen={showEmbedModal}
+        onClose={() => setShowEmbedModal(false)}
+      />
+
       <style jsx>{`
         /* ── App Layout ────────────────────────────────────────────── */
         .app-layout {
@@ -493,6 +524,26 @@ function AppInner() {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+        .chat-embed-btn {
+          margin-left: auto;
+          background: rgba(56, 189, 248, 0.12);
+          border: 1px solid rgba(56, 189, 248, 0.25);
+          color: #38bdf8;
+          font-size: 0.78rem;
+          font-weight: 600;
+          padding: 5px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .chat-embed-btn:hover {
+          background: rgba(56, 189, 248, 0.22);
+          color: #fff;
+          border-color: #38bdf8;
         }
         .chat-body {
           flex: 1;

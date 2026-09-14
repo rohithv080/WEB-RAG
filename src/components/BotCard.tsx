@@ -79,9 +79,10 @@ export type BotCardProps = {
   site: SiteSummary;
   onClick: () => void;
   onDelete?: (id: string) => void;
+  onEmbed?: (site: SiteSummary) => void;
 };
 
-export function BotCard({ site, onClick, onDelete }: BotCardProps) {
+export function BotCard({ site, onClick, onDelete, onEmbed }: BotCardProps) {
   const { accent, glow } = pickColor(site.name);
   const abbr = initials(site.name) || "?";
   const favicon = getFavicon(site.pages);
@@ -129,6 +130,15 @@ export function BotCard({ site, onClick, onDelete }: BotCardProps) {
               title="Delete bot"
             >
               🗑️
+            </button>
+          )}
+          {onEmbed && (
+            <button
+              className="bot-embed-btn"
+              onClick={(e) => { e.stopPropagation(); onEmbed(site); }}
+              title="Embed chatbot on your website"
+            >
+              &lt;/&gt; Embed
             </button>
           )}
           <button className="bot-chat-btn" onClick={(e) => { e.stopPropagation(); onClick(); }}>
@@ -266,6 +276,24 @@ export function BotCard({ site, onClick, onDelete }: BotCardProps) {
         }
         .bot-delete-btn:hover {
           opacity: 1 !important;
+        }
+        .bot-embed-btn {
+          padding: 0.4rem 0.75rem;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: 8px;
+          background: rgba(255, 255, 255, 0.06);
+          color: #c9d1d9;
+          font-size: 0.78rem;
+          font-weight: 600;
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .bot-embed-btn:hover {
+          background: rgba(255, 255, 255, 0.14);
+          color: #fff;
+          border-color: rgba(255, 255, 255, 0.25);
         }
         .bot-chat-btn {
           padding: 0.4rem 0.9rem;
