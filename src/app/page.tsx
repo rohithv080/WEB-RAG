@@ -34,7 +34,7 @@ function AppInner() {
   const [modalUrl, setModalUrl] = useState("");
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
-  const [modalDeepCrawl, setModalDeepCrawl] = useState(false);
+  const [modalCrawlLimit, setModalCrawlLimit] = useState<number>(5);
   const [modalProgress, setModalProgress] = useState<{ current: number; total: number } | null>(null);
   const modalNameRef = useRef<HTMLInputElement>(null);
 
@@ -80,6 +80,7 @@ function AppInner() {
     setModalName("");
     setModalDesc("");
     setModalUrl("");
+    setModalCrawlLimit(5);
     setModalError(null);
     setTimeout(() => modalNameRef.current?.focus(), 80);
   }
@@ -96,10 +97,10 @@ function AppInner() {
       const headers = { "Content-Type": "application/json" };
       let urlsToScrape = [url];
 
-      if (modalDeepCrawl) {
+      if (modalCrawlLimit > 1) {
         setModalProgress({ current: 0, total: 1 });
         const crawlRes = await fetch("/api/crawl", {
-          method: "POST", headers, body: JSON.stringify({ url }),
+          method: "POST", headers, body: JSON.stringify({ url, maxPages: modalCrawlLimit }),
         });
         if (!crawlRes.ok) throw new Error("Crawl failed");
         const crawlData = await crawlRes.json();
@@ -109,7 +110,7 @@ function AppInner() {
       let createdSiteId: string | null = null;
 
       for (let i = 0; i < urlsToScrape.length; i++) {
-        if (modalDeepCrawl) setModalProgress({ current: i + 1, total: urlsToScrape.length });
+        if (modalCrawlLimit > 1) setModalProgress({ current: i + 1, total: urlsToScrape.length });
         const scrapeRes: Response = await fetch("/api/scrape", {
           method: "POST",
           headers,
@@ -322,15 +323,35 @@ function AppInner() {
                 required
               />
 
-              <label className="crawl-toggle">
-                <input
-                  type="checkbox"
-                  checked={modalDeepCrawl}
-                  onChange={(e) => setModalDeepCrawl(e.target.checked)}
-                  disabled={modalLoading}
-                />
-                Deep Crawl (up to 100 pages)
-              </label>
+              <div className="crawl-options-wrapper">
+                <div className="crawl-options-header">
+                  <span className="crawl-options-title">Crawl Scope</span>
+                  <span className="vercel-badge">⚡ Vercel-Optimized</span>
+                </div>
+                <div className="crawl-pills-grid">
+                  {[
+                    { count: 1, label: "1 Page", tag: "⚡ Single", desc: "Instant (~2s)" },
+                    { count: 5, label: "5 Pages", tag: "🚀 Quick", desc: "Fast & safe (~10s)" },
+                    { count: 15, label: "15 Pages", tag: "⭐ Best", desc: "Recommended (~25s)" },
+                    { count: 30, label: "30 Pages", tag: "📚 Deep", desc: "Thorough (~50s)" },
+                    { count: 100, label: "100 Pages", tag: "🌐 Full", desc: "Complete (2-3m)" },
+                  ].map((opt) => (
+                    <button
+                      key={opt.count}
+                      type="button"
+                      className={`crawl-pill ${modalCrawlLimit === opt.count ? "active" : ""}`}
+                      onClick={() => setModalCrawlLimit(opt.count)}
+                      disabled={modalLoading}
+                    >
+                      <div className="pill-top">
+                        <span className="pill-label">{opt.label}</span>
+                        <span className="pill-tag">{opt.tag}</span>
+                      </div>
+                      <span className="pill-desc">{opt.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               {modalError && <p className="modal-error">{modalError}</p>}
 
@@ -638,14 +659,77 @@ function AppInner() {
           border-color: var(--accent);
           box-shadow: 0 0 0 2px var(--accent-soft);
         }
-        .crawl-toggle {
+        .crawl-options-wrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+          margin-top: 0.25rem;
+        }
+        .crawl-options-header {
           display: flex;
           align-items: center;
-          gap: 0.5rem;
-          font-size: 0.85rem;
+          justify-content: space-between;
+        }
+        .crawl-options-title {
+          font-size: 0.8rem;
+          font-weight: 500;
           color: var(--text-muted);
-          margin-top: 0.25rem;
+        }
+        .vercel-badge {
+          font-size: 0.7rem;
+          color: var(--accent);
+          background: var(--accent-soft);
+          padding: 0.15rem 0.5rem;
+          border-radius: 4px;
+          font-weight: 600;
+        }
+        .crawl-pills-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+          gap: 0.45rem;
+        }
+        .crawl-pill {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.2rem;
+          padding: 0.5rem 0.65rem;
+          background: var(--bg-input);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           cursor: pointer;
+          text-align: left;
+          transition: all 0.15s ease;
+        }
+        .crawl-pill:hover:not(:disabled) {
+          border-color: var(--border-active);
+          background: var(--bg-card);
+        }
+        .crawl-pill.active {
+          border-color: var(--accent);
+          background: var(--accent-soft);
+        }
+        .pill-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+        }
+        .pill-label {
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: var(--text);
+        }
+        .crawl-pill.active .pill-label {
+          color: var(--accent);
+        }
+        .pill-tag {
+          font-size: 0.68rem;
+          color: var(--text-muted);
+        }
+        .pill-desc {
+          font-size: 0.68rem;
+          color: var(--text-muted);
         }
         .modal-error {
           margin: 0;

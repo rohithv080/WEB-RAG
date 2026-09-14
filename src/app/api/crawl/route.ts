@@ -75,7 +75,8 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const url = body.url;
-    const maxDepth = Math.min(body.depth ?? 2, 3); // Default depth 2, max 3
+    const maxPages = Math.min(Math.max(Number(body.maxPages) || 15, 1), 100);
+    const maxDepth = Math.min(body.depth ?? (maxPages <= 5 ? 1 : 2), 3);
 
     if (!url) return NextResponse.json({ error: "Missing url" }, { status: 400 });
 
@@ -86,13 +87,13 @@ export async function POST(req: NextRequest) {
     // BFS queue: each entry is [url, depth]
     let queue: [string, number][] = [[startUrl.href, 0]];
 
-    while (queue.length > 0 && discovered.length < MAX_PAGES) {
+    while (queue.length > 0 && discovered.length < maxPages) {
       // Group by current depth level
       const currentBatch = queue.splice(0, queue.length);
       const nextQueue: [string, number][] = [];
 
       // Process in batches of CONCURRENCY
-      for (let i = 0; i < currentBatch.length && discovered.length < MAX_PAGES; i += CONCURRENCY) {
+      for (let i = 0; i < currentBatch.length && discovered.length < maxPages; i += CONCURRENCY) {
         const batch = currentBatch.slice(i, i + CONCURRENCY);
 
         const results = await Promise.all(
@@ -124,7 +125,7 @@ export async function POST(req: NextRequest) {
         for (const childLinks of results) {
           if (!childLinks) continue;
           for (const entry of childLinks) {
-            if (!visited.has(entry[0]) && discovered.length + nextQueue.length < MAX_PAGES * 2) {
+            if (!visited.has(entry[0]) && discovered.length + nextQueue.length < maxPages * 2) {
               nextQueue.push(entry);
             }
           }
@@ -134,10 +135,10 @@ export async function POST(req: NextRequest) {
       queue = nextQueue;
     }
 
-    // Deduplicate and cap at MAX_PAGES
-    const uniqueUrls = [...new Set(discovered)].slice(0, MAX_PAGES);
+    // Deduplicate and cap at maxPages
+    const uniqueUrls = [...new Set(discovered)].slice(0, maxPages);
 
-    console.log(`[crawl] Discovered ${uniqueUrls.length} pages from ${url} (depth ${maxDepth})`);
+    console.log(`[crawl] Discovered ${uniqueUrls.length} pages (target=${maxPages}) from ${url} (depth ${maxDepth})`);
 
     return NextResponse.json({ urls: uniqueUrls });
   } catch (error: any) {

@@ -32,7 +32,7 @@ export function UrlInput({
 }: Props) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [deepCrawl, setDeepCrawl] = useState(false);
+  const [crawlLimit, setCrawlLimit] = useState<number>(1);
   const [crawlProgress, setCrawlProgress] = useState<{current: number; total: number} | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
@@ -54,12 +54,12 @@ export function UrlInput({
     try {
       let urlsToScrape = [trimmed];
 
-      if (deepCrawl) {
+      if (crawlLimit > 1) {
         setCrawlProgress({ current: 0, total: 0 });
         const crawlRes = await fetch("/api/crawl", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ url: trimmed }),
+          body: JSON.stringify({ url: trimmed, maxPages: crawlLimit }),
         });
         
         if (!crawlRes.ok) throw new Error("Failed to discover URLs");
@@ -72,7 +72,7 @@ export function UrlInput({
 
       for (let i = 0; i < urlsToScrape.length; i++) {
         const u = urlsToScrape[i];
-        if (deepCrawl) setCrawlProgress({ current: i + 1, total: urlsToScrape.length });
+        if (crawlLimit > 1) setCrawlProgress({ current: i + 1, total: urlsToScrape.length });
 
         const res = await fetch("/api/scrape", {
           method: "POST",
@@ -98,7 +98,7 @@ export function UrlInput({
         }
 
         // Only call onScraped at the very end to avoid refreshing UI 50 times
-        if (i === urlsToScrape.length - 1 || !deepCrawl) {
+        if (i === urlsToScrape.length - 1 || crawlLimit === 1) {
           setStatus(`Indexed ${data.chunkCount} chunks from "${data.title || data.url}"`);
           onScraped(data as ScrapeResult);
         }
@@ -217,20 +217,107 @@ export function UrlInput({
       </div>
       
       {!compact && (
-        <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.5rem", fontSize: "0.9rem", color: "#888" }}>
-          <input 
-            type="checkbox" 
-            checked={deepCrawl} 
-            onChange={(e) => setDeepCrawl(e.target.checked)} 
-            disabled={loading || disabled}
-          />
-          Deep Crawl (discover &amp; scrape up to 100 pages, 2 levels deep)
-        </label>
+        <div className="crawl-options-wrapper">
+          <div className="crawl-options-header">
+            <span className="url-label">Crawl Scope</span>
+            <span className="vercel-badge">⚡ Vercel-Optimized</span>
+          </div>
+          <div className="crawl-pills-row">
+            {[
+              { count: 1, label: "1 Page", tag: "⚡ Single", desc: "Instant (~2s)" },
+              { count: 5, label: "5 Pages", tag: "🚀 Quick", desc: "Fast (~10s)" },
+              { count: 15, label: "15 Pages", tag: "⭐ Best", desc: "Balanced (~25s)" },
+              { count: 30, label: "30 Pages", tag: "📚 Deep", desc: "Thorough (~50s)" },
+              { count: 100, label: "100 Pages", tag: "🌐 Full", desc: "Complete (2-3m)" },
+            ].map((opt) => (
+              <button
+                key={opt.count}
+                type="button"
+                className={`crawl-pill-mini ${crawlLimit === opt.count ? "active" : ""}`}
+                onClick={() => setCrawlLimit(opt.count)}
+                disabled={loading || disabled}
+              >
+                <div className="pill-mini-top">
+                  <span className="pill-mini-label">{opt.label}</span>
+                  <span className="pill-mini-tag">{opt.tag}</span>
+                </div>
+                <span className="pill-mini-desc">{opt.desc}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
       {status && <p className="url-status">{status}</p>}
       {error && <p className="url-error">{error}</p>}
 
       <style jsx>{`
+        .crawl-options-wrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 0.35rem;
+          margin-top: 0.2rem;
+        }
+        .crawl-options-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .vercel-badge {
+          font-size: 0.68rem;
+          color: var(--accent);
+          background: var(--accent-soft);
+          padding: 0.15rem 0.45rem;
+          border-radius: 4px;
+          font-weight: 600;
+        }
+        .crawl-pills-row {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+          gap: 0.35rem;
+        }
+        .crawl-pill-mini {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.15rem;
+          padding: 0.4rem 0.55rem;
+          background: var(--bg-input);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.15s ease;
+        }
+        .crawl-pill-mini:hover:not(:disabled) {
+          border-color: var(--border-active);
+          background: var(--bg-card);
+        }
+        .crawl-pill-mini.active {
+          border-color: var(--accent);
+          background: var(--accent-soft);
+        }
+        .pill-mini-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+        }
+        .pill-mini-label {
+          font-size: 0.76rem;
+          font-weight: 600;
+          color: var(--text);
+        }
+        .crawl-pill-mini.active .pill-mini-label {
+          color: var(--accent);
+        }
+        .pill-mini-tag {
+          font-size: 0.62rem;
+          color: var(--text-muted);
+        }
+        .pill-mini-desc {
+          font-size: 0.62rem;
+          color: var(--text-muted);
+        }
         .url-form {
           display: flex;
           flex-direction: column;
