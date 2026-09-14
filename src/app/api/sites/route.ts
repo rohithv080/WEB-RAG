@@ -1,30 +1,30 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    let currentUserId: string | null = null;
-    try {
-      const authData = await auth();
-      currentUserId = authData.userId;
-    } catch {
-      // Clerk keys unconfigured or request not authenticated
-    }
+    const { userId: currentUserId, isAdmin } = await getAuthUser();
+    const scope = req.nextUrl.searchParams.get("scope"); // "all" for admin, or default
 
-    // Tenant Isolation:
-    // If a user is logged in, show only bots they created + legacy bots (created before auth)
-    // If user is unauthenticated, show public bots
-    const whereClause: any = currentUserId
-      ? {
-          OR: [
-            { userId: currentUserId },
-            { userId: null },
-          ],
-        }
-      : { isPublic: true };
+    let whereClause: any = {};
+    if (isAdmin && scope === "all") {
+      // Super Admin viewing all bots across the entire system
+      whereClause = {};
+    } else if (currentUserId) {
+      // User view: show their bots + unassigned legacy bots
+      whereClause = {
+        OR: [
+          { userId: currentUserId },
+          { userId: null },
+        ],
+      };
+    } else {
+      // Unauthenticated public visitors
+      whereClause = { isPublic: true };
+    }
 
     const sites = await prisma.site.findMany({
       where: whereClause,
@@ -75,6 +75,7 @@ export async function GET() {
           })),
         };
       }),
+      isAdmin,
     });
   } catch (err) {
     console.error("[sites]", err);

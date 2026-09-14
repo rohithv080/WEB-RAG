@@ -28,6 +28,8 @@ function AppInner() {
   // ── sites ────────────────────────────────────────────────────────────────
   const [sites, setSites] = useState<SiteSummary[]>([]);
   const [sitesLoading, setSitesLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminScope, setAdminScope] = useState<"user" | "all">("user");
 
   // ── modal ────────────────────────────────────────────────────────────────
   const [showModal, setShowModal] = useState(false);
@@ -76,12 +78,16 @@ function AppInner() {
   // ── data loading ─────────────────────────────────────────────────────────
   const loadSites = useCallback(async () => {
     try {
-      const res = await fetch("/api/sites");
+      const url = adminScope === "all" ? "/api/sites?scope=all" : "/api/sites";
+      const res = await fetch(url);
       const data = await res.json();
-      if (res.ok) setSites(data.sites ?? []);
+      if (res.ok) {
+        setSites(data.sites ?? []);
+        if (data.isAdmin !== undefined) setIsAdmin(Boolean(data.isAdmin));
+      }
     } catch { /* ignore */ }
     finally { setSitesLoading(false); }
-  }, []);
+  }, [adminScope]);
 
   useEffect(() => { loadSites(); }, [loadSites]);
 
@@ -279,10 +285,33 @@ function AppInner() {
                   <span className="badge-sep">•</span>
                   <span className="badge-pill-tech">Hybrid BM25 + Jina Rerank v2</span>
                 </div>
-                <button type="button" className="hero-create-btn" onClick={openModal}>
-                  <span className="hero-btn-icon">+</span>
-                  <span>New Knowledge Bot</span>
-                </button>
+
+                <div className="hero-top-actions">
+                  {isAdmin && (
+                    <div className="admin-scope-toggle">
+                      <button
+                        type="button"
+                        className={`admin-toggle-btn ${adminScope === "user" ? "active" : ""}`}
+                        onClick={() => setAdminScope("user")}
+                      >
+                        My Bots
+                      </button>
+                      <button
+                        type="button"
+                        className={`admin-toggle-btn ${adminScope === "all" ? "active" : ""}`}
+                        onClick={() => setAdminScope("all")}
+                        title="View all bots created across the system"
+                      >
+                        🛡️ God Mode (All)
+                      </button>
+                    </div>
+                  )}
+
+                  <button type="button" className="hero-create-btn" onClick={openModal}>
+                    <span className="hero-btn-icon">+</span>
+                    <span>New Knowledge Bot</span>
+                  </button>
+                </div>
               </div>
 
               <div className="hero-headings">
@@ -747,6 +776,42 @@ function AppInner() {
           color: #a5b4fc;
           font-family: var(--font-mono);
           font-size: 0.72rem;
+        }
+
+        .hero-top-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
+
+        .admin-scope-toggle {
+          display: flex;
+          align-items: center;
+          background: rgba(0, 0, 0, 0.4);
+          border: 1px solid rgba(192, 132, 252, 0.3);
+          border-radius: var(--radius-md);
+          padding: 2px;
+          box-shadow: 0 0 12px rgba(192, 132, 252, 0.15);
+        }
+
+        .admin-toggle-btn {
+          padding: 0.38rem 0.75rem;
+          border: 1px solid transparent;
+          background: transparent;
+          color: var(--text-muted);
+          font-size: 0.76rem;
+          font-weight: 600;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+
+        .admin-toggle-btn.active {
+          background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(129, 140, 248, 0.25) 100%);
+          color: #f1f5f9;
+          border-color: rgba(192, 132, 252, 0.4);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .hero-create-btn {

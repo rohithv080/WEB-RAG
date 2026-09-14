@@ -4,6 +4,7 @@ import {
   Show,
   SignInButton,
   UserButton,
+  useUser,
 } from "@clerk/nextjs";
 
 export function AuthBar() {
@@ -54,12 +55,20 @@ export function AuthBar() {
     );
   }
 
+  const { user } = useUser();
+  const adminEmail = "rohithjune05@gmail.com";
+  const userEmails = user?.emailAddresses?.map((e) => e.emailAddress.toLowerCase()) || [];
+  const isAdmin = userEmails.includes(adminEmail);
+
   return (
     <div className="auth-bar">
       <Show when="signed-in">
         <div className="signed-in-user">
           <UserButton />
-          <span className="user-label">My Workspace</span>
+          <div className="user-text-col">
+            <span className="user-label">My Workspace</span>
+            {isAdmin && <span className="admin-badge-pill">🛡️ Super Admin</span>}
+          </div>
         </div>
       </Show>
 
@@ -81,13 +90,24 @@ export function AuthBar() {
           gap: 8px;
           padding: 0.4rem 0.6rem;
           background: rgba(255, 255, 255, 0.04);
-          border: 1px solid var(--border);
+          border: 1px solid var(--border-subtle);
           border-radius: 8px;
+        }
+        .user-text-col {
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
         }
         .user-label {
           font-size: 0.78rem;
-          font-weight: 500;
-          color: var(--text-muted);
+          font-weight: 600;
+          color: #f1f5f9;
+        }
+        .admin-badge-pill {
+          font-size: 0.62rem;
+          font-weight: 700;
+          color: #c084fc;
+          letter-spacing: 0.02em;
         }
         .sign-in-btn {
           width: 100%;

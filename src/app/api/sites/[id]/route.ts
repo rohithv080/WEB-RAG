@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { syncTelegramBotCommands } from "@/lib/telegram";
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUser } from "@/lib/auth";
 
 export async function GET(
   req: NextRequest,
@@ -48,14 +48,10 @@ export async function PATCH(
       return NextResponse.json({ error: "Site not found" }, { status: 404 });
     }
 
-    let currentUserId: string | null = null;
-    try {
-      const authData = await auth();
-      currentUserId = authData.userId;
-    } catch {}
+    const { userId: currentUserId, isAdmin } = await getAuthUser();
 
-    // Protect bot settings: if a bot is owned by a specific user, reject updates from other users
-    if (existing.userId && existing.userId !== currentUserId) {
+    // Protect bot settings: if owned by another user, allow only if Super Admin
+    if (existing.userId && existing.userId !== currentUserId && !isAdmin) {
       return NextResponse.json({ error: "Unauthorized to modify this bot" }, { status: 403 });
     }
 
@@ -113,14 +109,10 @@ export async function DELETE(
       return NextResponse.json({ error: "Site not found" }, { status: 404 });
     }
 
-    let currentUserId: string | null = null;
-    try {
-      const authData = await auth();
-      currentUserId = authData.userId;
-    } catch {}
+    const { userId: currentUserId, isAdmin } = await getAuthUser();
 
-    // Protect deletion: prevent any other user from deleting this bot
-    if (existing.userId && existing.userId !== currentUserId) {
+    // Protect deletion: prevent any other user from deleting this bot unless Super Admin
+    if (existing.userId && existing.userId !== currentUserId && !isAdmin) {
       return NextResponse.json({ error: "Unauthorized to delete this bot" }, { status: 403 });
     }
 
