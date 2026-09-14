@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { ToastProvider, useToast } from "@/components/Toast";
 import { EmbedModal } from "@/components/EmbedModal";
 import { BotSettingsModal } from "@/components/BotSettingsModal";
+import { AnalyticsModal } from "@/components/AnalyticsModal";
 import { Show, SignInButton, SignUpButton, SignOutButton } from "@clerk/nextjs";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -74,6 +75,15 @@ function AppInner() {
       setSelectedSite(updatedSite);
     }
     addToast(`Bot "${updatedSite.name}" updated!`, "success");
+  }
+
+  // ── bot analytics modal ──────────────────────────────────────────────────
+  const [analyticsSite, setAnalyticsSite] = useState<SiteSummary | null>(null);
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+
+  function openAnalytics(site: SiteSummary) {
+    setAnalyticsSite(site);
+    setShowAnalyticsModal(true);
   }
 
   // ── data loading ─────────────────────────────────────────────────────────
@@ -390,6 +400,7 @@ function AppInner() {
                     onDelete={handleDeleteSite}
                     onEmbed={openEmbed}
                     onSettings={openSettings}
+                    onAnalytics={openAnalytics}
                   />
                 ))}
                 <button type="button" className="add-bot-card" onClick={openModal}>
@@ -418,6 +429,14 @@ function AppInner() {
                 )}
               </div>
               <div className="chat-nav-actions">
+                <button
+                  type="button"
+                  className="chat-analytics-btn"
+                  onClick={() => openAnalytics(selectedSite)}
+                  title="View bot analytics, query logs & metrics"
+                >
+                  📊 Analytics
+                </button>
                 <button
                   type="button"
                   className="chat-settings-btn"
@@ -708,6 +727,13 @@ function AppInner() {
         isOpen={showSettingsModal}
         onClose={() => setShowSettingsModal(false)}
         onSave={handleSaveSettings}
+      />
+
+      {/* ── BOT ANALYTICS MODAL ─────────────────────────────────── */}
+      <AnalyticsModal
+        site={analyticsSite}
+        isOpen={showAnalyticsModal}
+        onClose={() => setShowAnalyticsModal(false)}
       />
 
       <style jsx>{`
@@ -1154,6 +1180,25 @@ function AppInner() {
           display: flex;
           align-items: center;
           gap: 8px;
+        }
+        .chat-analytics-btn {
+          background: rgba(167, 139, 250, 0.12);
+          border: 1px solid rgba(167, 139, 250, 0.25);
+          color: #c084fc;
+          font-size: 0.78rem;
+          font-weight: 600;
+          padding: 5px 12px;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .chat-analytics-btn:hover {
+          background: rgba(167, 139, 250, 0.22);
+          color: #fff;
+          border-color: #c084fc;
         }
         .chat-settings-btn {
           background: rgba(255, 255, 255, 0.06);

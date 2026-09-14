@@ -8,9 +8,11 @@ import remarkGfm from "remark-gfm";
 
 export type ChatMessage = {
   id: string;
+  dbId?: string;
   role: "user" | "assistant";
   content: string;
   citations?: Citation[];
+  rating?: "up" | "down" | null;
 };
 
 type Props = {
@@ -186,8 +188,15 @@ export function ChatWindow({
                     : m
                 )
               );
-            } else if (payload.type === "done" && payload.sessionId) {
-              onSessionId(payload.sessionId);
+            } else if (payload.type === "done") {
+              if (payload.sessionId) onSessionId(payload.sessionId);
+              if (payload.messageId) {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId ? { ...m, dbId: payload.messageId } : m
+                  )
+                );
+              }
             } else if (payload.type === "error") {
               throw new Error(payload.error || "Stream error");
             }
@@ -214,6 +223,27 @@ export function ChatWindow({
         inputRef.current?.focus();
       }
     })();
+  }
+
+  async function handleRateMessage(msgId: string, rating: "up" | "down") {
+    const target = messages.find((m) => m.id === msgId);
+    if (!target) return;
+    const newRating = target.rating === rating ? null : rating;
+    setMessages((prev) =>
+      prev.map((m) => (m.id === msgId ? { ...m, rating: newRating } : m))
+    );
+
+    if (target.dbId) {
+      try {
+        await fetch("/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messageId: target.dbId, rating: newRating }),
+        });
+      } catch (err) {
+        console.error("[feedback error]", err);
+      }
+    }
   }
 
   function handleSubmit(e: FormEvent) {
@@ -251,6 +281,33 @@ export function ChatWindow({
                   m.content
                 )}
               </div>
+              {m.role === "assistant" && m.content && (
+                <div className="msg-actions-row">
+                  <div className="feedback-group">
+                    <button
+                      type="button"
+                      className={`feedback-pill ${m.rating === "up" ? "active-up" : ""}`}
+                      onClick={() => handleRateMessage(m.id, "up")}
+                      title="Good response"
+                    >
+                      👍
+                    </button>
+                    <button
+                      type="button"
+                      className={`feedback-pill ${m.rating === "down" ? "active-down" : ""}`}
+                      onClick={() => handleRateMessage(m.id, "down")}
+                      title="Inaccurate or unhelpful"
+                    >
+                      👎
+                    </button>
+                    {m.rating && (
+                      <span className="feedback-toast">
+                        {m.rating === "up" ? "Thanks for feedback!" : "Feedback recorded"}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
               {m.citations && m.citations.length > 0 && (
                 <div className="msg-citations">
                   {m.citations.map((c) => (
@@ -362,6 +419,62 @@ export function ChatWindow({
           gap: 0.4rem;
           margin-top: 0.4rem;
           padding-left: 0.25rem;
+        }
+
+        .msg-actions-row {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          margin-top: 0.35rem;
+          padding-left: 0.25rem;
+        }
+
+        .feedback-group {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .feedback-pill {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          color: var(--text-muted);
+          width: 26px;
+          height: 26px;
+          border-radius: 6px;
+          font-size: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          opacity: 0.65;
+        }
+        .feedback-pill:hover {
+          opacity: 1;
+          background: rgba(255, 255, 255, 0.1);
+          transform: scale(1.05);
+        }
+
+        .feedback-pill.active-up {
+          opacity: 1;
+          background: rgba(52, 211, 153, 0.15);
+          border-color: rgba(52, 211, 153, 0.4);
+          color: #34d399;
+        }
+
+        .feedback-pill.active-down {
+          opacity: 1;
+          background: rgba(248, 113, 113, 0.15);
+          border-color: rgba(248, 113, 113, 0.4);
+          color: #f87171;
+        }
+
+        .feedback-toast {
+          font-size: 0.72rem;
+          color: #94a3b8;
+          margin-left: 4px;
+          animation: fadeUp 0.15s ease both;
         }
 
         /* Markdown */

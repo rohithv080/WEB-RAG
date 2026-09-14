@@ -57,6 +57,8 @@ model ChatSession {
   site      Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
   messages  Message[]
   createdAt DateTime  @default(now())
+
+  @@index([siteId])
 }
 
 model Message {
@@ -66,7 +68,13 @@ model Message {
   role      String // "user" | "assistant"
   content   String
   citations Json? // [{ chunkId, heading, snippet, pageUrl }]
+  rating    String? // "up" | "down"
+  feedback  String? // optional comment
+  latencyMs Int? // generation latency in ms
   createdAt DateTime    @default(now())
+
+  @@index([sessionId])
+  @@index([role])
 }
 
 model TelegramState {

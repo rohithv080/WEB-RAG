@@ -47,6 +47,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Site not found" }, { status: 404 });
     }
 
+    const startTime = Date.now();
+
     if (sessionId) {
       const session = await prisma.chatSession.findFirst({
         where: { id: sessionId, siteId },
@@ -152,16 +154,17 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          await prisma.message.create({
+          const assistantMessage = await prisma.message.create({
             data: {
               sessionId,
               role: "assistant",
               content: fullAnswer,
               citations,
+              latencyMs: Date.now() - startTime,
             },
           });
 
-          send({ type: "done", sessionId });
+          send({ type: "done", sessionId, messageId: assistantMessage.id });
           controller.close();
         } catch (err) {
           console.error("[chat stream]", err);

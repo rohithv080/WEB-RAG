@@ -86,9 +86,10 @@ export type BotCardProps = {
   onDelete?: (id: string) => void;
   onEmbed?: (site: SiteSummary) => void;
   onSettings?: (site: SiteSummary) => void;
+  onAnalytics?: (site: SiteSummary) => void;
 };
 
-export function BotCard({ site, onClick, onDelete, onEmbed, onSettings }: BotCardProps) {
+export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalytics }: BotCardProps) {
   const { accent, glow, bg } = pickColor(site.name);
   const abbr = initials(site.name) || "?";
   const favicon = getFavicon(site.pages);
@@ -190,6 +191,24 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings }: BotCar
                 <circle cx="12" cy="12" r="3" />
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </svg>
+            </button>
+          )}
+
+          {onAnalytics && (
+            <button
+              className="action-btn analytics-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAnalytics(site);
+              }}
+              title="View bot analytics, query logs & metrics"
+            >
+              <svg viewBox="0 0 24 24" width={14} height={14} fill="none" stroke="currentColor" strokeWidth={2}>
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+              <span>Logs</span>
             </button>
           )}
 
@@ -449,6 +468,18 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings }: BotCar
           background: rgba(255, 255, 255, 0.1);
           border-color: rgba(255, 255, 255, 0.22);
           transform: rotate(30deg);
+        }
+
+        .analytics-btn {
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: #38bdf8;
+          padding: 6px 10px;
+        }
+        .analytics-btn:hover {
+          color: #fff;
+          background: rgba(56, 189, 248, 0.16);
+          border-color: rgba(56, 189, 248, 0.35);
         }
 
         .embed-btn {
