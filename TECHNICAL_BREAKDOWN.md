@@ -186,6 +186,10 @@ All database structures are defined in `prisma/schema.prisma` and extended via r
    - `tone`: Personality tuning (`concise`, `balanced`, `detailed`).
    - `userId`: Owner Clerk ID. Indexed (`@@index([userId])`) for tenant filtering.
    - `isPublic`: Controls visibility for unauthenticated public viewers.
+   - `autoSync`: Boolean flag enabling automated background re-sync (Vercel Cron).
+   - `syncFrequency`: Schedule interval (`daily` or `weekly`, defaults to `daily`).
+   - `lastSyncedAt`: Timestamp of the most recent automated or on-demand re-sync execution.
+   - `sourceUrl`: Seed root or sitemap URL used for incremental article and page discovery.
    - Cascades delete to `Page` and `ChatSession`.
 
 2. **`Page` Table**:
@@ -246,13 +250,15 @@ All database structures are defined in `prisma/schema.prisma` and extended via r
 | `/api/chat` | `POST` | Primary RAG chat completions stream | `{ question: string, siteId: string, sessionId?: string, language?: string }` | SSE Stream (`text/event-stream`) delivering `meta`, `token`, `done`, or `error` JSON events | Public (Protected by IP/User Rate Limit: 30/10m anon, 60/10m auth) |
 | `/api/chat` | `OPTIONS` | CORS preflight handler | None | Status 204 with permissive CORS headers | Public |
 | `/api/crawl` | `POST` | Sitemap & BFS link discovery | `{ url: string, maxPages?: number, depth?: number }` | `{ urls: string[], total: number, sitemapFound: boolean, elapsedMs: number }` | Clerk Auth OR `x-admin-secret` |
-| `/api/scrape` | `POST` | Single or chunked batch page ingestion | `{ url?: string, urls?: string[], siteId?: string, name?: string, description?: string }` | `{ siteId, pageId, sessionId, siteName, processedCount, chunkCount, pageIds, ... }` | Clerk Auth OR `x-admin-secret` (Tenant Ownership Verified) |
+| `/api/scrape` | `POST` | Single or chunked batch page ingestion | `{ url?: string, urls?: string[], siteId?: string, name?: string, description?: string, autoSync?: boolean }` | `{ siteId, pageId, sessionId, siteName, processedCount, chunkCount, pageIds, ... }` | Clerk Auth OR `x-admin-secret` (Tenant Ownership Verified) |
 | `/api/scrape` | `PATCH` | Re-scrapes an existing page | `{ pageId: string }` | `BatchIndexResult` | Clerk Auth OR `x-admin-secret` (Tenant Ownership Verified) |
 | `/api/upload` | `POST` | File upload & chunked batch embedding | Form-data: `{ file, siteName?, siteDescription?, siteId? }` OR JSON: `{ action: "embed-batch", pageId, siteId, chunks }` | `{ success: true, done: boolean, siteId, pageId, totalChunks, processedChunks, pendingChunks: [...] }` | Clerk Auth OR `x-admin-secret` (Tenant Ownership Verified) |
+| `/api/cron/sync` | `GET` | Automated scheduled re-sync (Vercel Cron) | None | `{ success: true, executedAt, totalEligibleSites, processedSites, syncedSites, summary: [...] }` | Vercel Cron (`Authorization: Bearer ${CRON_SECRET}`) OR `x-admin-secret` |
 | `/api/sites` | `GET` | Lists available bots | Query param: `?scope=all` (Admin only) | `{ sites: SiteSummary[], isAdmin: boolean }` | Public (Filters to public bots if unauthenticated; returns user's bots if authenticated; returns all if super admin) |
 | `/api/sites/[id]` | `GET` | Fetches individual bot metadata & pages | URL param: `id` | `{ site: SiteWithPages }` | Public |
-| `/api/sites/[id]` | `PATCH` | Updates bot settings, prompts, questions | `{ name?, description?, systemPrompt?, starterQuestions?, tone?, isPublic? }` | `{ success: true, site: Site }` | Clerk Auth (Owner) OR Super Admin |
+| `/api/sites/[id]` | `PATCH` | Updates bot settings, prompts, questions | `{ name?, description?, systemPrompt?, starterQuestions?, tone?, isPublic?, autoSync?, syncFrequency?, sourceUrl? }` | `{ success: true, site: Site }` | Clerk Auth (Owner) OR Super Admin |
 | `/api/sites/[id]` | `DELETE` | Deletes bot and cascades all children | URL param: `id` | `{ success: true }` | Clerk Auth (Owner) OR Super Admin |
+| `/api/sites/[id]/sync` | `POST` | Triggers manual on-demand re-sync for a bot | `{ maxPages?: number }` | `{ success: true, siteId, siteName, newPagesCount, newUrls, message, site }` | Clerk Auth (Owner) OR Super Admin OR `x-admin-secret` |
 | `/api/sites/[id]/analytics` | `GET` | Fetches aggregated analytics & transcripts | URL param: `id` | `{ stats: { totalSessions, totalQueries, totalResponses, thumbsUp, thumbsDown, satisfactionRate, avgLatencyMs }, sessions, topCitations, contentGaps, queryVolume }` | Clerk Auth (Owner) OR Super Admin |
 | `/api/feedback` | `POST` | Submits thumbs up/down and comment | `{ messageId: string, rating: "up" \| "down" \| null, feedback?: string }` | `{ success: true, message: { id, rating, feedback } }` | Public (Embed widget & Dashboard) |
 | `/api/telegram` | `POST` | Webhook receiver for Telegram messages/audio | Telegram `Update` object (messages, voice notes, inline callbacks) | Status 200 `{ ok: true }` | Verified via Telegram Bot Token in webhook configuration |
@@ -305,6 +311,17 @@ All database structures are defined in `prisma/schema.prisma` and extended via r
 - **What it does**: Tracks request volume per client key over a 600-second window.
 - **Why it's built that way**: If `UPSTASH_REDIS_REST_URL` is configured, it executes an atomic pipeline (`ZREMRANGEBYSCORE`, `ZADD`, `ZCARD`, `EXPIRE`) against Upstash Redis REST. If not configured, it falls back to an in-memory `Map<string, number[]>` with automated interval garbage collection.
 
+### 8. Incremental Sitemap & News Sync Engine with Timeout Defense (`sync.ts`)
+- **What it does**: Automatically detects and ingests newly published news articles and pages for any bot tracking a live publication (e.g., *Dinakaran*, *The Hindu*, *BBC Sport*, blogs):
+  1. Resolves the seed source URL (`Site.sourceUrl` or the first HTTP/HTTPS page).
+  2. Probes sitemaps (`/sitemap.xml`, `/sitemap_index.xml`, `/news-sitemap.xml`) in `<400ms`. If sitemaps are not available, it performs lightweight regex link extraction on the homepage HTML.
+  3. **Zero-Duplicate Set Subtraction**: Normalizes and compares discovered URLs against existing `Page.url` records in PostgreSQL. Only unindexed, newly published URLs are selected.
+  4. Ingests fresh articles using `indexPagesBatch` (Jina bulk embedding and multi-row SQL insert) and updates `lastSyncedAt`.
+- **Vercel Hobby Serverless Timeout Defense**:
+  - Vercel Hobby serverless functions have a strict 10–15 second timeout. A long loop across dozens of sites would trigger a `504 Gateway Timeout`.
+  - The cron route (`/api/cron/sync`) enforces a **Hard Deadline Guard (`DEADLINE_MS = 8_500`)** and an **Oldest-First Rotation (`orderBy: { lastSyncedAt: 'asc' }`)**.
+  - When the execution timer nears 8.5 seconds, the cron cleanly returns a partial summary. Remaining sites are serviced on subsequent cron runs without ever crashing the lambda.
+
 ---
 
 ## 7. Third-Party Integrations & External Services
@@ -315,6 +332,7 @@ All database structures are defined in `prisma/schema.prisma` and extended via r
 | **Jina AI** | Native `fetch` / HTTPS REST | Dense document & query embeddings (`jina-embeddings-v3`), and cross-encoder reranking (`jina-reranker-v2-base-multilingual`) | `JINA_API_KEY` |
 | **Neon PostgreSQL** | Prisma ORM over PostgreSQL connection pool | Relational data, foreign keys, vector similarity (`pgvector`), full-text search (`tsvector`) | `DATABASE_URL` |
 | **Clerk** | `@clerk/nextjs` (Edge Middleware & React Providers) | Multi-tenant user auth, session tokens, user profile modals, and super-admin validation (`ADMIN_EMAIL`) | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `CLERK_SECRET_KEY` |
+| **Vercel Cron** | HTTPS Scheduled Trigger (`vercel.json`) | Automated background synchronization of active news/publication bots daily at 06:30 AM IST (`0 1 * * *`) | `CRON_SECRET` header |
 | **Telegram Bot API** | HTTPS Webhooks (`/api/telegram`) | Bi-directional Telegram bot interface supporting audio voice memos, language preferences, and interactive inline keyboards | `TELEGRAM_BOT_TOKEN` |
 | **Upstash Redis** | HTTPS REST Pipeline | Distributed global rate limiting across serverless isolates (optional fallback to memory) | `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` |
 | **Vercel** | Git CI/CD Integration | Production hosting, edge routing, automated SSL, and preview deployments | Standard Vercel deployment pipeline |
@@ -357,6 +375,9 @@ DATABASE_URL="postgresql://user:password@ep-pooler.region.aws.neon.tech/neondb?s
 # Admin Secret (Bypasses Clerk session guards for local scripts and CLI tools)
 ADMIN_SECRET="admin-secret-change-me"
 ADMIN_EMAIL="your-email@example.com"
+
+# Vercel Cron Security (Protects /api/cron/sync against unauthorized calls)
+CRON_SECRET="your-vercel-cron-secret"
 
 # Clerk Authentication
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_xxx"
