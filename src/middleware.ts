@@ -7,6 +7,7 @@ const isPublicRoute = createRouteMatcher([
   "/widget.js",
   "/api/chat(.*)",
   "/api/telegram(.*)",
+  "/api/discord(.*)",
   "/api/sites(.*)",
   "/api/feedback(.*)",
   "/api/cron(.*)",

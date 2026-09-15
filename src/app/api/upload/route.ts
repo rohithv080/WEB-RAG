@@ -5,6 +5,7 @@ import { chunkDocument, type Chunk } from "@/lib/scraper/chunk";
 import { embedDocuments, embeddingToSql } from "@/lib/embeddings/embed";
 import { syncTelegramBotCommands } from "@/lib/telegram";
 import { extractText } from "unpdf";
+import mammoth from "mammoth";
 import { verifyIngestionAuth } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -126,11 +127,16 @@ export async function POST(req: NextRequest) {
       } else {
         extractedText = res.text || "";
       }
+    } else if (extension === "docx") {
+      const arrayBuffer = await file.arrayBuffer();
+      const nodeBuffer = Buffer.from(arrayBuffer);
+      const res = await mammoth.extractRawText({ buffer: nodeBuffer });
+      extractedText = res.value || "";
     } else if (["txt", "md", "markdown", "csv", "json"].includes(extension)) {
       extractedText = await file.text();
     } else {
       return NextResponse.json(
-        { error: `Unsupported file type (.${extension}). Please upload a PDF, TXT, MD, or CSV.` },
+        { error: `Unsupported file type (.${extension}). Please upload a PDF, Word (.docx), TXT, MD, or CSV.` },
         { status: 400 }
       );
     }

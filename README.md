@@ -24,9 +24,10 @@
   - **Reciprocal Rank Fusion (RRF)**: Merges dense and sparse candidates.
   - **Multilingual Cross-Encoder**: `jina-reranker-v2-base-multilingual` computes token-level cross-attention relevance scores, dropping irrelevancies (`score < 0.08`).
 - **⚡ Sub-Second Streaming Responses**: Ultra-low latency generation via Groq Cloud (`openai/gpt-oss-20b`) with verifiable citation chips (`[1]`, `[2]`).
-- **📎 Multi-Format Document Ingestion**: Supports PDF, TXT, Markdown, CSV, and JSON uploads.
+- **📎 Multi-Format Document Ingestion**: Supports PDF, Microsoft Word (`.docx`), TXT, Markdown, CSV, and JSON uploads with automatic text extraction.
 - **💬 1-Line Embeddable Widget**: Add an interactive chatbot to any external website via a single `<script src=".../widget.js">` tag.
-- **🤖 Omnichannel Telegram Bot**: Audio voice note transcription (`whisper-large-v3-turbo`), multilingual language selection (English, Tamil, Hindi, Spanish), and inline keyboards.
+- **🤖 Omnichannel Telegram Bot**: Two-way voice messaging (Groq Whisper transcription + free Neural TTS voice bubble replies), multilingual language selection (English, Tamil, Hindi, Spanish, French), and inline site-picker keyboards.
+- **🎮 Discord Bot Omnichannel Integration**: Discord Slash Command (`/ask`) serverless HTTP endpoint (`/api/discord`) with decoupled RAG retrieval and verified citations.
 - **📊 Analytics & Feedback Hub**: Query volume tracking, latency metrics, user satisfaction rates (thumbs up/down), full conversation transcripts, and content gap detection.
 - **⚙️ Bot Customization**: Configure AI personas (system prompts), response tones (*Concise*, *Balanced*, *Detailed*), and suggested starter prompt chips.
 
@@ -71,7 +72,8 @@ flowchart TB
     subgraph CLIENTS ["4. Omnichannel Delivery"]
         SSEStream --> WebApp["Web Dashboard"]
         SSEStream --> EmbedWidget["1-Line External Widget"]
-        SSEStream --> TelegramBot["Telegram Bot Interface"]
+        SSEStream --> TelegramBot["Telegram Bot (Text & Voice)"]
+        SSEStream --> DiscordBot["Discord Bot (/ask Slash Command)"]
     end
 ```
 

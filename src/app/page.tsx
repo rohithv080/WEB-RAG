@@ -760,7 +760,7 @@ function AppInner() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".pdf,.txt,.md,.markdown,.csv,.json"
+                    accept=".pdf,.docx,.txt,.md,.markdown,.csv,.json"
                     style={{ display: "none" }}
                     onChange={(e) => {
                       const f = e.target.files?.[0];
@@ -783,7 +783,7 @@ function AppInner() {
                         <strong>Click to browse</strong> or drag & drop file
                       </div>
                       <div className="dropzone-sub">
-                        Supports PDF, TXT, Markdown, CSV, JSON
+                        Supports PDF, Word (.docx), TXT, Markdown, CSV, JSON
                       </div>
                     </div>
                   ) : (

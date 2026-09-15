@@ -83,6 +83,63 @@ async function sendTypingAction(chatId: number) {
   }).catch(() => {});
 }
 
+async function generateTTSAudio(text: string, languageCode?: string | null): Promise<Buffer | null> {
+  try {
+    const cleanSpeechText = text
+      .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
+      .replace(/\[\d+\]/g, "")
+      .replace(/https?:\/\/\S+/g, "")
+      .replace(/[*_#`~>•]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (!cleanSpeechText) return null;
+
+    // Up to 350 chars for a concise spoken summary
+    const voiceSnippet = cleanSpeechText.slice(0, 350);
+
+    let tl = "en";
+    const lowerLang = (languageCode || "").toLowerCase();
+    if (lowerLang.includes("tamil") || lowerLang === "ta") tl = "ta";
+    else if (lowerLang.includes("hindi") || lowerLang === "hi") tl = "hi";
+    else if (lowerLang.includes("spanish") || lowerLang === "es") tl = "es";
+    else if (lowerLang.includes("french") || lowerLang === "fr") tl = "fr";
+
+    const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(voiceSnippet)}&tl=${tl}&client=tw-ob`;
+    const res = await fetch(ttsUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      },
+      signal: AbortSignal.timeout(8_000),
+    });
+
+    if (!res.ok) return null;
+    const arrayBuffer = await res.arrayBuffer();
+    return Buffer.from(arrayBuffer);
+  } catch (err) {
+    console.warn("[telegram tts error]:", err);
+    return null;
+  }
+}
+
+async function sendTelegramVoice(chatId: number, audioBuffer: Buffer) {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+  try {
+    const formData = new FormData();
+    formData.append("chat_id", String(chatId));
+    const blob = new Blob([new Uint8Array(audioBuffer)], { type: "audio/mpeg" });
+    formData.append("voice", blob, "voice.mp3");
+
+    await fetch(`https://api.telegram.org/bot${token}/sendVoice`, {
+      method: "POST",
+      body: formData,
+    });
+  } catch (err) {
+    console.warn("[telegram sendVoice error]:", err);
+  }
+}
+
 async function syncCommands(chatId: number) {
   const sites = await prisma.site.findMany();
   const ok = await syncTelegramBotCommands();
@@ -339,9 +396,11 @@ export async function POST(req: NextRequest) {
     let siteTone: string | null = null;
 
     let text = message.text ? message.text.trim() : "";
+    let isVoiceQuery = false;
 
     // If message is a voice note or audio file, transcribe via Groq Whisper!
     if (!text && (message.voice || message.audio) && token) {
+      isVoiceQuery = true;
       const voiceObj = message.voice || message.audio;
       try {
         const fileRes = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${voiceObj.file_id}`);
@@ -581,6 +640,18 @@ export async function POST(req: NextRequest) {
     }
 
     await sendTelegramMessage(chatId, siteNamePrefix + cleanAnswer + sourcesFooter);
+
+    // Two-way voice: if user sent a voice note, speak the answer back with a Telegram voice bubble!
+    if (isVoiceQuery) {
+      try {
+        const audioBuffer = await generateTTSAudio(cleanAnswer, userLanguage);
+        if (audioBuffer) {
+          await sendTelegramVoice(chatId, audioBuffer);
+        }
+      } catch (voiceErr) {
+        console.warn("[telegram] Failed to generate/send voice reply:", voiceErr);
+      }
+    }
     
     return NextResponse.json({ ok: true });
   } catch (error: any) {
