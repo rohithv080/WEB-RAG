@@ -10,6 +10,8 @@ type Props = {
   onSelect: (site: SiteSummary) => void;
   onAddBot: () => void;
   onHome: () => void;
+  isCollapsed?: boolean;
+  onToggleCollapse?: () => void;
 };
 
 function getFavicon(site: SiteSummary): string {
@@ -36,7 +38,15 @@ function relativeTime(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
-export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Props) {
+export function Sidebar({
+  sites,
+  activeSiteId,
+  onSelect,
+  onAddBot,
+  onHome,
+  isCollapsed = false,
+  onToggleCollapse,
+}: Props) {
   const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -45,18 +55,32 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
     : sites;
 
   const content = (
-    <aside className={`sidebar ${mobileOpen ? "sidebar-open" : ""}`}>
-      {/* Logo */}
-      <button className="sidebar-brand" onClick={() => { onHome(); setMobileOpen(false); }}>
-        <div className="sidebar-logo-box">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" stroke="none" />
-          </svg>
-        </div>
-        <div className="sidebar-brand-text">
-          <span className="sidebar-title">Web RAG</span>
-        </div>
-      </button>
+    <aside className={`sidebar ${mobileOpen ? "sidebar-open" : ""} ${isCollapsed ? "sidebar-collapsed" : ""}`}>
+      {/* Brand & Collapse */}
+      <div className="sidebar-brand-row">
+        <button className="sidebar-brand" onClick={() => { onHome(); setMobileOpen(false); }}>
+          <div className="sidebar-logo-box">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" stroke="none" />
+            </svg>
+          </div>
+          {!isCollapsed && (
+            <div className="sidebar-brand-text">
+              <span className="sidebar-title">Web RAG</span>
+            </div>
+          )}
+        </button>
+        {onToggleCollapse && (
+          <button
+            type="button"
+            className="sidebar-collapse-btn"
+            onClick={onToggleCollapse}
+            title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? "▶" : "◀"}
+          </button>
+        )}
+      </div>
 
       {/* Search */}
       <div className="sidebar-search-wrap">
@@ -138,6 +162,70 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
           z-index: 50;
           padding: 0;
           overflow: hidden;
+          transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .sidebar.sidebar-collapsed {
+          width: 68px;
+        }
+        .sidebar.sidebar-collapsed .sidebar-brand-row {
+          justify-content: center;
+          padding: 0.75rem 0;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .sidebar.sidebar-collapsed .sidebar-brand {
+          padding: 0;
+          justify-content: center;
+          flex: none;
+        }
+        .sidebar.sidebar-collapsed :global(.sidebar-search-wrap),
+        .sidebar.sidebar-collapsed :global(.sidebar-item-info),
+        .sidebar.sidebar-collapsed :global(.sidebar-add span:not(.sidebar-add-icon)),
+        .sidebar.sidebar-collapsed :global(.sidebar-footer span:last-child),
+        .sidebar.sidebar-collapsed :global(.active-pill),
+        .sidebar.sidebar-collapsed :global(.user-text-col),
+        .sidebar.sidebar-collapsed :global(.logout-icon-btn),
+        .sidebar.sidebar-collapsed :global(.auth-hint),
+        .sidebar.sidebar-collapsed :global(.status-badge span:last-child),
+        .sidebar.sidebar-collapsed :global(.auth-button-group) {
+          display: none !important;
+        }
+        .sidebar.sidebar-collapsed :global(.sidebar-add) {
+          justify-content: center;
+          padding: 0.6rem 0;
+        }
+        .sidebar.sidebar-collapsed :global(.sidebar-item) {
+          justify-content: center;
+          padding: 0.6rem 0;
+        }
+        .sidebar.sidebar-collapsed :global(.auth-bar-fallback),
+        .sidebar.sidebar-collapsed :global(.signed-in-card) {
+          justify-content: center;
+          padding: 0.4rem 0;
+          margin: 0 6px 6px;
+        }
+
+        .sidebar-brand-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-right: 8px;
+          border-bottom: 1px solid var(--border-subtle);
+        }
+        .sidebar-collapse-btn {
+          background: transparent;
+          border: none;
+          color: var(--text-muted);
+          cursor: pointer;
+          font-size: 0.75rem;
+          padding: 4px 6px;
+          border-radius: 4px;
+          transition: all 0.15s ease;
+        }
+        .sidebar-collapse-btn:hover {
+          color: #fff;
+          background: rgba(255, 255, 255, 0.08);
         }
 
         /* Brand */
@@ -151,8 +239,7 @@ export function Sidebar({ sites, activeSiteId, onSelect, onAddBot, onHome }: Pro
           color: var(--text);
           cursor: pointer;
           text-align: left;
-          width: 100%;
-          border-bottom: 1px solid var(--border-subtle);
+          flex: 1;
           transition: background 0.12s ease;
         }
         .sidebar-brand:hover {

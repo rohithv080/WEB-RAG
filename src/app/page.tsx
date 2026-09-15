@@ -14,6 +14,7 @@ import { AnalyticsModal } from "@/components/AnalyticsModal";
 import { Show, SignInButton, SignUpButton, SignOutButton, useUser } from "@clerk/nextjs";
 import { LandingPage } from "@/components/LandingPage";
 import { CrawlProgressBar, type CrawlProgressState } from "@/components/CrawlProgressBar";
+import { RightInspectorDrawer, type DrawerTab } from "@/components/RightInspectorDrawer";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inner app (needs ToastProvider context)
@@ -28,6 +29,18 @@ function AppInner() {
   const [view, setView] = useState<View>("home");
   const [selectedSite, setSelectedSite] = useState<SiteSummary | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTab, setDrawerTab] = useState<DrawerTab>("pages");
+
+  function toggleDrawer(tab: DrawerTab) {
+    if (drawerOpen && drawerTab === tab) {
+      setDrawerOpen(false);
+    } else {
+      setDrawerTab(tab);
+      setDrawerOpen(true);
+    }
+  }
 
   // ── sites ────────────────────────────────────────────────────────────────
   const [sites, setSites] = useState<SiteSummary[]>([]);
@@ -129,12 +142,14 @@ function AppInner() {
     setSessionId(site.latestSessionId);
     setView("chat");
     setPagesOpen(false);
+    setDrawerOpen(false);
   }
 
   function goHome() {
     setView("home");
     setSelectedSite(null);
     setSessionId(null);
+    setDrawerOpen(false);
   }
 
   // ── modal ────────────────────────────────────────────────────────────────
@@ -389,9 +404,11 @@ function AppInner() {
         onSelect={openChat}
         onAddBot={openModal}
         onHome={goHome}
+        isCollapsed={sidebarCollapsed}
+        onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
       />
 
-      <main className="main-content">
+      <main className={`main-content ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
         {/* ── HOME VIEW ─────────────────────────────────────────────── */}
         {view === "home" && (
           <div className="home-view">
@@ -517,13 +534,27 @@ function AppInner() {
         {view === "chat" && selectedSite && (
           <div className="chat-view">
             <nav className="chat-nav">
-              <button className="back-btn" onClick={goHome}>← Back</button>
               <div className="chat-site-info">
-                <span className="chat-site-name">{selectedSite.name}</span>
-                {selectedSite.description && (
-                  <span className="chat-site-desc">{selectedSite.description}</span>
-                )}
+                <button
+                  type="button"
+                  className="nav-collapse-trigger"
+                  onClick={() => setSidebarCollapsed((v) => !v)}
+                  title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+                >
+                  {sidebarCollapsed ? "▶" : "◀"}
+                </button>
+                <button className="back-btn" onClick={goHome} title="Return to Knowledge Bases grid">
+                  ← Back
+                </button>
+                <div className="chat-site-text">
+                  <span className="chat-site-name">{selectedSite.name}</span>
+                  <span className="chat-site-status">
+                    <span className="live-pulse-dot" />
+                    <span>{selectedSite.pages.length} Pages • {selectedSite.totalChunks} Chunks</span>
+                  </span>
+                </div>
               </div>
+
               <div className="chat-nav-actions">
                 <button
                   type="button"
@@ -554,35 +585,41 @@ function AppInner() {
                   </svg>
                   <span>{refreshingSiteId === selectedSite.id ? "Syncing…" : "Sync News"}</span>
                 </button>
+
                 <button
                   type="button"
-                  className="chat-analytics-btn"
-                  onClick={() => openAnalytics(selectedSite)}
-                  title="View bot analytics, query logs & metrics"
+                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "pages" ? "active" : ""}`}
+                  onClick={() => toggleDrawer("pages")}
+                  title="View and index document pages"
                 >
-                  <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2}>
-                    <line x1="18" y1="20" x2="18" y2="10" />
-                    <line x1="12" y1="20" x2="12" y2="4" />
-                    <line x1="6" y1="20" x2="6" y2="14" />
-                  </svg>
+                  <span>📁</span>
+                  <span>Knowledge</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "analytics" ? "active" : ""}`}
+                  onClick={() => toggleDrawer("analytics")}
+                  title="View bot traffic, queries, and satisfaction"
+                >
+                  <span>📊</span>
                   <span>Analytics</span>
                 </button>
+
                 <button
                   type="button"
-                  className="chat-settings-btn"
-                  onClick={() => openSettings(selectedSite)}
-                  title="Customize bot persona, tone & prompts"
+                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "settings" ? "active" : ""}`}
+                  onClick={() => toggleDrawer("settings")}
+                  title="Customize persona, tone, and starter prompts"
                 >
-                  <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2}>
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                  </svg>
+                  <span>⚙️</span>
                   <span>Settings</span>
                 </button>
+
                 <button
                   type="button"
-                  className="chat-embed-btn"
-                  onClick={() => openEmbed(selectedSite)}
+                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "embed" ? "active" : ""}`}
+                  onClick={() => toggleDrawer("embed")}
                   title="Get 1-line embed snippet for your website"
                 >
                   <span>&lt;/&gt;</span>
@@ -591,112 +628,29 @@ function AppInner() {
               </div>
             </nav>
 
-            <div className="chat-body">
-              <ChatWindow
-                siteId={selectedSite.id}
-                sessionId={sessionId}
-                onSessionId={setSessionId}
-                siteTitle={selectedSite.name}
-                starterQuestions={selectedSite.starterQuestions as string[] | null}
+            <div className="chat-workspace-split">
+              <div className="chat-body">
+                <ChatWindow
+                  siteId={selectedSite.id}
+                  sessionId={sessionId}
+                  onSessionId={setSessionId}
+                  siteTitle={selectedSite.name}
+                  starterQuestions={selectedSite.starterQuestions as string[] | null}
+                />
+              </div>
+
+              <RightInspectorDrawer
+                isOpen={drawerOpen}
+                activeTab={drawerTab}
+                onTabChange={setDrawerTab}
+                onClose={() => setDrawerOpen(false)}
+                site={selectedSite}
+                onSaveSettings={handleSaveSettings}
+                onRefreshPage={refreshPage}
+                refreshingPageId={refreshingPageId}
+                onPageAdded={loadSites}
+                onToast={addToast}
               />
-            </div>
-
-            {/* Page manager */}
-            <div className="page-manager">
-              <button className="pages-toggle" onClick={() => setPagesOpen((v) => !v)}>
-                {pagesOpen ? "▲" : "▼"} Pages ({selectedSite.pages.length})
-              </button>
-              {pagesOpen && (
-                <div className="pages-panel">
-                  <ul className="pages-list">
-                    {selectedSite.pages.map((p) => (
-                      <li key={p.id} className="page-row">
-                        <div className="page-info">
-                          <a href={p.url} target="_blank" rel="noopener noreferrer" className="page-url">
-                            {p.url.replace(/^https?:\/\//, "")}
-                          </a>
-                          <span className="page-meta">
-                            {p.chunkCount} chunks · {new Date(p.scrapedAt).toLocaleString()}
-                          </span>
-                        </div>
-                        <button
-                          className="refresh-btn"
-                          disabled={refreshingPageId === p.id}
-                          onClick={() => refreshPage(p.id)}
-                        >
-                          {refreshingPageId === p.id ? "…" : "↻"}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="add-page-wrap">
-                    <UrlInput
-                      siteId={selectedSite.id}
-                      compact
-                      onScraped={async () => { await loadSites(); addToast("Page added!", "success"); }}
-                    />
-                    <div className="doc-upload-divider">
-                      <span>or</span>
-                    </div>
-                    <label className="doc-upload-btn">
-                      📎 Upload Document (PDF/TXT)
-                      <input
-                        type="file"
-                        accept=".pdf,.txt,.md,.markdown,.csv,.json"
-                        style={{ display: "none" }}
-                        onChange={async (e) => {
-                          const f = e.target.files?.[0];
-                          if (!f) return;
-                          try {
-                            const formData = new FormData();
-                            formData.append("file", f);
-                            formData.append("siteId", selectedSite.id);
-                            addToast(`Uploading & indexing ${f.name}…`, "info");
-                            const res = await fetch("/api/upload", { method: "POST", body: formData });
-                            const data = await res.json();
-                            if (!res.ok) throw new Error(data.error || "Upload failed");
-
-                            // Chunked batching for large PDFs in side panel
-                            if (!data.done && Array.isArray(data.pendingChunks) && data.pendingChunks.length > 0) {
-                              const total = data.totalChunks || (data.processedChunks + data.pendingChunks.length);
-                              let processed = data.processedChunks || 25;
-                              const CHUNK_BATCH_SIZE = 25;
-
-                              for (let i = 0; i < data.pendingChunks.length; i += CHUNK_BATCH_SIZE) {
-                                const batch = data.pendingChunks.slice(i, i + CHUNK_BATCH_SIZE);
-                                const batchRes = await fetch("/api/upload", {
-                                  method: "POST",
-                                  headers: { "Content-Type": "application/json" },
-                                  body: JSON.stringify({
-                                    action: "embed-batch",
-                                    pageId: data.pageId,
-                                    siteId: data.siteId,
-                                    chunks: batch,
-                                  }),
-                                });
-                                if (!batchRes.ok) {
-                                  const bErr = await batchRes.json();
-                                  throw new Error(bErr.error || "Failed indexing chunks");
-                                }
-                                processed += batch.length;
-                                const pct = Math.round((processed / total) * 100);
-                                addToast(`Indexing ${f.name}: chunk ${processed}/${total} (${pct}%)`, "info");
-                              }
-                            }
-
-                            await loadSites();
-                            addToast(`Added ${f.name} (${data.totalChunks || data.chunkCount} chunks)!`, "success");
-                          } catch (err: any) {
-                            addToast(err.message || "Upload failed", "error");
-                          } finally {
-                            e.target.value = "";
-                          }
-                        }}
-                      />
-                    </label>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -1240,16 +1194,65 @@ function AppInner() {
           cursor: pointer;
           transition: all 0.12s ease;
         }
+        .main-content {
+          flex: 1;
+          margin-left: var(--sidebar-width);
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          transition: margin-left 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .main-content.sidebar-collapsed {
+          margin-left: 68px;
+        }
+
+        .chat-view {
+          display: flex;
+          flex-direction: column;
+          height: 100vh;
+          overflow: hidden;
+        }
+        .chat-workspace-split {
+          flex: 1;
+          display: flex;
+          overflow: hidden;
+          min-height: 0;
+        }
+        .chat-body {
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .back-btn {
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
+          font-size: 0.76rem;
+          font-weight: 500;
+          padding: 0.35rem 0.65rem;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.12s ease;
+          flex-shrink: 0;
+        }
         .back-btn:hover {
           background: rgba(255, 255, 255, 0.04);
           color: var(--text);
           border-color: rgba(255, 255, 255, 0.16);
         }
         .chat-site-info {
-          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 8px;
           min-width: 0;
+        }
+        .chat-site-text {
           display: flex;
           flex-direction: column;
+          min-width: 0;
         }
         .chat-site-name {
           font-size: 0.88rem;
@@ -1259,12 +1262,39 @@ function AppInner() {
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        .chat-site-desc {
+        .chat-site-status {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 0.68rem;
+          color: var(--text-muted);
+        }
+        .live-pulse-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #34d399;
+          display: inline-block;
+          animation: pulse 1.5s infinite;
+        }
+        .nav-collapse-trigger {
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
+          width: 26px;
+          height: 26px;
+          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
           font-size: 0.72rem;
-          color: var(--text-dim);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+          transition: all 0.15s ease;
+          flex-shrink: 0;
+        }
+        .nav-collapse-trigger:hover {
+          color: #fff;
+          border-color: var(--accent);
         }
         .chat-nav-actions {
           margin-left: auto;
@@ -1295,9 +1325,7 @@ function AppInner() {
           opacity: 0.5;
           cursor: not-allowed;
         }
-        .chat-analytics-btn,
-        .chat-settings-btn,
-        .chat-embed-btn {
+        .drawer-trigger-btn {
           background: transparent;
           border: 1px solid var(--border);
           color: var(--text-muted);
@@ -1311,102 +1339,15 @@ function AppInner() {
           align-items: center;
           gap: 5px;
         }
-        .chat-analytics-btn:hover,
-        .chat-settings-btn:hover,
-        .chat-embed-btn:hover {
+        .drawer-trigger-btn:hover {
           background: rgba(255, 255, 255, 0.04);
           color: #ffffff;
           border-color: rgba(255, 255, 255, 0.16);
         }
-        .chat-body {
-          flex: 1;
-          min-height: 0;
-          overflow: hidden;
-          display: flex;
-          flex-direction: column;
-        }
-
-        /* Page manager */
-        .page-manager {
-          border-top: 1px solid var(--border);
-          padding: 0.5rem 0 0.75rem;
-        }
-        .pages-toggle {
-          border: none;
-          background: transparent;
-          color: var(--text-muted);
-          font-size: 0.76rem;
-          font-weight: 500;
-          padding: 0.25rem 0;
-          cursor: pointer;
-          transition: color 0.12s ease;
-        }
-        .pages-toggle:hover { color: var(--text); }
-        .pages-panel {
-          margin-top: 0.5rem;
-          display: flex;
-          flex-direction: column;
-          gap: 0.5rem;
-        }
-        .pages-list {
-          list-style: none;
-          margin: 0;
-          padding: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 0.25rem;
-        }
-        .page-row {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.35rem 0.5rem;
-          border-radius: 6px;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid var(--border);
-        }
-        .page-info {
-          flex: 1;
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
-        }
-        .page-url {
-          font-size: 0.78rem;
-          color: var(--text);
-          text-decoration: none;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .page-url:hover { color: var(--accent); }
-        .page-meta {
-          font-size: 0.65rem;
-          color: var(--text-dim);
-          font-family: var(--font-mono);
-        }
-        .refresh-btn {
-          flex-shrink: 0;
-          width: 24px;
-          height: 24px;
-          border: 1px solid var(--border);
-          border-radius: 4px;
-          background: transparent;
-          color: var(--text-muted);
-          font-size: 0.8rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.12s ease;
-        }
-        .refresh-btn:hover:not(:disabled) {
+        .drawer-trigger-btn.active {
+          background: rgba(124, 124, 255, 0.12);
+          border-color: #7c7cff;
           color: #ffffff;
-          border-color: rgba(255, 255, 255, 0.2);
-        }
-        .add-page-wrap {
-          border-top: 1px solid var(--border);
-          padding-top: 0.5rem;
         }
 
         /* ── Modal ─────────────────────────────────────────────────── */
