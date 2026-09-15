@@ -228,10 +228,13 @@ All database structures are defined in `prisma/schema.prisma` and extended via r
 
 ### Key Indexes & SQL Enhancements
 - **Vector Cosine Index** (`prisma/sql/02_chunk_index.sql`):
+  Uses modern Hierarchical Navigable Small World (**HNSW**) indexing for sub-10ms approximate nearest neighbor search that scales past 1,000,000 vectors without requiring training phases:
   ```sql
-  CREATE INDEX IF NOT EXISTS chunk_embedding_cosine_idx
-    ON "Chunk" USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100);
+  CREATE INDEX IF NOT EXISTS chunk_embedding_hnsw_idx
+    ON "Chunk" USING hnsw (embedding vector_cosine_ops)
+    WITH (m = 16, ef_construction = 64);
   ```
+  *(With legacy fallback to IVFFlat `WITH (lists = 100)` on pgvector versions < 0.5.0)*.
 - **Full-Text GIN Index** (`prisma/add_fulltext_search.sql`):
   ```sql
   ALTER TABLE "Chunk" ADD COLUMN IF NOT EXISTS "tsv" tsvector
@@ -304,8 +307,14 @@ All database structures are defined in `prisma/schema.prisma` and extended via r
   ```
 - **Why it's built that way**: Over remote cloud databases (Neon PostgreSQL on AWS), executing 30 individual queries consumes 2,500ms in network roundtrips. Batching into 25-chunk parameterized statements executes in ~120ms (a 20x speedup).
 
-### 6. HTML Sanitization, Markdown Transformation & Boilerplate Filtering
-- **What it does**: `fetchPage.ts` cleans the DOM by discarding non-content tags (`<nav>`, `<header>`, `<footer>`, `<aside>`, `<script>`, `<style>`, `[role="banner"]`). `Turndown` transforms the content into markdown. `chunk.ts` splits sections by `#`, `##`, `###` headings and filters out cookie banners, donation asks, and subscription prompts using regular expressions (`BOILERPLATE_PATTERNS`).
+### 6. HTML Sanitization, Hierarchical Chunking & Noise Filtering (`chunk.ts` & `fetchPage.ts`)
+- **DOM Sanitization**: `fetchPage.ts` cleans the DOM with JSDOM, stripping non-content tags (`<nav>`, `<header>`, `<footer>`, `<aside>`, `<script>`, `<style>`, `[role="banner"]`). `Turndown` transforms the content into clean GitHub-flavored markdown.
+- **Hierarchical Heading Split**: `chunk.ts` splits sections along Markdown heading boundaries (`/\n(?=#{1,3}\s+)/`).
+- **Exact Chunking Parameters**:
+  - **Max Chunk Size**: `MAX_CHARS = 1500` characters (~300–375 words / ~350–400 tokens), tuned to stay well within Jina's 8192-token window while maintaining high semantic density.
+  - **Sliding Window Overlap**: `OVERLAP = 200` characters, ensuring cross-boundary continuity.
+  - **Heading Context Injection**: When generating embeddings, the parent section heading is prepended to the text (`heading\n\ncontent`). This ensures chunks inherit their contextual anchor (e.g., *"Fares & Pricing"* or *"Cancellation Policy"*), preventing orphan chunks.
+  - **Boilerplate Filtering**: Regex patterns (`BOILERPLATE_PATTERNS`) detect and discard subscription popups, donation banners, cookie consent dialogs, and newsletter signup blocks (`filterBoilerplateFromHtml`).
 
 ### 7. Dual-Mode Sliding Window Rate Limiting (`rateLimit.ts`)
 - **What it does**: Tracks request volume per client key over a 600-second window.
@@ -349,6 +358,12 @@ All database structures are defined in `prisma/schema.prisma` and extended via r
    - In `rateLimit.ts`, when Upstash Redis credentials are omitted, rate limiting uses an in-memory JavaScript `Map`. On Vercel Hobby, serverless lambdas spin up in isolated micro-VMs. As a consequence, in-memory rate limiting only tracks requests that land on the same warm container instance. True global rate limiting across all lambda instances requires provisioning Upstash Redis (`UPSTASH_REDIS_REST_URL` & `UPSTASH_REDIS_REST_TOKEN`).
 3. **Widget Domain Whitelisting**:
    - The embed script (`public/widget.js`) and embed route (`src/app/embed/[id]/page.tsx`) allow any website to embed a bot given its ID. There is currently no `allowedOrigins` column in the `Site` table to restrict iframe embedding to specific domains.
+4. **JavaScript-Rendered SPA Boundary**:
+   - Headless Chromium (Playwright/Puppeteer) is intentionally excluded to maintain a 100% free-tier serverless deployment (avoiding >50MB bundle sizes and container memory ceilings). Fast SSR parsing (`jsdom` + `Readability`) covers standard publications, documentation hubs, and news portals. For heavy client-rendered SPAs (React/Vue hydration), the architectural upgrade path is delegating link fetching to an external headless API (such as Jina Reader `r.jina.ai` or Firecrawl).
+5. **Evaluation Harness & Benchmark Metrics Roadmap**:
+   - The repository provides functional benchmark and stress scripts (`scripts/test-batch-endpoints.ts`, `scripts/explain-retrieval.ts`, `scripts/stress-groq-retry.ts`). For enterprise benchmarking, integrating a formal evaluation harness (RAGAS / TruLens) tracking Context Recall@k, Faithfulness, and Answer Relevance against a golden test set is the natural next step.
+6. **Tunable Reranking Thresholds**:
+   - The global cross-encoder cutoff is set to `0.08`. While optimal for general documentation and news, exposing an optional sensitivity slider in the **Bot Settings Modal** allows users to tune between strict precision (0.15+) and broad recall (0.04+).
 
 ---
 
