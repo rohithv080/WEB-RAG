@@ -8,15 +8,32 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 function formatMarkdownToTelegramHTML(text: string): string {
-  return text
+  // 1. Escape HTML special characters in the raw input so raw text or LLM brackets don't break Telegram HTML
+  let out = text
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/```([\s\S]*?)```/g, "<pre><code>$1</code></pre>")
-    .replace(/`([^`]+)`/g, "<code>$1</code>")
-    .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
-    .replace(/\*(.*?)\*/g, "<i>$1</i>")
-    .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
+    .replace(/>/g, "&gt;");
+
+  // 2. Preformatted code blocks ```lang ... ``` or ``` ... ```
+  out = out.replace(/```(?:[a-zA-Z0-9_-]+)?\n?([\s\S]*?)```/g, "<pre><code>$1</code></pre>");
+
+  // 3. Inline code `code`
+  out = out.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+
+  // 4. Bold: **text** or __text__
+  out = out.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+  out = out.replace(/__([^_]+)__/g, "<b>$1</b>");
+
+  // 5. Italic: *text* (not surrounded by *) or _text_
+  out = out.replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g, "<i>$1</i>");
+
+  // 6. Markdown links: [anchor text](https://url) -> <a href="url">anchor text</a>
+  out = out.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2">$1</a>');
+
+  // 7. Clean bullet points: convert markdown lists "- " or "* " to clean Telegram bullets "• "
+  out = out.replace(/^[\t ]*[-*]\s+/gm, "• ");
+
+  return out;
 }
 
 async function sendTelegramMessage(chatId: number, text: string) {
@@ -74,9 +91,9 @@ async function syncCommands(chatId: number) {
     const list = sites.slice(0, 15).map(s => {
       let cmd = (s.name || s.id).toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32);
       if (!cmd) cmd = `site_${s.id.slice(-8)}`.toLowerCase();
-      return `• <b>${s.name}</b>: /${cmd}`;
+      return `• **${s.name}**: \`/${cmd}\``;
     }).join("\n");
-    await sendTelegramMessage(chatId, `✅ <b>Commands Synced! (${sites.length} bots available)</b>\n\n${list}\n\nType <code>/</code>, or tap /sites to choose a bot!`);
+    await sendTelegramMessage(chatId, `✅ **Commands Synced! (${sites.length} bots available)**\n\n${list}\n\nType \`/\`, or tap \`/sites\` to choose a bot!`);
     await sendSiteMenu(chatId);
   } else {
     await sendTelegramMessage(chatId, "❌ Failed to sync commands.");
@@ -338,7 +355,7 @@ export async function POST(req: NextRequest) {
           const transcribed = await transcribeAudio(audioBuffer, "voice.ogg", userLanguage);
           if (transcribed && transcribed.trim()) {
             text = transcribed.trim();
-            await sendTelegramMessage(chatId, `🎙️ <i>"${text}"</i>`);
+            await sendTelegramMessage(chatId, `🎙️ *"${text}"*`);
           } else {
             await sendTelegramMessage(chatId, "⚠️ Could not understand the voice message clearly. Please try speaking again or type your question.");
             return NextResponse.json({ ok: true });
@@ -366,18 +383,18 @@ export async function POST(req: NextRequest) {
 
     if (text === "/help") {
       const helpText = [
-        "🤖 <b>Web-RAG Telegram Assistant</b>",
+        "🤖 **Web-RAG Assistant**",
         "",
-        "Ask me any question via text or <b>voice note</b>! I retrieve answers with verifiable source citations from indexed websites.",
+        "Ask me any question via text or **voice note**! I retrieve verified answers with clickable citations from indexed websites.",
         "",
-        "<b>Available Commands:</b>",
-        "• /sites — Choose a website bot to focus on",
-        "• /all — Search across all indexed websites",
-        "• /language — Change AI response language",
-        "• /status — Check active bot target & language",
-        "• /clear — Start a fresh chat session (clears history)",
-        "• /sync — Refresh website command list",
-        "• /help — Show this help message",
+        "**Available Commands:**",
+        "• `/sites` — Select a website bot to focus on",
+        "• `/all` — Search across all indexed websites",
+        "• `/language` — Change AI response language",
+        "• `/status` — Check active bot target & language",
+        "• `/clear` — Start a fresh chat session (clears history)",
+        "• `/sync` — Refresh bot commands",
+        "• `/help` — Show this guide",
       ].join("\n");
       await sendTelegramMessage(chatId, helpText);
       return NextResponse.json({ ok: true });
@@ -385,7 +402,7 @@ export async function POST(req: NextRequest) {
 
     if (text === "/clear" || text === "/new" || text === "/reset") {
       await prisma.$executeRaw`UPDATE "TelegramState" SET "sessionId" = NULL WHERE "chatId" = ${chatId};`;
-      await sendTelegramMessage(chatId, "🧹 <b>Conversation cleared!</b> Started a fresh session. What would you like to know?");
+      await sendTelegramMessage(chatId, "🧹 **Conversation cleared!** Started a fresh session. What would you like to know?");
       return NextResponse.json({ ok: true });
     }
 
@@ -397,12 +414,12 @@ export async function POST(req: NextRequest) {
       }
       const currentLang = userLanguage || "🌐 Auto (matches question)";
       const statusMsg = [
-        "📊 <b>Bot Status</b>",
-        `• <b>Active Target:</b> ${currentSiteName}`,
-        `• <b>Language:</b> ${currentLang}`,
-        `• <b>Session:</b> ${sessionId ? "Active conversation" : "Fresh session"}`,
+        "📊 **Bot Status**",
+        `• **Active Target:** ${currentSiteName}`,
+        `• **Language:** ${currentLang}`,
+        `• **Session:** ${sessionId ? "Active conversation" : "Fresh session"}`,
         "",
-        "💡 <i>Tip: Send /sites to switch bots or /clear to reset conversation.</i>",
+        "💡 *Tip: Send `/sites` to switch bots or `/clear` to reset conversation.*",
       ].join("\n");
       await sendTelegramMessage(chatId, statusMsg);
       return NextResponse.json({ ok: true });
@@ -420,7 +437,7 @@ export async function POST(req: NextRequest) {
 
     if (text === "/all") {
       await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, NULL, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = NULL, "sessionId" = NULL;`;
-      await sendTelegramMessage(chatId, "🌍 <b>Now searching ALL websites.</b>\nWhat would you like to know?");
+      await sendTelegramMessage(chatId, "🌍 **Now searching ALL websites.**\nWhat would you like to know?");
       return NextResponse.json({ ok: true });
     }
 
@@ -438,7 +455,7 @@ export async function POST(req: NextRequest) {
       
       if (matchedSite) {
         await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, ${matchedSite.id}, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = ${matchedSite.id}, "sessionId" = NULL;`;
-        await sendTelegramMessage(chatId, `🎯 <b>Locked onto: ${matchedSite.name}</b>\nAnswers will now come ONLY from this website.\n\nWhat would you like to know?`);
+        await sendTelegramMessage(chatId, `🎯 **Locked onto: ${matchedSite.name}**\nAnswers will now come ONLY from this website.\n\nWhat would you like to know?`);
         return NextResponse.json({ ok: true });
       }
     }
@@ -513,22 +530,27 @@ export async function POST(req: NextRequest) {
         if (c.pageUrl && !seenUrls.has(c.pageUrl)) {
           seenUrls.add(c.pageUrl);
           let label = (c.heading || "").trim();
-          if (!label) {
+          if (!label || label.length < 3) {
             try {
               const u = new URL(c.pageUrl);
-              label = u.hostname.replace(/^www\./, "") + (u.pathname.length > 1 ? u.pathname.slice(0, 32) : "");
+              const segments = u.pathname.split("/").filter(Boolean);
+              const last = segments.pop() || "";
+              label = last
+                ? last.replace(/[-_]/g, " ")
+                : u.hostname.replace(/^www\./, "");
             } catch {
-              label = c.pageUrl.slice(0, 35);
+              label = c.pageUrl.slice(0, 32);
             }
           }
-          const cleanLabel = label.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-          sourceLinks.push(`• <a href="${c.pageUrl}">${cleanLabel}</a>`);
+          label = label.charAt(0).toUpperCase() + label.slice(1);
+          const safeTitle = label.replace(/[\[\]()]/g, "").trim();
+          sourceLinks.push(`• [${safeTitle}](${c.pageUrl})`);
           if (sourceLinks.length >= 3) break;
         }
       }
 
       if (sourceLinks.length > 0) {
-        sourcesFooter = `\n\n📖 <b>Sources:</b>\n${sourceLinks.join("\n")}`;
+        sourcesFooter = `\n\n📖 **Sources:**\n${sourceLinks.join("\n")}`;
       }
     }
     
