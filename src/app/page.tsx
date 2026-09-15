@@ -112,6 +112,17 @@ function AppInner() {
     if (fresh) setSelectedSite(fresh);
   }, [sites]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Warn user if they try to close or refresh the tab while indexing is actively running
+  useEffect(() => {
+    if (!modalLoading) return;
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [modalLoading]);
+
   // ── navigation handlers ──────────────────────────────────────────────────
   function openChat(site: SiteSummary) {
     setSelectedSite(site);
