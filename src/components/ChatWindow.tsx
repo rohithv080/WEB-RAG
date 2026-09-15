@@ -5,6 +5,7 @@ import { CitationCard, type Citation } from "./CitationCard";
 import { WelcomeScreen } from "./WelcomeScreen";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "./MarkdownRenderer";
 
 export type ChatMessage = {
   id: string;
@@ -14,6 +15,7 @@ export type ChatMessage = {
   citations?: Citation[];
   rating?: "up" | "down" | null;
   standaloneQuery?: string;
+  latencyMs?: number;
 };
 
 type Props = {
@@ -109,11 +111,25 @@ export function ChatWindow({
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
 
   const [language, setLanguage] = useState<string>("auto");
   const [isListening, setIsListening] = useState(false);
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
+
+  function handleScroll() {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    setIsUserScrolledUp(distanceFromBottom > 80);
+  }
+
+  function scrollToBottom() {
+    setIsUserScrolledUp(false);
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
 
   useEffect(() => {
     return () => {
@@ -239,8 +255,10 @@ export function ChatWindow({
   }
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, streaming]);
+    if (!isUserScrolledUp) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, streaming, isUserScrolledUp]);
 
   useEffect(() => {
     setMessages([]);
@@ -323,13 +341,17 @@ export function ChatWindow({
               );
             } else if (payload.type === "done") {
               if (payload.sessionId) onSessionId(payload.sessionId);
-              if (payload.messageId) {
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === assistantId ? { ...m, dbId: payload.messageId } : m
-                  )
-                );
-              }
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? {
+                        ...m,
+                        dbId: payload.messageId || m.dbId,
+                        latencyMs: payload.latencyMs,
+                      }
+                    : m
+                )
+              );
             } else if (payload.type === "error") {
               throw new Error(payload.error || "Stream error");
             }
@@ -388,7 +410,13 @@ export function ChatWindow({
 
   return (
     <section className="chat">
-      <div className="chat-messages" role="log" aria-live="polite">
+      <div
+        className="chat-messages"
+        ref={messagesContainerRef}
+        onScroll={handleScroll}
+        role="log"
+        aria-live="polite"
+      >
         {messages.length === 0 ? (
           <WelcomeScreen
             siteName={siteTitle || "this site"}
@@ -412,9 +440,10 @@ export function ChatWindow({
                 {m.role === "assistant" ? (
                   m.content ? (
                     <div className="md-content">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {m.content}
-                      </ReactMarkdown>
+                      <MarkdownRenderer
+                        content={m.content}
+                        isStreaming={streaming && m.id === messages[messages.length - 1]?.id}
+                      />
                     </div>
                   ) : streaming ? (
                     <TypingIndicator />
@@ -470,6 +499,18 @@ export function ChatWindow({
                       </span>
                     )}
                   </div>
+                  <div className="perf-pills-group">
+                    {m.latencyMs && (
+                      <span className="perf-chip" title="Serverless RAG retrieval + generation latency">
+                        ⚡ {m.latencyMs < 1000 ? `${m.latencyMs}ms` : `${(m.latencyMs / 1000).toFixed(1)}s`}
+                      </span>
+                    )}
+                    {m.citations && m.citations.length > 0 && !m.content.includes("I couldn't find that in the source.") && (
+                      <span className="perf-chip verified-chip" title="Verified against indexed document chunks">
+                        🛡️ {m.citations.length} {m.citations.length === 1 ? "source" : "sources"}
+                      </span>
+                    )}
+                  </div>
                 </div>
               )}
               {m.citations && m.citations.length > 0 && !m.content.includes("I couldn't find that in the source.") && (
@@ -484,6 +525,18 @@ export function ChatWindow({
         )}
         <div ref={bottomRef} />
       </div>
+
+      {isUserScrolledUp && (
+        <button
+          type="button"
+          className="scroll-to-bottom-btn"
+          onClick={scrollToBottom}
+          title="Scroll to latest response"
+        >
+          <span>Scroll to bottom</span>
+          <span className="scroll-arrow">↓</span>
+        </button>
+      )}
 
       {error && <p className="chat-error">{error}</p>}
 
@@ -633,9 +686,69 @@ export function ChatWindow({
         .msg-actions-row {
           display: flex;
           align-items: center;
+          justify-content: space-between;
           gap: 0.5rem;
           margin-top: 0.35rem;
           padding-left: 0.25rem;
+        }
+
+        .perf-pills-group {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-left: auto;
+        }
+        .perf-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 7px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          border-radius: 4px;
+          font-size: 0.68rem;
+          color: var(--text-muted);
+          font-family: var(--font-mono, monospace);
+          letter-spacing: 0.02em;
+        }
+        .perf-chip.verified-chip {
+          color: #34d399;
+          border-color: rgba(52, 211, 153, 0.2);
+          background: rgba(52, 211, 153, 0.06);
+        }
+        .scroll-to-bottom-btn {
+          position: absolute;
+          bottom: 80px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 14px;
+          background: #18181c;
+          border: 1px solid rgba(124, 124, 255, 0.35);
+          border-radius: 20px;
+          color: #f7f7f8;
+          font-size: 0.78rem;
+          font-weight: 500;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+          cursor: pointer;
+          z-index: 10;
+          transition: all 0.2s ease;
+          animation: bounceIn 0.25s ease both;
+        }
+        .scroll-to-bottom-btn:hover {
+          background: #202026;
+          border-color: var(--accent);
+          transform: translateX(-50%) translateY(-2px);
+        }
+        .scroll-arrow {
+          font-size: 0.85rem;
+          color: var(--accent);
+        }
+        @keyframes bounceIn {
+          0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+          100% { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
         .feedback-group {

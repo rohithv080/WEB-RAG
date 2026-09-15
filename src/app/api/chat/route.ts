@@ -219,7 +219,12 @@ export async function POST(req: NextRequest) {
             },
           });
 
-          send({ type: "done", sessionId, messageId: assistantMessage.id });
+          send({
+            type: "done",
+            sessionId,
+            messageId: assistantMessage.id,
+            latencyMs: assistantMessage.latencyMs,
+          });
           controller.close();
         } catch (err) {
           console.error("[chat stream]", err);

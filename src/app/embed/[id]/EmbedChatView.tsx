@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, FormEvent } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 
 type Citation = {
   index: number;
@@ -284,9 +283,10 @@ export function EmbedChatView({
               )}
               <div className="bubble">
                 {m.content ? (
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {m.content}
-                  </ReactMarkdown>
+                  <MarkdownRenderer
+                    content={m.content}
+                    isStreaming={streaming && m.id === messages[messages.length - 1]?.id}
+                  />
                 ) : (
                   <div className="typing-dots">
                     <span />
