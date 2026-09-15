@@ -12,6 +12,8 @@ function formatMarkdownToTelegramHTML(text: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
+    .replace(/```([\s\S]*?)```/g, "<pre><code>$1</code></pre>")
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
     .replace(/\*(.*?)\*/g, "<i>$1</i>")
     .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
@@ -33,9 +35,22 @@ async function sendTelegramMessage(chatId: number, text: string) {
         chat_id: chatId,
         text: htmlText,
         parse_mode: "HTML",
+        disable_web_page_preview: true,
       }),
     });
-    if (!res.ok) console.error("[telegram] Failed to send message:", await res.text());
+    if (!res.ok) {
+      console.warn("[telegram] HTML sendMessage failed, falling back to plain text:", await res.text());
+      // Fail-safe delivery: send as raw text without HTML parse_mode so user is never ghosted
+      await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: safeText,
+          disable_web_page_preview: true,
+        }),
+      });
+    }
   } catch (err) {
     console.error("[telegram] Fetch error:", err);
   }
@@ -56,8 +71,9 @@ async function syncCommands(chatId: number) {
   const ok = await syncTelegramBotCommands();
   
   if (ok) {
-    const list = sites.map(s => {
-      const cmd = (s.name || s.id).toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32);
+    const list = sites.slice(0, 15).map(s => {
+      let cmd = (s.name || s.id).toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32);
+      if (!cmd) cmd = `site_${s.id.slice(-8)}`.toLowerCase();
       return `• <b>${s.name}</b>: /${cmd}`;
     }).join("\n");
     await sendTelegramMessage(chatId, `✅ <b>Commands Synced! (${sites.length} bots available)</b>\n\n${list}\n\nType <code>/</code>, or tap /sites to choose a bot!`);
@@ -348,6 +364,50 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true });
     }
 
+    if (text === "/help") {
+      const helpText = [
+        "🤖 <b>Web-RAG Telegram Assistant</b>",
+        "",
+        "Ask me any question via text or <b>voice note</b>! I retrieve answers with verifiable source citations from indexed websites.",
+        "",
+        "<b>Available Commands:</b>",
+        "• /sites — Choose a website bot to focus on",
+        "• /all — Search across all indexed websites",
+        "• /language — Change AI response language",
+        "• /status — Check active bot target & language",
+        "• /clear — Start a fresh chat session (clears history)",
+        "• /sync — Refresh website command list",
+        "• /help — Show this help message",
+      ].join("\n");
+      await sendTelegramMessage(chatId, helpText);
+      return NextResponse.json({ ok: true });
+    }
+
+    if (text === "/clear" || text === "/new" || text === "/reset") {
+      await prisma.$executeRaw`UPDATE "TelegramState" SET "sessionId" = NULL WHERE "chatId" = ${chatId};`;
+      await sendTelegramMessage(chatId, "🧹 <b>Conversation cleared!</b> Started a fresh session. What would you like to know?");
+      return NextResponse.json({ ok: true });
+    }
+
+    if (text === "/status") {
+      let currentSiteName = "🌍 All Websites";
+      if (siteId) {
+        const s = await prisma.site.findUnique({ where: { id: siteId }, select: { name: true } });
+        if (s) currentSiteName = `🎯 ${s.name}`;
+      }
+      const currentLang = userLanguage || "🌐 Auto (matches question)";
+      const statusMsg = [
+        "📊 <b>Bot Status</b>",
+        `• <b>Active Target:</b> ${currentSiteName}`,
+        `• <b>Language:</b> ${currentLang}`,
+        `• <b>Session:</b> ${sessionId ? "Active conversation" : "Fresh session"}`,
+        "",
+        "💡 <i>Tip: Send /sites to switch bots or /clear to reset conversation.</i>",
+      ].join("\n");
+      await sendTelegramMessage(chatId, statusMsg);
+      return NextResponse.json({ ok: true });
+    }
+
     if (text === "/sync" || text === "/start") {
       await syncCommands(chatId);
       if (text === "/start") {
@@ -372,7 +432,8 @@ export async function POST(req: NextRequest) {
         const name = (s.name || s.id).toLowerCase();
         const cmdWithUnderscore = name.replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32);
         const cmdWithoutUnderscore = name.replace(/[^a-z0-9]/g, '').slice(0, 32);
-        return commandName === cmdWithUnderscore || commandName === cmdWithoutUnderscore;
+        const fallbackCmd = `site_${s.id.slice(-8)}`.toLowerCase();
+        return commandName === cmdWithUnderscore || commandName === cmdWithoutUnderscore || commandName === fallbackCmd;
       });
       
       if (matchedSite) {
@@ -426,19 +487,49 @@ export async function POST(req: NextRequest) {
         }));
     }
     
-    const GREETING = /^(hi|hey|hello|yo|sup|hola|howdy)[\s!?.]*$/i;
+    const GREETING_PATTERNS = /^(hi|hey|hello|yo|sup|hola|howdy|good\s*(morning|afternoon|evening|night)|what'?s?\s*up|how\s*are\s*you|thanks?|thank\s*you|bye|goodbye|see\s*ya|ok|okay|cool|nice|great|awesome|got\s*it)[\s!?.]*$/i;
     let context = "";
-    if (!GREETING.test(text)) {
+    let sourcesFooter = "";
+
+    if (!GREETING_PATTERNS.test(text)) {
       const standaloneQuery = await condenseQuery(text, history);
       console.log(`[telegram] question="${text}", standalone="${standaloneQuery}"`);
       const expandedQuery = await expandQuery(standaloneQuery);
-      const chunks = await searchChunks(siteId, expandedQuery, 6);
+      console.log(`[telegram] standalone="${standaloneQuery}", expanded="${expandedQuery}"`);
+
+      // Decoupled search: vector & reranker use standaloneQuery, BM25 uses expandedQuery
+      const chunks = await searchChunks(siteId, standaloneQuery, 6, 12000, expandedQuery);
       
       if (chunks.length === 0) {
-        await sendTelegramMessage(chatId, `${siteNamePrefix}I don't have any information on that.`);
+        await sendTelegramMessage(chatId, `${siteNamePrefix}I don't have any verified information on that in the indexed pages.`);
         return NextResponse.json({ ok: true });
       }
       context = formatContext(chunks);
+
+      // Build clean, deduplicated clickable sources footnote
+      const seenUrls = new Set<string>();
+      const sourceLinks: string[] = [];
+      for (const c of chunks) {
+        if (c.pageUrl && !seenUrls.has(c.pageUrl)) {
+          seenUrls.add(c.pageUrl);
+          let label = (c.heading || "").trim();
+          if (!label) {
+            try {
+              const u = new URL(c.pageUrl);
+              label = u.hostname.replace(/^www\./, "") + (u.pathname.length > 1 ? u.pathname.slice(0, 32) : "");
+            } catch {
+              label = c.pageUrl.slice(0, 35);
+            }
+          }
+          const cleanLabel = label.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+          sourceLinks.push(`• <a href="${c.pageUrl}">${cleanLabel}</a>`);
+          if (sourceLinks.length >= 3) break;
+        }
+      }
+
+      if (sourceLinks.length > 0) {
+        sourcesFooter = `\n\n📖 <b>Sources:</b>\n${sourceLinks.join("\n")}`;
+      }
     }
     
     // Save user question to session
@@ -467,7 +558,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    await sendTelegramMessage(chatId, siteNamePrefix + cleanAnswer);
+    await sendTelegramMessage(chatId, siteNamePrefix + cleanAnswer + sourcesFooter);
     
     return NextResponse.json({ ok: true });
   } catch (error: any) {
