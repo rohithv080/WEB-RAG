@@ -82,46 +82,101 @@ async function bm25Search(
   query: string,
   limit: number
 ): Promise<RetrievedChunk[]> {
-  // Build a tsquery from the user's text.
-  // plainto_tsquery handles most user input safely.
-  // We also try websearch_to_tsquery for OR-style matching on short queries.
-  const rows = await prisma.$queryRawUnsafe<
-    Array<{
-      id: string;
-      content: string;
-      heading: string | null;
-      order: number;
-      pageId: string;
-      pageUrl: string;
-      score: number;
-      isBoilerplate: boolean;
-    }>
-  >(
-    `
-    SELECT
-      c.id,
-      c.content,
-      c.heading,
-      c."order",
-      c."pageId",
-      p.url AS "pageUrl",
-      c."isBoilerplate",
-      ts_rank_cd(c.tsv, websearch_to_tsquery('simple', $1)) AS score
-    FROM "Chunk" c
-    JOIN "Page" p ON p.id = c."pageId"
-    WHERE c.tsv @@ websearch_to_tsquery('simple', $1)
-      ${siteId ? `AND p."siteId" = $2` : ``}
-    ORDER BY score DESC
-    LIMIT ${siteId ? "$3" : "$2"}
-    `,
-    query,
-    ...(siteId ? [siteId, limit] : [limit])
-  );
+  const trimmed = query.trim();
+  if (!trimmed) return [];
 
-  return rows.map((r) => ({
-    ...r,
-    score: Number(r.score),
-  }));
+  // Use 'simple' for non-Latin languages (Tamil, Hindi, etc.) for exact token matching,
+  // and 'english' for Latin text to match stemmed words in c.tsv (e.g. 'updates' -> 'updat')
+  const isNonAscii = /[^\x00-\x7F]/.test(trimmed);
+  const dict = isNonAscii ? "simple" : "english";
+
+  try {
+    const rows = await prisma.$queryRawUnsafe<
+      Array<{
+        id: string;
+        content: string;
+        heading: string | null;
+        order: number;
+        pageId: string;
+        pageUrl: string;
+        score: number;
+        isBoilerplate: boolean;
+      }>
+    >(
+      `
+      SELECT
+        c.id,
+        c.content,
+        c.heading,
+        c."order",
+        c."pageId",
+        p.url AS "pageUrl",
+        c."isBoilerplate",
+        ts_rank_cd(c.tsv, websearch_to_tsquery('${dict}', $1)) AS score
+      FROM "Chunk" c
+      JOIN "Page" p ON p.id = c."pageId"
+      WHERE c.tsv @@ websearch_to_tsquery('${dict}', $1)
+        ${siteId ? `AND p."siteId" = $2` : ``}
+      ORDER BY score DESC
+      LIMIT ${siteId ? "$3" : "$2"}
+      `,
+      trimmed,
+      ...(siteId ? [siteId, limit] : [limit])
+    );
+
+    if (rows.length > 0) {
+      return rows.map((r) => ({
+        ...r,
+        score: Number(r.score),
+      }));
+    }
+  } catch (err) {
+    console.warn(`[search] websearch_to_tsquery failed for "${trimmed}", falling back to plainto_tsquery:`, err);
+  }
+
+  // Fallback: plainto_tsquery (resilient to conversational punctuation and query syntax)
+  try {
+    const rows = await prisma.$queryRawUnsafe<
+      Array<{
+        id: string;
+        content: string;
+        heading: string | null;
+        order: number;
+        pageId: string;
+        pageUrl: string;
+        score: number;
+        isBoilerplate: boolean;
+      }>
+    >(
+      `
+      SELECT
+        c.id,
+        c.content,
+        c.heading,
+        c."order",
+        c."pageId",
+        p.url AS "pageUrl",
+        c."isBoilerplate",
+        ts_rank_cd(c.tsv, plainto_tsquery('${dict}', $1)) AS score
+      FROM "Chunk" c
+      JOIN "Page" p ON p.id = c."pageId"
+      WHERE c.tsv @@ plainto_tsquery('${dict}', $1)
+        ${siteId ? `AND p."siteId" = $2` : ``}
+      ORDER BY score DESC
+      LIMIT ${siteId ? "$3" : "$2"}
+      `,
+      trimmed,
+      ...(siteId ? [siteId, limit] : [limit])
+    );
+
+    return rows.map((r) => ({
+      ...r,
+      score: Number(r.score),
+    }));
+  } catch (fallbackErr) {
+    console.warn(`[search] plainto_tsquery fallback failed:`, fallbackErr);
+    return [];
+  }
 }
 
 // ---------------------------------------------------------------------------

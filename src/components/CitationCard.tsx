@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { SourceInspectModal } from "./SourceInspectModal";
 
 export type Citation = {
   index: number;
@@ -16,7 +17,7 @@ type Props = {
 };
 
 export function CitationCard({ citation }: Props) {
-  const [expanded, setExpanded] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const domain = (() => {
     try {
@@ -36,26 +37,23 @@ export function CitationCard({ citation }: Props) {
   })();
 
   return (
-    <button className="cite-chip" onClick={() => setExpanded(!expanded)}>
-      <span className="cite-idx">[{citation.index}]</span>
-      {favicon && (
-        <img src={favicon} alt="" width={14} height={14} style={{ borderRadius: 2, flexShrink: 0 }} />
-      )}
-      <span className="cite-domain">{domain}</span>
+    <>
+      <button
+        type="button"
+        className="cite-chip"
+        onClick={() => setShowModal(true)}
+        title="Click to inspect verified source chunk"
+      >
+        <span className="cite-idx">[{citation.index}]</span>
+        {favicon && (
+          <img src={favicon} alt="" width={14} height={14} style={{ borderRadius: 2, flexShrink: 0 }} />
+        )}
+        <span className="cite-domain">{domain}</span>
+        <span className="cite-inspect-icon">🔍</span>
+      </button>
 
-      {expanded && (
-        <div className="cite-expanded" onClick={(e) => e.stopPropagation()}>
-          <p className="cite-heading">{citation.heading || "Untitled"}</p>
-          <p className="cite-snippet">{citation.snippet}</p>
-          <a
-            className="cite-link"
-            href={citation.pageUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            ↗ Open source
-          </a>
-        </div>
+      {showModal && (
+        <SourceInspectModal citation={citation} onClose={() => setShowModal(false)} />
       )}
 
       <style jsx>{`
@@ -135,6 +133,6 @@ export function CitationCard({ citation }: Props) {
           text-decoration: underline;
         }
       `}</style>
-    </button>
+    </>
   );
 }
