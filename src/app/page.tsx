@@ -46,12 +46,14 @@ function AppInner() {
   const [modalLoading, setModalLoading] = useState(false);
   const [modalError, setModalError] = useState<string | null>(null);
   const [modalCrawlLimit, setModalCrawlLimit] = useState<number>(5);
+  const [modalAutoSync, setModalAutoSync] = useState(false);
   const [modalProgress, setModalProgress] = useState<CrawlProgressState | null>(null);
   const modalNameRef = useRef<HTMLInputElement>(null);
 
   // ── page manager ─────────────────────────────────────────────────────────
   const [pagesOpen, setPagesOpen] = useState(false);
   const [refreshingPageId, setRefreshingPageId] = useState<string | null>(null);
+  const [refreshingSiteId, setRefreshingSiteId] = useState<string | null>(null);
 
   // ── embed modal ──────────────────────────────────────────────────────────
   const [embedSite, setEmbedSite] = useState<SiteSummary | null>(null);
@@ -133,6 +135,7 @@ function AppInner() {
     setModalDesc("");
     setModalUrl("");
     setModalCrawlLimit(5);
+    setModalAutoSync(false);
     setModalError(null);
     setTimeout(() => modalNameRef.current?.focus(), 80);
   }
@@ -292,6 +295,7 @@ function AppInner() {
             siteId: createdSiteId || undefined,
             name: !createdSiteId ? (modalName.trim() || undefined) : undefined,
             description: !createdSiteId ? (modalDesc.trim() || undefined) : undefined,
+            autoSync: !createdSiteId ? modalAutoSync : undefined,
           }),
         });
 
@@ -510,6 +514,35 @@ function AppInner() {
                 )}
               </div>
               <div className="chat-nav-actions">
+                <button
+                  type="button"
+                  className="chat-sync-btn"
+                  onClick={async () => {
+                    setRefreshingSiteId(selectedSite.id);
+                    try {
+                      const res = await fetch(`/api/sites/${selectedSite.id}/sync`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ maxPages: 5 }),
+                      });
+                      const data = await res.json();
+                      if (!res.ok) throw new Error(data.error || "Sync failed");
+                      addToast(data.message || `Sync completed! ${data.addedPages} new pages added.`, "success");
+                      await loadSites();
+                    } catch (err: any) {
+                      addToast(err.message || "Failed to sync site", "error");
+                    } finally {
+                      setRefreshingSiteId(null);
+                    }
+                  }}
+                  disabled={refreshingSiteId === selectedSite.id}
+                  title="Check sitemap and homepage for newly published articles"
+                >
+                  <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                  </svg>
+                  <span>{refreshingSiteId === selectedSite.id ? "Syncing…" : "Sync News"}</span>
+                </button>
                 <button
                   type="button"
                   className="chat-analytics-btn"
@@ -802,6 +835,22 @@ function AppInner() {
                         </button>
                       ))}
                     </div>
+                  </div>
+
+                  <div className="modal-sync-toggle">
+                    <div className="modal-sync-info">
+                      <span className="modal-sync-title">🌅 Daily Auto-Sync (Cron)</span>
+                      <span className="modal-sync-sub">Automatically scan for newly published articles & updates daily at 06:30 AM IST</span>
+                    </div>
+                    <label className="toggle-switch">
+                      <input
+                        type="checkbox"
+                        checked={modalAutoSync}
+                        onChange={(e) => setModalAutoSync(e.target.checked)}
+                        disabled={modalLoading}
+                      />
+                      <span className="toggle-slider" />
+                    </label>
                   </div>
                 </>
               )}
@@ -1211,6 +1260,29 @@ function AppInner() {
           display: flex;
           align-items: center;
           gap: 6px;
+        }
+        .chat-sync-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          background: rgba(16, 185, 129, 0.1);
+          border: 1px solid rgba(16, 185, 129, 0.3);
+          color: #34d399;
+          font-size: 0.76rem;
+          font-weight: 500;
+          padding: 0.35rem 0.65rem;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .chat-sync-btn:hover:not(:disabled) {
+          background: rgba(16, 185, 129, 0.2);
+          border-color: #34d399;
+          color: #fff;
+        }
+        .chat-sync-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
         .chat-analytics-btn,
         .chat-settings-btn,
@@ -1669,6 +1741,34 @@ function AppInner() {
         .doc-upload-btn:hover {
           border-color: rgba(255, 255, 255, 0.16);
           color: var(--text);
+        }
+
+        /* ── Modal Auto-Sync Toggle ───────────────────────────────── */
+        .modal-sync-toggle {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1rem;
+          padding: 0.75rem 0.85rem;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 8px;
+          margin-top: 0.75rem;
+        }
+        .modal-sync-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .modal-sync-title {
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: var(--text);
+        }
+        .modal-sync-sub {
+          font-size: 0.7rem;
+          color: var(--text-dim);
+          line-height: 1.35;
         }
 
         /* ── Responsive ────────────────────────────────────────────── */

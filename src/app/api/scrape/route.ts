@@ -69,16 +69,17 @@ async function insertChunksBulk(
  * Scrape a batch of 1 to 5 URLs in parallel, chunk them, embed in a single Jina call,
  * and persist via bulk multi-row SQL insert.
  */
-async function indexPagesBatch(
+export async function indexPagesBatch(
   rawUrls: string[],
   options: {
     existingSiteId?: string;
     siteName?: string;
     siteDescription?: string;
     userId?: string | null;
+    autoSync?: boolean;
   } = {}
 ): Promise<BatchIndexResult> {
-  const { existingSiteId, siteName, siteDescription, userId } = options;
+  const { existingSiteId, siteName, siteDescription, userId, autoSync } = options;
 
   if (rawUrls.length === 0) {
     throw new Error("No URLs provided to scrape");
@@ -119,7 +120,10 @@ async function indexPagesBatch(
         name: siteName?.trim() || firstTitle || null,
         description: siteDescription?.trim() || null,
         userId: userId || null,
-      },
+        sourceUrl: rawUrls[0] || successfulPages[0].url || null,
+        autoSync: Boolean(autoSync),
+        syncFrequency: "daily",
+      } as any,
     });
     siteId = newSite.id;
     siteFinalName = newSite.name;
@@ -334,6 +338,7 @@ export async function POST(req: NextRequest) {
       siteName: name,
       siteDescription: description,
       userId: authCheck.userId,
+      autoSync: typeof body.autoSync === "boolean" ? body.autoSync : undefined,
     });
 
     return NextResponse.json(result);

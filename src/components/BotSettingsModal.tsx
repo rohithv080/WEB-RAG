@@ -19,6 +19,13 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
   const [newQuestion, setNewQuestion] = useState("");
   const [isPublic, setIsPublic] = useState(true);
 
+  // Auto-Sync state
+  const [autoSync, setAutoSync] = useState(false);
+  const [syncFrequency, setSyncFrequency] = useState<"daily" | "weekly">("daily");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [syncing, setSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<{ message: string; success: boolean } | null>(null);
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -32,6 +39,10 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
         Array.isArray(site.starterQuestions) ? site.starterQuestions : []
       );
       setIsPublic(site.isPublic !== false);
+      setAutoSync(Boolean(site.autoSync));
+      setSyncFrequency((site.syncFrequency as any) || "daily");
+      setSourceUrl(site.sourceUrl || site.pages?.[0]?.url || "");
+      setSyncResult(null);
       setError(null);
       setNewQuestion("");
     }
@@ -59,6 +70,47 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
     setStarterQuestions((prev) => prev.filter((_, i) => i !== index));
   }
 
+  async function handleSyncNow() {
+    if (!site) return;
+    setSyncing(true);
+    setSyncResult(null);
+    try {
+      const res = await fetch(`/api/sites/${site.id}/sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ maxPages: 5 }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Sync failed");
+
+      setSyncResult({
+        success: true,
+        message: data.message || `Synced! ${data.addedPages} new pages indexed, ${data.addedChunks} chunks added.`,
+      });
+
+      if (data.site) {
+        onSave({
+          ...site,
+          lastSyncedAt: data.site.lastSyncedAt || new Date().toISOString(),
+          pages: data.site.pages ? data.site.pages.map((p: any) => ({
+            id: p.id,
+            url: p.url,
+            title: p.title,
+            scrapedAt: p.scrapedAt,
+            chunkCount: 0,
+          })) : site.pages,
+        });
+      }
+    } catch (err: any) {
+      setSyncResult({
+        success: false,
+        message: err.message || "Failed to trigger sync",
+      });
+    } finally {
+      setSyncing(false);
+    }
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!site) return;
@@ -81,6 +133,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           starterQuestions: starterQuestions.length > 0 ? starterQuestions : null,
           tone,
           isPublic,
+          autoSync,
+          syncFrequency,
+          sourceUrl: sourceUrl.trim() || null,
         }),
       });
 
@@ -95,6 +150,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
         starterQuestions: starterQuestions.length > 0 ? starterQuestions : null,
         tone,
         isPublic,
+        autoSync,
+        syncFrequency,
+        sourceUrl: sourceUrl.trim() || null,
       });
       onClose();
     } catch (err: any) {
@@ -250,6 +308,100 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
                     </button>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          {/* Automated Scheduled Daily Re-Sync */}
+          <div className="form-section sync-section">
+            <div className="section-header-flex">
+              <div>
+                <div className="sync-title-row">
+                  <h3 className="section-heading">Auto-Sync & Scheduled Re-Scrape</h3>
+                  <span className="badge-sync-pill">Automated</span>
+                </div>
+                <p className="section-hint">
+                  Keep daily news, fresh blog posts, or updated pages indexed automatically every day.
+                </p>
+              </div>
+              <label className="toggle-switch">
+                <input
+                  type="checkbox"
+                  checked={autoSync}
+                  onChange={(e) => setAutoSync(e.target.checked)}
+                />
+                <span className="toggle-slider" />
+              </label>
+            </div>
+
+            {autoSync && (
+              <div className="sync-options-card">
+                <div className="field-group">
+                  <label className="field-label">Website or Sitemap URL to Monitor</label>
+                  <input
+                    className="field-input"
+                    type="url"
+                    value={sourceUrl}
+                    onChange={(e) => setSourceUrl(e.target.value)}
+                    placeholder="https://www.thehindu.com or https://site.com/sitemap.xml"
+                  />
+                  <span className="field-subtext">The scraper will probe sitemaps and homepage links to ingest newly published articles.</span>
+                </div>
+
+                <div className="field-group">
+                  <label className="field-label">Sync Schedule</label>
+                  <div className="freq-selector">
+                    <button
+                      type="button"
+                      className={`freq-btn ${syncFrequency === "daily" ? "active" : ""}`}
+                      onClick={() => setSyncFrequency("daily")}
+                    >
+                      <span>🌅 Daily</span>
+                      <small>06:30 AM IST</small>
+                    </button>
+                    <button
+                      type="button"
+                      className={`freq-btn ${syncFrequency === "weekly" ? "active" : ""}`}
+                      onClick={() => setSyncFrequency("weekly")}
+                    >
+                      <span>📅 Weekly</span>
+                      <small>Every Monday</small>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Manual On-Demand Sync Trigger */}
+            <div className="sync-trigger-box">
+              <div className="sync-trigger-info">
+                <div className="sync-trigger-title">One-Click Refresh</div>
+                <div className="sync-trigger-sub">
+                  {site.lastSyncedAt
+                    ? `Last checked: ${new Date(site.lastSyncedAt).toLocaleString()}`
+                    : "No automatic sync run yet"}
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn-sync-now"
+                onClick={handleSyncNow}
+                disabled={syncing}
+              >
+                {syncing ? (
+                  <>
+                    <span className="sync-spinner" /> Checking for News…
+                  </>
+                ) : (
+                  <>⚡ Sync Latest News Now</>
+                )}
+              </button>
+            </div>
+
+            {syncResult && (
+              <div className={`sync-banner ${syncResult.success ? "success" : "error"}`}>
+                <span>{syncResult.success ? "✓" : "⚠"}</span>
+                <span>{syncResult.message}</span>
               </div>
             )}
           </div>
@@ -555,6 +707,154 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
           .chip-remove:hover {
             color: #f85149;
+          }
+
+          /* Sync Section */
+          .sync-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1rem;
+          }
+          .sync-title-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2px;
+          }
+          .badge-sync-pill {
+            font-size: 0.65rem;
+            padding: 2px 7px;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: #34d399;
+            border-radius: 9999px;
+            font-weight: 600;
+          }
+          .sync-options-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+            padding: 0.9rem;
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            margin-top: 0.5rem;
+          }
+          .field-subtext {
+            font-size: 0.72rem;
+            color: #8b949e;
+          }
+          .freq-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+          }
+          .freq-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 2px;
+            padding: 0.55rem 0.75rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            color: #c9d1d9;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+          }
+          .freq-btn small {
+            font-size: 0.68rem;
+            color: #8b949e;
+            font-weight: normal;
+          }
+          .freq-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+          }
+          .freq-btn.active {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: #38bdf8;
+            color: #38bdf8;
+          }
+          .freq-btn.active small {
+            color: rgba(56, 189, 248, 0.8);
+          }
+          .sync-trigger-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.75rem 0.9rem;
+            background: rgba(124, 124, 255, 0.05);
+            border: 1px solid rgba(124, 124, 255, 0.15);
+            border-radius: 8px;
+            margin-top: 0.4rem;
+          }
+          .sync-trigger-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #e2e8f0;
+          }
+          .sync-trigger-sub {
+            font-size: 0.72rem;
+            color: #94a3b8;
+          }
+          .btn-sync-now {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.45rem 0.85rem;
+            background: rgba(124, 124, 255, 0.15);
+            border: 1px solid rgba(124, 124, 255, 0.35);
+            color: #a78bfa;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.15s ease;
+          }
+          .btn-sync-now:hover:not(:disabled) {
+            background: rgba(124, 124, 255, 0.25);
+            color: #fff;
+            border-color: #a78bfa;
+          }
+          .btn-sync-now:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+          }
+          .sync-spinner {
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #a78bfa;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: inline-block;
+          }
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          .sync-banner {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.55rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            margin-top: 0.3rem;
+          }
+          .sync-banner.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+          }
+          .sync-banner.error {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            color: #f87171;
           }
 
           /* Visibility Switch */

@@ -17,6 +17,10 @@ export type SiteSummary = {
   tone?: "concise" | "balanced" | "detailed" | null;
   isPublic?: boolean;
   userId?: string | null;
+  autoSync?: boolean;
+  syncFrequency?: string | null;
+  lastSyncedAt?: string | null;
+  sourceUrl?: string | null;
   scrapedAt: string;
   lastScrapedAt: string;
   latestSessionId: string | null;
@@ -88,6 +92,11 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
           {site.isPublic === false && (
             <span className="badge badge-private" title="Private bot">
               Private
+            </span>
+          )}
+          {site.autoSync && (
+            <span className="badge badge-sync" title={`Auto-sync scheduled (${site.syncFrequency || "daily"})`}>
+              ⚡ Sync
             </span>
           )}
           {site.systemPrompt && (
@@ -283,6 +292,12 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
           background: rgba(124, 124, 255, 0.08);
           border-color: rgba(124, 124, 255, 0.2);
           color: #a78bfa;
+        }
+
+        .badge-sync {
+          background: rgba(16, 185, 129, 0.1);
+          border-color: rgba(16, 185, 129, 0.3);
+          color: #34d399;
         }
 
         .badge-tone {

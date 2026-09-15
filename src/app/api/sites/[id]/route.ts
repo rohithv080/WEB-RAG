@@ -56,7 +56,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, description, systemPrompt, starterQuestions, tone, isPublic } = body;
+    const { name, description, systemPrompt, starterQuestions, tone, isPublic, autoSync, syncFrequency, sourceUrl } = body;
 
     const dataToUpdate: any = {};
     if (typeof name === "string") dataToUpdate.name = name.trim();
@@ -80,6 +80,15 @@ export async function PATCH(
     }
     if (typeof isPublic === "boolean") {
       dataToUpdate.isPublic = isPublic;
+    }
+    if (typeof autoSync === "boolean") {
+      dataToUpdate.autoSync = autoSync;
+    }
+    if (typeof syncFrequency === "string" && ["daily", "weekly", "hourly"].includes(syncFrequency)) {
+      dataToUpdate.syncFrequency = syncFrequency;
+    }
+    if (sourceUrl !== undefined) {
+      dataToUpdate.sourceUrl = typeof sourceUrl === "string" ? sourceUrl.trim() || null : null;
     }
 
     const updated = await prisma.site.update({

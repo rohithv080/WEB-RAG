@@ -19,6 +19,10 @@ model Site {
   userId           String? // owner user id for multi-tenancy / Clerk Auth
   isPublic         Boolean       @default(true) // public or private bot
   scrapedAt        DateTime      @default(now())
+  autoSync         Boolean       @default(false)
+  syncFrequency    String?       @default("daily") // "daily" | "weekly"
+  lastSyncedAt     DateTime?
+  sourceUrl        String?
   pages            Page[]
   sessions         ChatSession[]
 
