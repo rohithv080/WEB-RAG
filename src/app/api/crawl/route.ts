@@ -212,6 +212,48 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    // 3. Fallback for SPAs and Cloudflare-protected sites (e.g., Cricbuzz):
+    // If standard BFS found 0 additional links, fetch start URL via Jina Reader
+    // to discover all rendered internal links from the client-side DOM.
+    if (discovered.length <= 1 && maxPages > 1) {
+      console.log(`[crawl] Standard crawler found 0 sublinks for ${startUrl.href}. Attempting Jina Reader link discovery...`);
+      try {
+        const jinaHeaders: Record<string, string> = { Accept: "text/plain" };
+        if (process.env.JINA_API_KEY) {
+          jinaHeaders["Authorization"] = `Bearer ${process.env.JINA_API_KEY}`;
+        }
+        const res = await fetch(`https://r.jina.ai/${encodeURI(startUrl.href)}`, {
+          headers: jinaHeaders,
+          signal: AbortSignal.timeout(6_000),
+        });
+        if (res.ok) {
+          const md = await res.text();
+          const linkRegex = /\[.*?\]\((https?:\/\/[^\s)]+)\)/g;
+          let m: RegExpExecArray | null;
+          while ((m = linkRegex.exec(md)) !== null) {
+            try {
+              const parsed = new URL(m[1]);
+              if (parsed.origin === startUrl.origin) {
+                const path = parsed.pathname.toLowerCase();
+                if (!/\.(jpg|jpeg|png|gif|svg|webp|pdf|zip|css|js|xml|json|ico)$/.test(path)) {
+                  parsed.hash = "";
+                  const cleanUrl = parsed.href;
+                  if (!visited.has(cleanUrl)) {
+                    visited.add(cleanUrl);
+                    discovered.push(cleanUrl);
+                    if (discovered.length >= maxPages) break;
+                  }
+                }
+              }
+            } catch {}
+          }
+          console.log(`[crawl] Jina Reader discovered ${discovered.length - 1} additional sublinks for ${startUrl.href}`);
+        }
+      } catch (jinaErr) {
+        console.warn("[crawl] Jina Reader link discovery error:", jinaErr);
+      }
+    }
+
     const uniqueUrls = [...new Set(discovered)].slice(0, maxPages);
     const elapsed = Date.now() - startTime;
 
