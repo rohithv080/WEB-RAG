@@ -27,7 +27,6 @@
 - **📎 Multi-Format Document Ingestion**: Supports PDF, Microsoft Word (`.docx`), TXT, Markdown, CSV, and JSON uploads with automatic text extraction.
 - **💬 1-Line Embeddable Widget**: Add an interactive chatbot to any external website via a single `<script src=".../widget.js">` tag.
 - **🤖 Omnichannel Telegram Bot**: Two-way voice messaging (Groq Whisper transcription + free Neural TTS voice bubble replies), multilingual language selection (English, Tamil, Hindi, Spanish, French), and inline site-picker keyboards.
-- **🎮 Discord Bot Omnichannel Integration**: Discord Slash Command (`/ask`) serverless HTTP endpoint (`/api/discord`) with decoupled RAG retrieval and verified citations.
 - **📊 Analytics & Feedback Hub**: Query volume tracking, latency metrics, user satisfaction rates (thumbs up/down), full conversation transcripts, and content gap detection.
 - **⚙️ Bot Customization**: Configure AI personas (system prompts), response tones (*Concise*, *Balanced*, *Detailed*), and suggested starter prompt chips.
 
@@ -73,7 +72,6 @@ flowchart TB
         SSEStream --> WebApp["Web Dashboard"]
         SSEStream --> EmbedWidget["1-Line External Widget"]
         SSEStream --> TelegramBot["Telegram Bot (Text & Voice)"]
-        SSEStream --> DiscordBot["Discord Bot (/ask Slash Command)"]
     end
 ```
 
