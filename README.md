@@ -37,41 +37,41 @@
 ```mermaid
 flowchart TB
     subgraph INGESTION ["1. Ingestion & Preprocessing"]
-        Web[Web URL 1-100 Pages] --> Crawler[Sitemap / Regex Link Discovery]
-        Docs[PDF / TXT / MD / CSV / JSON] --> Parser[Text Extraction & Normalization]
-        Crawler --> Batcher[Client-Driven Chunked Batcher]
+        Web["Web URL (1-100 Pages)"] --> Crawler["Sitemap / Regex Link Discovery"]
+        Docs["PDF / TXT / MD / CSV / JSON"] --> Parser["Text Extraction & Normalization"]
+        Crawler --> Batcher["Client-Driven Chunked Batcher"]
         Docs --> Batcher
-        Batcher --> Chunker[Header-Aware Chunker + Boilerplate Stripper]
-        Chunker --> JinaEmbed[Jina AI Batch Embeddings 768-d]
-        JinaEmbed --> NeonDB[(Neon PostgreSQL\npgvector + GIN tsvector)]
+        Batcher --> Chunker["Header-Aware Chunker (1500 chars / 200 overlap)"]
+        Chunker --> JinaEmbed["Jina AI Batch Embeddings (768-d)"]
+        JinaEmbed --> NeonDB[("Neon PostgreSQL<br/>pgvector + GIN tsvector")]
     end
 
     subgraph CRON ["2. Automated Daily Synchronization"]
-        VercelCron[Vercel Cron: 06:30 AM IST] --> CronRoute[/api/cron/sync]
-        CronRoute --> SyncEngine[Incremental Sync Engine]
-        SyncEngine --> SitemapCheck{Sitemap Probing}
-        SitemapCheck --> Dedupe[Set Subtraction vs Existing Page URLs]
-        Dedupe --> IngestNew[Batch Embed & Insert New Articles]
+        VercelCron["Vercel Cron: 06:30 AM IST"] --> CronRoute["/api/cron/sync (8.5s Timeout Guard)"]
+        CronRoute --> SyncEngine["Incremental Sync Engine"]
+        SyncEngine --> SitemapCheck{"Sitemap / RSS Probe"}
+        SitemapCheck --> Dedupe["Set Subtraction vs Existing URLs"]
+        Dedupe --> IngestNew["Batch Embed & Insert New Articles"]
         IngestNew --> NeonDB
     end
 
     subgraph INFERENCE ["3. Retrieval & Grounded Generation"]
-        UserQuery[User Question / Audio Voice Note] --> Rewriter[Multi-Turn Query Rewriter]
-        Rewriter --> StandaloneQ[Standalone Query]
-        Rewriter --> ExpandedQ[Expanded Query Synonyms]
-        StandaloneQ --> DenseSearch[pgvector Cosine Search]
-        ExpandedQ --> SparseSearch[PostgreSQL BM25 TSV Search]
-        DenseSearch & SparseSearch --> RRF[Reciprocal Rank Fusion]
-        RRF --> Reranker[Jina AI Multilingual Cross-Encoder]
-        Reranker --> PromptBuilder[Grounded Context Assembler]
-        PromptBuilder --> GroqLLM[Groq Cloud LLM Inference]
-        GroqLLM --> SSEStream[Streaming Response + Citations]
+        UserQuery["User Question / Voice Note"] --> Rewriter["Multi-Turn Query Rewriter"]
+        Rewriter --> StandaloneQ["Standalone Query"]
+        Rewriter --> ExpandedQ["Expanded Query Synonyms"]
+        StandaloneQ --> DenseSearch["pgvector Cosine Search"]
+        ExpandedQ --> SparseSearch["PostgreSQL BM25 TSV Search"]
+        DenseSearch & SparseSearch --> RRF["Reciprocal Rank Fusion (RRF)"]
+        RRF --> Reranker["Jina AI Multilingual Cross-Encoder (Threshold >= 0.08)"]
+        Reranker --> PromptBuilder["Grounded Context Assembler"]
+        PromptBuilder --> GroqLLM["Groq Cloud LLM (openai/gpt-oss-20b)"]
+        GroqLLM --> SSEStream["Streaming SSE + Citations [1], [2]"]
     end
 
     subgraph CLIENTS ["4. Omnichannel Delivery"]
-        SSEStream --> WebApp[Web Dashboard]
-        SSEStream --> EmbedWidget[1-Line External Widget]
-        SSEStream --> TelegramBot[Telegram Bot Interface]
+        SSEStream --> WebApp["Web Dashboard"]
+        SSEStream --> EmbedWidget["1-Line External Widget"]
+        SSEStream --> TelegramBot["Telegram Bot Interface"]
     end
 ```
 
@@ -98,7 +98,32 @@ flowchart TB
 
 ---
 
+## 🔬 Deep Dive: Chunking, Hybrid Search & Reranking Pipeline
+
+### 1. Header-Aware Chunking & Noise Stripping (`src/lib/scraper/chunk.ts`)
+- **Target Size**: `MAX_CHARS = 1500` (~350–400 tokens), optimal for Jina's 8192-token context window while keeping embeddings localized to specific answers.
+- **Sliding Window Overlap**: `OVERLAP = 200` characters, ensuring context is preserved across paragraph splits.
+- **Topological Heading Splitting**: Content is split hierarchically on Markdown headings (`#`, `##`, `###`). The closest heading is stored in `Chunk.heading` and automatically injected into embedding text (`heading\n\ncontent`), dramatically boosting vector search accuracy for questions like *"What are the fares?"*.
+- **DOM & Boilerplate Filtering**: `filterBoilerplateFromHtml` strips non-content tags (`<nav>`, `<header>`, `<footer>`, `<aside>`, `<script>`, `<style>`) and regex filters cookie notices, newsletter subscriptions, donation banners, and advertisement prompts.
+
+### 2. Decoupled Hybrid Retrieval & Reciprocal Rank Fusion (RRF)
+To prevent keyword lists from polluting dense vector embeddings or cross-encoder attention layers, the query is **decoupled**:
+1. **Dense Vector Search**: Evaluates the clean natural language question against 768-d vectors in PostgreSQL using `pgvector` (`<=>` cosine distance).
+2. **Sparse Keyword Search**: Queries PostgreSQL's native `tsvector` generated column using `websearch_to_tsquery('simple', $query)` and `ts_rank_cd`.
+3. **Reciprocal Rank Fusion**: Merges both candidate sets using:
+   $$RRF\_Score(d) = \sum_{m \in \{dense, sparse\}} \frac{1}{60 + Rank_m(d)}$$
+   This prevents dense vector search from dominating exact keyword matches (names, flight numbers, model numbers).
+
+### 3. Jina AI Cross-Encoder Reranking (`jina-reranker-v2-base-multilingual`)
+- Evaluates full token-level cross-attention between the user's question and the top 30 RRF candidates.
+- **Threshold Pruning (`>= 0.08`)**: Candidates scoring below `0.08` are discarded. If no chunk meets this threshold, retrieval returns 0 documents, cleanly triggering the model's fallback response (*"I couldn't find that in the source."*) rather than hallucinating.
+
+---
+
 ## 🚀 Getting Started
+
+### Live Demo
+Try the production deployment: **[https://rohith-rag.vercel.app](https://rohith-rag.vercel.app)**
 
 ### 1. Prerequisites
 - **Node.js**: v20.x or higher
