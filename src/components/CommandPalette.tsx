@@ -17,6 +17,7 @@ type Props = {
   onToggleSidebar?: () => void;
   onHome: () => void;
   onNewChat?: () => void;
+  onOpenApiKeys?: () => void;
 };
 
 type PaletteItem = {
@@ -41,6 +42,7 @@ export function CommandPalette({
   onToggleSidebar,
   onHome,
   onNewChat,
+  onOpenApiKeys,
 }: Props) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -178,6 +180,20 @@ export function CommandPalette({
       },
     });
 
+    if (onOpenApiKeys) {
+      items.push({
+        id: "action-api-keys",
+        category: "Actions",
+        title: "Manage Developer API Keys",
+        subtitle: "Generate keys & integrate bots via OpenAI Python SDK, cURL, or LangChain",
+        icon: "🔑",
+        badge: "API",
+        action: () => {
+          onOpenApiKeys();
+        },
+      });
+    }
+
     if (onToggleSidebar) {
       items.push({
         id: "action-sidebar",
@@ -220,7 +236,7 @@ export function CommandPalette({
     }
 
     return items;
-  }, [sites, selectedSite, onOpenDrawer, onDeployBot, onSyncSite, onToggleSidebar, onHome, onSelectSite]);
+  }, [sites, selectedSite, onOpenDrawer, onDeployBot, onSyncSite, onToggleSidebar, onHome, onSelectSite, onOpenApiKeys]);
 
   // Filter items based on query
   const filteredItems = useMemo(() => {

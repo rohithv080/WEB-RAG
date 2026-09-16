@@ -16,6 +16,7 @@ import { LandingPage } from "@/components/LandingPage";
 import { CrawlProgressBar, type CrawlProgressState } from "@/components/CrawlProgressBar";
 import { RightInspectorDrawer, type DrawerTab } from "@/components/RightInspectorDrawer";
 import { CommandPalette } from "@/components/CommandPalette";
+import { ApiKeysModal } from "@/components/ApiKeysModal";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inner app (needs ToastProvider context)
@@ -90,6 +91,9 @@ function AppInner() {
     setEmbedSite(site);
     setShowEmbedModal(true);
   }
+
+  // ── api keys modal ───────────────────────────────────────────────────────
+  const [showApiKeysModal, setShowApiKeysModal] = useState(false);
 
   // ── bot settings modal ───────────────────────────────────────────────────
   const [settingsSite, setSettingsSite] = useState<SiteSummary | null>(null);
@@ -421,6 +425,7 @@ function AppInner() {
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
         onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+        onOpenApiKeys={() => setShowApiKeysModal(true)}
       />
 
       <main className={`main-content ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
@@ -964,6 +969,18 @@ function AppInner() {
           setSessionId(null);
           addToast("Started a new conversation session", "info");
         }}
+        onOpenApiKeys={() => {
+          setCommandPaletteOpen(false);
+          setShowApiKeysModal(true);
+        }}
+      />
+
+      {/* ── DEVELOPER API KEYS MODAL ─────────────────────────────── */}
+      <ApiKeysModal
+        isOpen={showApiKeysModal}
+        onClose={() => setShowApiKeysModal(false)}
+        sites={sites}
+        onToast={addToast}
       />
 
       <style jsx>{`

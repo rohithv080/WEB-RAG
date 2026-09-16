@@ -13,6 +13,7 @@ type Props = {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   onOpenCommandPalette?: () => void;
+  onOpenApiKeys?: () => void;
 };
 
 function getFavicon(site: SiteSummary): string {
@@ -48,6 +49,7 @@ export function Sidebar({
   isCollapsed = false,
   onToggleCollapse,
   onOpenCommandPalette,
+  onOpenApiKeys,
 }: Props) {
   const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -180,6 +182,19 @@ export function Sidebar({
         <span>New Knowledge Bot</span>
       </button>
 
+      {/* Developer API Keys button */}
+      {onOpenApiKeys && (
+        <button
+          type="button"
+          className="sidebar-keys-btn"
+          onClick={() => { onOpenApiKeys(); setMobileOpen(false); }}
+          title="Developer API Keys & OpenAI SDK Endpoints"
+        >
+          <span className="sidebar-keys-icon">🔑</span>
+          <span>Developer API Keys</span>
+        </button>
+      )}
+
       {/* Auth bar */}
       <AuthBar />
 
@@ -223,6 +238,7 @@ export function Sidebar({
         .sidebar.sidebar-collapsed :global(.sidebar-search-wrap),
         .sidebar.sidebar-collapsed :global(.sidebar-item-info),
         .sidebar.sidebar-collapsed :global(.sidebar-add span:not(.sidebar-add-icon)),
+        .sidebar.sidebar-collapsed :global(.sidebar-keys-btn span:last-child),
         .sidebar.sidebar-collapsed :global(.sidebar-footer span:last-child),
         .sidebar.sidebar-collapsed :global(.active-pill),
         .sidebar.sidebar-collapsed :global(.user-text-col),
@@ -232,7 +248,8 @@ export function Sidebar({
         .sidebar.sidebar-collapsed :global(.auth-button-group) {
           display: none !important;
         }
-        .sidebar.sidebar-collapsed :global(.sidebar-add) {
+        .sidebar.sidebar-collapsed :global(.sidebar-add),
+        .sidebar.sidebar-collapsed :global(.sidebar-keys-btn) {
           justify-content: center;
           padding: 0.6rem 0;
         }
@@ -516,6 +533,33 @@ export function Sidebar({
           font-size: 0.95rem;
           font-weight: 400;
           line-height: 1;
+        }
+
+        .sidebar-keys-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.45rem;
+          margin: 0 0.5rem 0.45rem;
+          padding: 0.45rem 0.65rem;
+          border: 1px solid rgba(124, 124, 255, 0.2);
+          border-radius: 6px;
+          background: rgba(124, 124, 255, 0.05);
+          color: #c4b5fd;
+          font-size: 0.76rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.12s ease;
+        }
+
+        .sidebar-keys-btn:hover {
+          border-color: rgba(124, 124, 255, 0.45);
+          color: #ffffff;
+          background: rgba(124, 124, 255, 0.12);
+        }
+
+        .sidebar-keys-icon {
+          font-size: 0.85rem;
         }
 
         /* Footer */

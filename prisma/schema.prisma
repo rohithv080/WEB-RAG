@@ -25,6 +25,7 @@ model Site {
   sourceUrl        String?
   pages            Page[]
   sessions         ChatSession[]
+  apiKeys          ApiKey[]
 
   @@index([userId])
 }
@@ -86,4 +87,18 @@ model TelegramState {
   siteId    String?
   sessionId String?
   language  String?
+}
+
+model ApiKey {
+  id         String    @id @default(cuid())
+  key        String    @unique
+  name       String
+  userId     String
+  siteId     String?
+  site       Site?     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+
+  @@index([userId])
+  @@index([key])
 }
