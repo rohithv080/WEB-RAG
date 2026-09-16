@@ -15,6 +15,7 @@ import { Show, SignInButton, SignUpButton, SignOutButton, useUser } from "@clerk
 import { LandingPage } from "@/components/LandingPage";
 import { CrawlProgressBar, type CrawlProgressState } from "@/components/CrawlProgressBar";
 import { RightInspectorDrawer, type DrawerTab } from "@/components/RightInspectorDrawer";
+import { CommandPalette } from "@/components/CommandPalette";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inner app (needs ToastProvider context)
@@ -32,6 +33,19 @@ function AppInner() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTab, setDrawerTab] = useState<DrawerTab>("pages");
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+
+  // Global Cmd + K / Ctrl + K shortcut
+  useEffect(() => {
+    function handleGlobalKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    }
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => window.removeEventListener("keydown", handleGlobalKeyDown);
+  }, []);
 
   function toggleDrawer(tab: DrawerTab) {
     if (drawerOpen && drawerTab === tab) {
@@ -406,6 +420,7 @@ function AppInner() {
         onHome={goHome}
         isCollapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
+        onOpenCommandPalette={() => setCommandPaletteOpen(true)}
       />
 
       <main className={`main-content ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
@@ -871,6 +886,54 @@ function AppInner() {
         site={analyticsSite}
         isOpen={showAnalyticsModal}
         onClose={() => setShowAnalyticsModal(false)}
+      />
+
+      {/* ── GLOBAL COMMAND PALETTE (CMD + K) ───────────────────────── */}
+      <CommandPalette
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        sites={sites}
+        selectedSite={selectedSite}
+        onSelectSite={(site) => {
+          openChat(site);
+          setCommandPaletteOpen(false);
+        }}
+        onDeployBot={() => {
+          setCommandPaletteOpen(false);
+          openModal();
+        }}
+        onOpenDrawer={(tab) => {
+          setCommandPaletteOpen(false);
+          if (view !== "chat" && selectedSite) {
+            openChat(selectedSite);
+          }
+          setDrawerTab(tab);
+          setDrawerOpen(true);
+        }}
+        onSyncSite={async (siteId) => {
+          setCommandPaletteOpen(false);
+          setRefreshingSiteId(siteId);
+          try {
+            const res = await fetch(`/api/sites/${siteId}/sync`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ maxPages: 5 }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || "Sync failed");
+            addToast(data.message || `Sync completed! ${data.addedPages} new pages added.`, "success");
+            await loadSites();
+          } catch (err: any) {
+            addToast(err.message || "Failed to sync site", "error");
+          } finally {
+            setRefreshingSiteId(null);
+          }
+        }}
+        onToggleSidebar={() => setSidebarCollapsed((v) => !v)}
+        onHome={() => {
+          setCommandPaletteOpen(false);
+          goHome();
+        }}
       />
 
       <style jsx>{`

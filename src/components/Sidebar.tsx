@@ -12,6 +12,7 @@ type Props = {
   onHome: () => void;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  onOpenCommandPalette?: () => void;
 };
 
 function getFavicon(site: SiteSummary): string {
@@ -46,6 +47,7 @@ export function Sidebar({
   onHome,
   isCollapsed = false,
   onToggleCollapse,
+  onOpenCommandPalette,
 }: Props) {
   const [search, setSearch] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -82,9 +84,32 @@ export function Sidebar({
         )}
       </div>
 
+      {/* Collapsed Search Icon */}
+      {isCollapsed && onOpenCommandPalette && (
+        <div className="sidebar-collapsed-search-wrap">
+          <button
+            type="button"
+            className="sidebar-collapsed-search-btn"
+            onClick={onOpenCommandPalette}
+            title="Search & Commands (⌘K)"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Search */}
       <div className="sidebar-search-wrap">
-        <div className="sidebar-search-box">
+        <div
+          className="sidebar-search-box"
+          onClick={() => {
+            if (onOpenCommandPalette) onOpenCommandPalette();
+          }}
+          style={{ cursor: onOpenCommandPalette ? "pointer" : "default" }}
+        >
           <svg className="sidebar-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -92,11 +117,27 @@ export function Sidebar({
           <input
             className="sidebar-search"
             type="text"
-            placeholder="Search bots…"
+            placeholder="Search bots or press ⌘K…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onFocus={(e) => {
+              if (onOpenCommandPalette) {
+                e.target.blur();
+                onOpenCommandPalette();
+              }
+            }}
           />
-          <span className="sidebar-search-kbd">⌘K</span>
+          <button
+            type="button"
+            className="sidebar-search-kbd"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onOpenCommandPalette) onOpenCommandPalette();
+            }}
+            title="Open Command Palette (Cmd + K)"
+          >
+            ⌘K
+          </button>
         </div>
       </div>
 
@@ -204,6 +245,29 @@ export function Sidebar({
           justify-content: center;
           padding: 0.4rem 0;
           margin: 0 6px 6px;
+        }
+        .sidebar-collapsed-search-wrap {
+          display: flex;
+          justify-content: center;
+          padding: 8px 0;
+        }
+        .sidebar-collapsed-search-btn {
+          width: 34px;
+          height: 34px;
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--border);
+          color: var(--text-muted);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .sidebar-collapsed-search-btn:hover {
+          background: rgba(124, 124, 255, 0.15);
+          border-color: var(--accent);
+          color: #ffffff;
         }
 
         .sidebar-brand-row {
