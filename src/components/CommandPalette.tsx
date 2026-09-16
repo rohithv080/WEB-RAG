@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import type { SiteSummary } from "./BotCard";
 
-export type PaletteTab = "pages" | "analytics" | "settings" | "embed";
+export type PaletteTab = "pages" | "history" | "analytics" | "settings" | "embed";
 
 type Props = {
   isOpen: boolean;
@@ -16,6 +16,7 @@ type Props = {
   onSyncSite?: (siteId: string) => void;
   onToggleSidebar?: () => void;
   onHome: () => void;
+  onNewChat?: () => void;
 };
 
 type PaletteItem = {
@@ -39,6 +40,7 @@ export function CommandPalette({
   onSyncSite,
   onToggleSidebar,
   onHome,
+  onNewChat,
 }: Props) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -75,6 +77,32 @@ export function CommandPalette({
 
     // ── Group 1: Actions ───────────────────────────────────────────────────
     if (selectedSite) {
+      if (onNewChat) {
+        items.push({
+          id: "action-new-chat",
+          category: "Actions",
+          title: `Start New Chat in ${selectedSite.name}`,
+          subtitle: "Reset screen to a fresh conversation session",
+          icon: "+",
+          badge: "Chat",
+          action: () => {
+            onNewChat();
+          },
+        });
+      }
+
+      items.push({
+        id: "action-history",
+        category: "Actions",
+        title: `View Chat History for ${selectedSite.name}`,
+        subtitle: "Browse past conversation threads and multi-turn context",
+        icon: "💬",
+        badge: "Drawer",
+        action: () => {
+          onOpenDrawer("history");
+        },
+      });
+
       items.push({
         id: "action-knowledge",
         category: "Actions",

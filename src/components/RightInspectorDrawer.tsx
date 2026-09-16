@@ -5,7 +5,7 @@ import type { SiteSummary } from "./BotCard";
 import { UrlInput } from "./UrlInput";
 import { ChunkExplorerView } from "./ChunkExplorerView";
 
-export type DrawerTab = "pages" | "analytics" | "settings" | "embed";
+export type DrawerTab = "pages" | "history" | "analytics" | "settings" | "embed";
 
 type Props = {
   isOpen: boolean;
@@ -18,6 +18,16 @@ type Props = {
   refreshingPageId: string | null;
   onPageAdded: () => Promise<void>;
   onToast: (message: string, type: "success" | "error" | "info") => void;
+  currentSessionId?: string | null;
+  onSelectSession?: (sessionId: string) => void;
+  onNewChat?: () => void;
+};
+
+export type ChatSessionItem = {
+  id: string;
+  createdAt: string;
+  messageCount: number;
+  preview: string;
 };
 
 type AnalyticsData = {
@@ -43,6 +53,9 @@ export function RightInspectorDrawer({
   refreshingPageId,
   onPageAdded,
   onToast,
+  currentSessionId,
+  onSelectSession,
+  onNewChat,
 }: Props) {
   // Settings Form State
   const [name, setName] = useState("");
@@ -54,6 +67,12 @@ export function RightInspectorDrawer({
   const [autoSync, setAutoSync] = useState(false);
   const [syncFrequency, setSyncFrequency] = useState<"daily" | "weekly">("daily");
   const [savingSettings, setSavingSettings] = useState(false);
+
+  // Chat Sessions History State
+  const [sessions, setSessions] = useState<ChatSessionItem[]>([]);
+  const [loadingSessions, setLoadingSessions] = useState(false);
+  const [sessionSearch, setSessionSearch] = useState("");
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
 
   // Analytics State
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
@@ -100,6 +119,55 @@ export function RightInspectorDrawer({
         .finally(() => setAnalyticsLoading(false));
     }
   }, [isOpen, activeTab, site]);
+
+  // Fetch session history when history tab is selected
+  useEffect(() => {
+    if (isOpen && activeTab === "history" && site) {
+      loadSessions();
+    }
+  }, [isOpen, activeTab, site]);
+
+  async function loadSessions() {
+    if (!site) return;
+    setLoadingSessions(true);
+    try {
+      const res = await fetch(`/api/sites/${site.id}/sessions`);
+      if (!res.ok) throw new Error("Failed to load chat history");
+      const data = await res.json();
+      if (Array.isArray(data.sessions)) {
+        setSessions(data.sessions);
+      }
+    } catch (err: any) {
+      console.error("[loadSessions error]", err);
+    } finally {
+      setLoadingSessions(false);
+    }
+  }
+
+  async function handleDeleteSession(e: React.MouseEvent, sessionId: string) {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this conversation thread?")) return;
+    setDeletingSessionId(sessionId);
+    try {
+      const res = await fetch(`/api/sessions/${sessionId}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("Failed to delete conversation");
+      setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+      onToast("Conversation deleted", "info");
+      if (currentSessionId === sessionId && onNewChat) {
+        onNewChat();
+      }
+    } catch (err: any) {
+      onToast(err.message || "Failed to delete session", "error");
+    } finally {
+      setDeletingSessionId(null);
+    }
+  }
+
+  const filteredSessions = sessions.filter((s) => {
+    if (!sessionSearch.trim()) return true;
+    const q = sessionSearch.toLowerCase();
+    return s.preview.toLowerCase().includes(q) || s.id.toLowerCase().includes(q);
+  });
 
   if (!isOpen || !site) return null;
 
@@ -211,6 +279,17 @@ export function RightInspectorDrawer({
         >
           <span>📁 Pages</span>
           <span className="tab-count">{site.pages.length}</span>
+        </button>
+        <button
+          type="button"
+          className={`drawer-tab ${activeTab === "history" ? "active" : ""}`}
+          onClick={() => {
+            setInspectingPageId(null);
+            onTabChange("history");
+          }}
+        >
+          <span>💬 History</span>
+          {sessions.length > 0 && <span className="tab-count">{sessions.length}</span>}
         </button>
         <button
           type="button"
@@ -598,6 +677,126 @@ export function RightInspectorDrawer({
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ── TAB 5: CONVERSATION HISTORY ──────────────────────────── */}
+        {activeTab === "history" && (
+          <div className="tab-panel">
+            <div className="history-header-actions">
+              <div className="history-search-wrap">
+                <span className="search-icon">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search conversations…"
+                  value={sessionSearch}
+                  onChange={(e) => setSessionSearch(e.target.value)}
+                  className="history-search-input"
+                />
+                {sessionSearch && (
+                  <button
+                    type="button"
+                    className="clear-search-btn"
+                    onClick={() => setSessionSearch("")}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+              <button
+                type="button"
+                className="new-chat-drawer-btn"
+                onClick={() => {
+                  if (onNewChat) onNewChat();
+                  onToast("Started a fresh conversation session", "info");
+                }}
+                title="Start a new conversation thread"
+              >
+                + New Chat
+              </button>
+            </div>
+
+            {loadingSessions ? (
+              <div className="sessions-loading-state">
+                <span className="history-spinner" />
+                <span>Loading conversation history…</span>
+              </div>
+            ) : filteredSessions.length === 0 ? (
+              <div className="sessions-empty-state">
+                <div className="empty-icon">💬</div>
+                <h4 className="empty-title">
+                  {sessionSearch ? "No matching conversations" : "No conversation history yet"}
+                </h4>
+                <p className="empty-desc">
+                  {sessionSearch
+                    ? "Try a different search keyword"
+                    : "Ask questions in chat to automatically save multi-turn threads here."}
+                </p>
+                {!sessionSearch && (
+                  <button
+                    type="button"
+                    className="empty-start-btn"
+                    onClick={() => {
+                      if (onNewChat) onNewChat();
+                    }}
+                  >
+                    Start First Chat
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="session-list">
+                {filteredSessions.map((s) => {
+                  const isActive = currentSessionId === s.id;
+                  const dateFormatted = new Date(s.createdAt).toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  });
+
+                  return (
+                    <div
+                      key={s.id}
+                      className={`session-card ${isActive ? "active-session" : ""}`}
+                      onClick={() => {
+                        if (onSelectSession) {
+                          onSelectSession(s.id);
+                          onToast("Resumed conversation thread", "info");
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                    >
+                      <div className="session-card-top">
+                        <span className="session-date">{dateFormatted}</span>
+                        <div className="session-badges">
+                          {isActive && <span className="active-tag">Current</span>}
+                          <span className="msg-count-tag">
+                            💬 {s.messageCount} {s.messageCount === 1 ? "msg" : "msgs"}
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="session-preview">{s.preview}</p>
+
+                      <div className="session-card-footer">
+                        <span className="resume-hint">Resume thread →</span>
+                        <button
+                          type="button"
+                          className="delete-session-btn"
+                          onClick={(e) => handleDeleteSession(e, s.id)}
+                          disabled={deletingSessionId === s.id}
+                          title="Delete conversation"
+                        >
+                          {deletingSessionId === s.id ? "…" : "🗑️"}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -1164,6 +1363,212 @@ export function RightInspectorDrawer({
           display: flex;
           flex-direction: column;
           gap: 4px;
+        }
+
+        /* History Tab */
+        .history-header-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 0.75rem;
+        }
+        .history-search-wrap {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(0, 0, 0, 0.35);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 6px;
+          padding: 6px 10px;
+        }
+        .search-icon {
+          font-size: 0.75rem;
+          opacity: 0.6;
+        }
+        .history-search-input {
+          background: transparent;
+          border: none;
+          outline: none;
+          color: #f4f4f5;
+          font-size: 0.75rem;
+          width: 100%;
+        }
+        .clear-search-btn {
+          background: transparent;
+          border: none;
+          color: #888;
+          font-size: 0.7rem;
+          cursor: pointer;
+        }
+        .clear-search-btn:hover {
+          color: #fff;
+        }
+        .new-chat-drawer-btn {
+          padding: 6px 10px;
+          background: rgba(124, 124, 255, 0.15);
+          border: 1px solid rgba(124, 124, 255, 0.3);
+          border-radius: 6px;
+          color: #c4b5fd;
+          font-size: 0.74rem;
+          font-weight: 500;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.15s ease;
+        }
+        .new-chat-drawer-btn:hover {
+          background: rgba(124, 124, 255, 0.25);
+          color: #fff;
+          border-color: rgba(124, 124, 255, 0.5);
+        }
+
+        .sessions-loading-state {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 2.5rem 1rem;
+          color: #a1a1aa;
+          font-size: 0.8rem;
+        }
+        .history-spinner {
+          width: 14px;
+          height: 14px;
+          border: 2px solid rgba(124, 124, 255, 0.2);
+          border-top-color: #7c7cff;
+          border-radius: 50%;
+          animation: histSpin 0.8s linear infinite;
+        }
+        @keyframes histSpin {
+          to { transform: rotate(360deg); }
+        }
+
+        .sessions-empty-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          padding: 2.5rem 1.5rem;
+        }
+        .empty-icon {
+          font-size: 2.2rem;
+          margin-bottom: 0.5rem;
+          opacity: 0.8;
+        }
+        .empty-title {
+          font-size: 0.88rem;
+          font-weight: 600;
+          color: #f4f4f5;
+          margin: 0 0 0.35rem 0;
+        }
+        .empty-desc {
+          font-size: 0.76rem;
+          color: #8a8f98;
+          line-height: 1.45;
+          margin: 0 0 1rem 0;
+        }
+        .empty-start-btn {
+          padding: 6px 14px;
+          background: #7c7cff;
+          border: none;
+          border-radius: 6px;
+          color: #fff;
+          font-size: 0.76rem;
+          font-weight: 500;
+          cursor: pointer;
+        }
+
+        .session-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .session-card {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 8px;
+          padding: 10px 12px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          position: relative;
+        }
+        .session-card:hover {
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(255, 255, 255, 0.15);
+          transform: translateY(-1px);
+        }
+        .session-card.active-session {
+          background: rgba(124, 124, 255, 0.08);
+          border-color: rgba(124, 124, 255, 0.4);
+          box-shadow: 0 0 12px rgba(124, 124, 255, 0.1);
+        }
+        .session-card-top {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 6px;
+        }
+        .session-date {
+          font-size: 0.7rem;
+          color: #8a8f98;
+          font-family: monospace;
+        }
+        .session-badges {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .active-tag {
+          font-size: 0.65rem;
+          padding: 1px 5px;
+          background: rgba(124, 124, 255, 0.2);
+          border: 1px solid rgba(124, 124, 255, 0.4);
+          border-radius: 4px;
+          color: #c4b5fd;
+          font-weight: 600;
+        }
+        .msg-count-tag {
+          font-size: 0.68rem;
+          color: #a1a1aa;
+        }
+        .session-preview {
+          font-size: 0.78rem;
+          color: #e4e4e7;
+          margin: 0 0 8px 0;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .session-card-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          padding-top: 6px;
+        }
+        .resume-hint {
+          font-size: 0.7rem;
+          color: #7c7cff;
+          opacity: 0.85;
+        }
+        .session-card:hover .resume-hint {
+          opacity: 1;
+        }
+        .delete-session-btn {
+          background: transparent;
+          border: none;
+          color: #888;
+          cursor: pointer;
+          font-size: 0.8rem;
+          padding: 2px 5px;
+          border-radius: 4px;
+          transition: all 0.15s ease;
+        }
+        .delete-session-btn:hover {
+          color: #ef4444;
+          background: rgba(239, 68, 68, 0.1);
         }
       `}</style>
     </aside>

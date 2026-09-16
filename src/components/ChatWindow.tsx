@@ -118,6 +118,8 @@ export function ChatWindow({
   const [isListening, setIsListening] = useState(false);
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const [loadingSession, setLoadingSession] = useState(false);
 
   function handleScroll() {
     const container = messagesContainerRef.current;
@@ -260,10 +262,89 @@ export function ChatWindow({
     }
   }, [messages, streaming, isUserScrolledUp]);
 
+  // Load past messages when sessionId changes
   useEffect(() => {
-    setMessages([]);
+    if (!sessionId) {
+      setMessages([]);
+      setError(null);
+      return;
+    }
+
+    let isMounted = true;
+    setLoadingSession(true);
+
+    fetch(`/api/sessions/${sessionId}`)
+      .then(async (res) => {
+        if (!res.ok) return;
+        const data = await res.json();
+        if (isMounted && Array.isArray(data.messages)) {
+          setMessages(
+            data.messages.map((m: any) => ({
+              id: m.id,
+              dbId: m.id,
+              role: m.role as "user" | "assistant",
+              content: m.content,
+              citations: (m.citations as Citation[]) || undefined,
+              rating: m.rating || null,
+              latencyMs: m.latencyMs || undefined,
+            }))
+          );
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (isMounted) setLoadingSession(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [sessionId]);
+
+  useEffect(() => {
     setError(null);
   }, [siteId]);
+
+  function handleStopGenerating() {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      setStreaming(false);
+    }
+  }
+
+  function handleExportTranscript() {
+    if (messages.length === 0) return;
+    const title = siteTitle || "Knowledge Chat";
+    const dateStr = new Date().toLocaleDateString();
+    let md = `# ${title} Transcript\n*Exported on ${dateStr}*\n\n---\n\n`;
+
+    for (const m of messages) {
+      if (m.role === "user") {
+        md += `### 👤 User\n${m.content}\n\n`;
+      } else {
+        md += `### 🤖 Assistant\n${m.content}\n\n`;
+        if (m.citations && m.citations.length > 0) {
+          md += `**Cited Sources:**\n`;
+          for (const c of m.citations) {
+            md += `- [${c.index}] ${c.heading || "Excerpt"} (${c.pageUrl})\n`;
+          }
+          md += `\n`;
+        }
+      }
+      md += `---\n\n`;
+    }
+
+    const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-transcript.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
 
   function submitQuestion(question: string) {
     if (!siteId || streaming || !question.trim()) return;
@@ -271,6 +352,9 @@ export function ChatWindow({
     setInput("");
     setError(null);
     setStreaming(true);
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
@@ -290,6 +374,7 @@ export function ChatWindow({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ question: question.trim(), siteId, sessionId, language: language === "auto" ? null : language }),
+          signal: controller.signal,
         });
 
         if (!res.ok) {
@@ -363,7 +448,11 @@ export function ChatWindow({
             prev.map((m) => (m.id === assistantId ? { ...m, citations } : m))
           );
         }
-      } catch (err) {
+      } catch (err: any) {
+        if (err?.name === "AbortError") {
+          // Gracefully halted by user clicking "Stop Generating"
+          return;
+        }
         const message = err instanceof Error ? err.message : "Chat failed";
         setError(message);
         setMessages((prev) =>
@@ -375,6 +464,7 @@ export function ChatWindow({
         );
       } finally {
         setStreaming(false);
+        abortControllerRef.current = null;
         inputRef.current?.focus();
       }
     })();
@@ -531,6 +621,12 @@ export function ChatWindow({
             </div>
           ))
         )}
+        {loadingSession && (
+          <div className="session-loading-banner">
+            <span className="session-spinner" />
+            <span>Restoring conversation history…</span>
+          </div>
+        )}
         <div ref={bottomRef} />
       </div>
 
@@ -544,6 +640,33 @@ export function ChatWindow({
           <span>Scroll to bottom</span>
           <span className="scroll-arrow">↓</span>
         </button>
+      )}
+
+      {streaming && (
+        <div className="stop-generating-wrap">
+          <button
+            type="button"
+            className="stop-generating-btn"
+            onClick={handleStopGenerating}
+            title="Stop generating response"
+          >
+            <span className="stop-sq">■</span>
+            <span>Stop generating</span>
+          </button>
+        </div>
+      )}
+
+      {messages.length > 0 && !streaming && (
+        <div className="chat-top-utility-bar">
+          <button
+            type="button"
+            className="export-transcript-btn"
+            onClick={handleExportTranscript}
+            title="Export conversation as Markdown transcript"
+          >
+            <span>📥 Export Transcript (.md)</span>
+          </button>
+        </div>
       )}
 
       {error && <p className="chat-error">{error}</p>}
@@ -757,6 +880,91 @@ export function ChatWindow({
         @keyframes bounceIn {
           0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
           100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .stop-generating-wrap {
+          position: absolute;
+          bottom: 74px;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 12;
+        }
+        .stop-generating-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 7px;
+          padding: 6px 14px;
+          background: #18181c;
+          border: 1px solid rgba(239, 68, 68, 0.4);
+          border-radius: 20px;
+          color: #fca5a5;
+          font-size: 0.78rem;
+          font-weight: 500;
+          cursor: pointer;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+          transition: all 0.2s ease;
+          animation: bounceIn 0.2s ease both;
+        }
+        .stop-generating-btn:hover {
+          background: #251717;
+          border-color: #ef4444;
+          color: #fecaca;
+          transform: translateX(-50%) translateY(-2px);
+        }
+        .stop-sq {
+          font-size: 0.72rem;
+          color: #ef4444;
+        }
+
+        .chat-top-utility-bar {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          padding: 0 1.25rem 0.35rem 1.25rem;
+        }
+        .export-transcript-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 6px;
+          color: var(--text-muted);
+          font-size: 0.72rem;
+          padding: 3px 8px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .export-transcript-btn:hover {
+          background: rgba(255, 255, 255, 0.06);
+          color: var(--text);
+          border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .session-loading-banner {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 6px 14px;
+          margin: 0.75rem auto;
+          background: rgba(124, 124, 255, 0.08);
+          border: 1px solid rgba(124, 124, 255, 0.2);
+          border-radius: 20px;
+          color: #a5b4fc;
+          font-size: 0.76rem;
+          width: fit-content;
+        }
+        .session-spinner {
+          width: 12px;
+          height: 12px;
+          border: 2px solid rgba(165, 180, 252, 0.3);
+          border-top-color: #a5b4fc;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
 
         .feedback-group {

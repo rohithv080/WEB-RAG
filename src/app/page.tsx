@@ -603,6 +603,28 @@ function AppInner() {
 
                 <button
                   type="button"
+                  className="chat-new-thread-btn"
+                  onClick={() => {
+                    setSessionId(null);
+                    addToast("Started a new conversation session", "info");
+                  }}
+                  title="Start a fresh conversation thread"
+                >
+                  <span>+ New Chat</span>
+                </button>
+
+                <button
+                  type="button"
+                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "history" ? "active" : ""}`}
+                  onClick={() => toggleDrawer("history")}
+                  title="View conversation history & past threads"
+                >
+                  <span>💬</span>
+                  <span>History</span>
+                </button>
+
+                <button
+                  type="button"
                   className={`drawer-trigger-btn ${drawerOpen && drawerTab === "pages" ? "active" : ""}`}
                   onClick={() => toggleDrawer("pages")}
                   title="View and index document pages"
@@ -665,6 +687,9 @@ function AppInner() {
                 refreshingPageId={refreshingPageId}
                 onPageAdded={loadSites}
                 onToast={addToast}
+                currentSessionId={sessionId}
+                onSelectSession={(newSessionId) => setSessionId(newSessionId)}
+                onNewChat={() => setSessionId(null)}
               />
             </div>
           </div>
@@ -933,6 +958,11 @@ function AppInner() {
         onHome={() => {
           setCommandPaletteOpen(false);
           goHome();
+        }}
+        onNewChat={() => {
+          setCommandPaletteOpen(false);
+          setSessionId(null);
+          addToast("Started a new conversation session", "info");
         }}
       />
 
@@ -1387,6 +1417,26 @@ function AppInner() {
         .chat-sync-btn:disabled {
           opacity: 0.5;
           cursor: not-allowed;
+        }
+        .chat-new-thread-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          background: rgba(124, 124, 255, 0.12);
+          border: 1px solid rgba(124, 124, 255, 0.3);
+          color: #c4b5fd;
+          font-size: 0.76rem;
+          font-weight: 600;
+          padding: 0.35rem 0.75rem;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .chat-new-thread-btn:hover {
+          background: #7c7cff;
+          border-color: #7c7cff;
+          color: #fff;
+          transform: translateY(-1px);
         }
         .drawer-trigger-btn {
           background: transparent;
