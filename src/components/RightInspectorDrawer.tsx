@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, FormEvent } from "react";
 import type { SiteSummary } from "./BotCard";
 import { UrlInput } from "./UrlInput";
+import { ChunkExplorerView } from "./ChunkExplorerView";
 
 export type DrawerTab = "pages" | "analytics" | "settings" | "embed";
 
@@ -69,9 +70,13 @@ export function RightInspectorDrawer({
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Chunk Explorer Drilldown State
+  const [inspectingPageId, setInspectingPageId] = useState<string | null>(null);
+
   // Sync state when site changes
   useEffect(() => {
     if (site) {
+      setInspectingPageId(null);
       setName(site.name || "");
       setDescription(site.description || "");
       setSystemPrompt(site.systemPrompt || "");
@@ -199,7 +204,10 @@ export function RightInspectorDrawer({
         <button
           type="button"
           className={`drawer-tab ${activeTab === "pages" ? "active" : ""}`}
-          onClick={() => onTabChange("pages")}
+          onClick={() => {
+            setInspectingPageId(null);
+            onTabChange("pages");
+          }}
         >
           <span>📁 Pages</span>
           <span className="tab-count">{site.pages.length}</span>
@@ -207,21 +215,30 @@ export function RightInspectorDrawer({
         <button
           type="button"
           className={`drawer-tab ${activeTab === "analytics" ? "active" : ""}`}
-          onClick={() => onTabChange("analytics")}
+          onClick={() => {
+            setInspectingPageId(null);
+            onTabChange("analytics");
+          }}
         >
           <span>📊 Analytics</span>
         </button>
         <button
           type="button"
           className={`drawer-tab ${activeTab === "settings" ? "active" : ""}`}
-          onClick={() => onTabChange("settings")}
+          onClick={() => {
+            setInspectingPageId(null);
+            onTabChange("settings");
+          }}
         >
           <span>⚙️ Settings</span>
         </button>
         <button
           type="button"
           className={`drawer-tab ${activeTab === "embed" ? "active" : ""}`}
-          onClick={() => onTabChange("embed")}
+          onClick={() => {
+            setInspectingPageId(null);
+            onTabChange("embed");
+          }}
         >
           <span>&lt;/&gt; Embed</span>
         </button>
@@ -231,100 +248,118 @@ export function RightInspectorDrawer({
       <div className="drawer-content">
         {/* ── TAB 1: PAGES & DOCUMENTS ──────────────────────────────── */}
         {activeTab === "pages" && (
-          <div className="tab-panel">
-            <div className="panel-section">
-              <label className="section-label">Index More Knowledge</label>
-              <UrlInput
-                siteId={site.id}
-                compact
-                onScraped={async () => {
-                  await onPageAdded();
-                  onToast("Webpage indexed successfully!", "success");
-                }}
-              />
-              <div className="doc-upload-box">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".pdf,.docx,.txt,.md,.markdown,.csv,.json"
-                  style={{ display: "none" }}
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) handleFileUpload(f);
+          inspectingPageId ? (
+            <ChunkExplorerView
+              pageId={inspectingPageId}
+              onBack={() => setInspectingPageId(null)}
+              onToast={onToast}
+              onChunksUpdated={onPageAdded}
+            />
+          ) : (
+            <div className="tab-panel">
+              <div className="panel-section">
+                <label className="section-label">Index More Knowledge</label>
+                <UrlInput
+                  siteId={site.id}
+                  compact
+                  onScraped={async () => {
+                    await onPageAdded();
+                    onToast("Webpage indexed successfully!", "success");
                   }}
                 />
-                <button
-                  type="button"
-                  className="upload-dropzone-btn"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingDoc}
-                >
-                  <span className="upload-icon">📎</span>
-                  <div className="upload-texts">
-                    <span className="upload-primary">
-                      {uploadingDoc ? "Extracting & Indexing Document..." : "Upload Document"}
-                    </span>
-                    <span className="upload-sub">Supports PDF, Word (.docx), TXT, Markdown, CSV, JSON</span>
-                  </div>
-                </button>
+                <div className="doc-upload-box">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.docx,.txt,.md,.markdown,.csv,.json"
+                    style={{ display: "none" }}
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) handleFileUpload(f);
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="upload-dropzone-btn"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingDoc}
+                  >
+                    <span className="upload-icon">📎</span>
+                    <div className="upload-texts">
+                      <span className="upload-primary">
+                        {uploadingDoc ? "Extracting & Indexing Document..." : "Upload Document"}
+                      </span>
+                      <span className="upload-sub">Supports PDF, Word (.docx), TXT, Markdown, CSV, JSON</span>
+                    </div>
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div className="panel-section">
-              <div className="section-header-row">
-                <label className="section-label">Indexed Sources ({site.pages.length})</label>
-              </div>
-              <div className="pages-scroll-list">
-                {site.pages.map((p) => {
-                  let domain = "";
-                  try {
-                    domain = new URL(p.url).hostname.replace(/^www\./, "");
-                  } catch {
-                    domain = p.url.slice(0, 30);
-                  }
-                  const isDocument = p.url.startsWith("doc://");
-                  const displayTitle = p.title || (isDocument ? p.url.replace("doc://", "") : domain);
+              <div className="panel-section">
+                <div className="section-header-row">
+                  <label className="section-label">Indexed Sources ({site.pages.length})</label>
+                </div>
+                <div className="pages-scroll-list">
+                  {site.pages.map((p) => {
+                    let domain = "";
+                    try {
+                      domain = new URL(p.url).hostname.replace(/^www\./, "");
+                    } catch {
+                      domain = p.url.slice(0, 30);
+                    }
+                    const isDocument = p.url.startsWith("doc://");
+                    const displayTitle = p.title || (isDocument ? p.url.replace("doc://", "") : domain);
 
-                  return (
-                    <div key={p.id} className="drawer-page-card">
-                      <div className="page-card-icon">
-                        {isDocument ? "📄" : "🌐"}
-                      </div>
-                      <div className="page-card-info">
-                        <a
-                          href={isDocument ? undefined : p.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="page-card-title"
-                          title={p.url}
-                        >
-                          {displayTitle}
-                        </a>
-                        <div className="page-card-meta">
-                          <span className="meta-chunk-count">{p.chunkCount} chunks</span>
-                          <span className="meta-dot">•</span>
-                          <span className="meta-date">
-                            {new Date(p.scrapedAt).toLocaleDateString()}
+                    return (
+                      <div
+                        key={p.id}
+                        className="drawer-page-card"
+                        onClick={() => setInspectingPageId(p.id)}
+                        title="Click to inspect all pgvector chunks"
+                      >
+                        <div className="page-card-icon">
+                          {isDocument ? "📄" : "🌐"}
+                        </div>
+                        <div className="page-card-info">
+                          <span className="page-card-title">
+                            {displayTitle}
                           </span>
+                          <div className="page-card-meta">
+                            <span className="meta-chunk-count">{p.chunkCount} chunks</span>
+                            <span className="meta-dot">•</span>
+                            <span className="meta-date">
+                              {new Date(p.scrapedAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="page-card-actions" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            type="button"
+                            className="inspect-chunks-btn"
+                            onClick={() => setInspectingPageId(p.id)}
+                            title="Inspect chunks"
+                          >
+                            <span>Inspect</span>
+                          </button>
+                          {!isDocument && (
+                            <button
+                              type="button"
+                              className="re-scrape-btn"
+                              onClick={() => onRefreshPage(p.id)}
+                              disabled={refreshingPageId === p.id}
+                              title="Re-scrape and update chunks"
+                            >
+                              <span className={refreshingPageId === p.id ? "spinning" : ""}>↻</span>
+                            </button>
+                          )}
                         </div>
                       </div>
-                      {!isDocument && (
-                        <button
-                          type="button"
-                          className="re-scrape-btn"
-                          onClick={() => onRefreshPage(p.id)}
-                          disabled={refreshingPageId === p.id}
-                          title="Re-scrape and update chunks"
-                        >
-                          <span className={refreshingPageId === p.id ? "spinning" : ""}>↻</span>
-                        </button>
-                      )}
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
+          )
         )}
 
         {/* ── TAB 2: ANALYTICS ───────────────────────────────────────── */}
@@ -796,11 +831,30 @@ export function RightInspectorDrawer({
           color: #8a8f98;
           margin-top: 2px;
         }
-        .meta-chunk-count {
-          color: #a78bfa;
+        .page-card-actions {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          flex-shrink: 0;
         }
-        .meta-dot {
-          opacity: 0.5;
+        .inspect-chunks-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+          background: rgba(124, 124, 255, 0.1);
+          border: 1px solid rgba(124, 124, 255, 0.25);
+          color: #c7d2fe;
+          font-size: 0.68rem;
+          font-weight: 500;
+          padding: 2px 7px;
+          border-radius: 4px;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .inspect-chunks-btn:hover {
+          background: rgba(124, 124, 255, 0.2);
+          border-color: #7c7cff;
+          color: #ffffff;
         }
         .re-scrape-btn {
           width: 24px;

@@ -516,7 +516,15 @@ export function ChatWindow({
               {m.citations && m.citations.length > 0 && !m.content.includes("I couldn't find that in the source.") && (
                 <div className="msg-citations">
                   {m.citations.map((c) => (
-                    <CitationCard key={c.chunkId} citation={c} />
+                    <CitationCard
+                      key={c.chunkId}
+                      citation={c}
+                      query={
+                        m.standaloneQuery ||
+                        messages.slice(0, messages.indexOf(m)).reverse().find((x) => x.role === "user")?.content ||
+                        ""
+                      }
+                    />
                   ))}
                 </div>
               )}

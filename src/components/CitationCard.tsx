@@ -14,9 +14,10 @@ export type Citation = {
 
 type Props = {
   citation: Citation;
+  query?: string;
 };
 
-export function CitationCard({ citation }: Props) {
+export function CitationCard({ citation, query }: Props) {
   const [showModal, setShowModal] = useState(false);
 
   const domain = (() => {
@@ -53,7 +54,7 @@ export function CitationCard({ citation }: Props) {
       </button>
 
       {showModal && (
-        <SourceInspectModal citation={citation} onClose={() => setShowModal(false)} />
+        <SourceInspectModal citation={citation} query={query} onClose={() => setShowModal(false)} />
       )}
 
       <style jsx>{`
