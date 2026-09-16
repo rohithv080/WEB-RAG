@@ -3,8 +3,6 @@
 import { FormEvent, useEffect, useRef, useState } from "react";
 import { CitationCard, type Citation } from "./CitationCard";
 import { WelcomeScreen } from "./WelcomeScreen";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 
 export type ChatMessage = {
@@ -40,30 +38,28 @@ function CopyButton({ text }: { text: string }) {
       }}
       title="Copy response"
     >
-      {copied ? "✓" : "⎘"}
+      {copied ? "✓ Copied" : "⎘ Copy"}
 
       <style jsx>{`
         .copy-btn {
-          position: absolute;
-          top: 0.5rem;
-          right: 0.5rem;
-          border: 1px solid var(--border);
-          background: var(--bg);
-          color: var(--text-muted);
-          width: 28px;
-          height: 28px;
-          border-radius: 6px;
-          font-size: 0.85rem;
-          display: flex;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(255, 255, 255, 0.04);
+          color: #94a3b8;
+          padding: 2px 7px;
+          border-radius: 5px;
+          font-size: 0.7rem;
+          font-weight: 500;
+          display: inline-flex;
           align-items: center;
-          justify-content: center;
+          gap: 4px;
           cursor: pointer;
-          opacity: 0;
           transition: all 0.15s ease;
+          margin-left: auto;
         }
         .copy-btn:hover {
-          color: var(--accent);
-          border-color: var(--accent);
+          color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.18);
+          background: rgba(255, 255, 255, 0.08);
         }
       `}</style>
     </button>
@@ -80,19 +76,24 @@ function TypingIndicator() {
       <style jsx>{`
         .typing {
           display: flex;
-          gap: 4px;
-          padding: 0.75rem 1rem;
+          align-items: center;
+          gap: 5px;
+          padding: 0.4rem 0.2rem;
         }
         .typing-dot {
-          width: 8px;
-          height: 8px;
+          width: 7px;
+          height: 7px;
           border-radius: 50%;
-          background: var(--text-muted);
+          background: #818cf8;
           animation: bounce 1.4s ease-in-out infinite both;
         }
         .typing-dot:nth-child(1) { animation-delay: -0.32s; }
         .typing-dot:nth-child(2) { animation-delay: -0.16s; }
         .typing-dot:nth-child(3) { animation-delay: 0s; }
+        @keyframes bounce {
+          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+          40% { transform: scale(1.1); opacity: 1; }
+        }
       `}</style>
     </div>
   );
@@ -110,7 +111,7 @@ export function ChatWindow({
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
 
@@ -237,6 +238,10 @@ export function ChatWindow({
           .map((r: any) => r[0].transcript)
           .join("");
         setInput(transcript);
+        if (inputRef.current) {
+          inputRef.current.style.height = "auto";
+          inputRef.current.style.height = `${Math.min(inputRef.current.scrollHeight, 160)}px`;
+        }
       };
 
       recognition.onerror = (event: any) => {
@@ -251,22 +256,15 @@ export function ChatWindow({
       recognitionRef.current = recognition;
       recognition.start();
     } catch (err) {
-      console.error("[speech recognition start error]", err);
+      console.warn("[speech recognition failed]", err);
       setIsListening(false);
     }
   }
 
-  useEffect(() => {
-    if (!isUserScrolledUp) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, streaming, isUserScrolledUp]);
-
-  // Load past messages when sessionId changes
+  // Load existing session messages if sessionId is passed
   useEffect(() => {
     if (!sessionId) {
       setMessages([]);
-      setError(null);
       return;
     }
 
@@ -274,24 +272,27 @@ export function ChatWindow({
     setLoadingSession(true);
 
     fetch(`/api/sessions/${sessionId}`)
-      .then(async (res) => {
-        if (!res.ok) return;
-        const data = await res.json();
-        if (isMounted && Array.isArray(data.messages)) {
-          setMessages(
-            data.messages.map((m: any) => ({
-              id: m.id,
-              dbId: m.id,
-              role: m.role as "user" | "assistant",
-              content: m.content,
-              citations: (m.citations as Citation[]) || undefined,
-              rating: m.rating || null,
-              latencyMs: m.latencyMs || undefined,
-            }))
-          );
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load session");
+        return res.json();
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        if (data.session && Array.isArray(data.session.messages)) {
+          const loaded: ChatMessage[] = data.session.messages.map((m: any) => ({
+            id: m.id,
+            dbId: m.id,
+            role: m.role as "user" | "assistant",
+            content: m.content,
+            citations: (m.citations as Citation[]) || undefined,
+            rating: m.rating || null,
+          }));
+          setMessages(loaded);
         }
       })
-      .catch(() => {})
+      .catch((err) => {
+        console.warn("[session load error]", err);
+      })
       .finally(() => {
         if (isMounted) setLoadingSession(false);
       });
@@ -302,7 +303,13 @@ export function ChatWindow({
   }, [sessionId]);
 
   useEffect(() => {
-    setError(null);
+    if (!isUserScrolledUp) {
+      scrollToBottom();
+    }
+  }, [messages, streaming]);
+
+  useEffect(() => {
+    inputRef.current?.focus();
   }, [siteId]);
 
   function handleStopGenerating() {
@@ -315,22 +322,25 @@ export function ChatWindow({
 
   function handleExportTranscript() {
     if (messages.length === 0) return;
-    const title = siteTitle || "Knowledge Chat";
-    const dateStr = new Date().toLocaleDateString();
-    let md = `# ${title} Transcript\n*Exported on ${dateStr}*\n\n---\n\n`;
+    const now = new Date();
+    const timestamp = now.toISOString().replace(/[:.]/g, "-").slice(0, 19);
+    const title = siteTitle || "Knowledge Base";
+
+    let md = `# Conversation Transcript — ${title}\n`;
+    md += `**Date:** ${now.toLocaleString()}\n`;
+    if (sessionId) md += `**Session ID:** \`${sessionId}\`\n`;
+    md += `\n---\n\n`;
 
     for (const m of messages) {
-      if (m.role === "user") {
-        md += `### 👤 User\n${m.content}\n\n`;
-      } else {
-        md += `### 🤖 Assistant\n${m.content}\n\n`;
-        if (m.citations && m.citations.length > 0) {
-          md += `**Cited Sources:**\n`;
-          for (const c of m.citations) {
-            md += `- [${c.index}] ${c.heading || "Excerpt"} (${c.pageUrl})\n`;
-          }
-          md += `\n`;
+      const speaker = m.role === "user" ? "### 👤 User" : "### 🤖 Assistant";
+      md += `${speaker}\n\n${m.content.trim()}\n\n`;
+
+      if (m.role === "assistant" && m.citations && m.citations.length > 0) {
+        md += `**Sources:**\n`;
+        for (const c of m.citations) {
+          md += `- [${c.index}] [${c.heading || c.pageUrl}](${c.pageUrl})\n`;
         }
+        md += `\n`;
       }
       md += `---\n\n`;
     }
@@ -339,7 +349,7 @@ export function ChatWindow({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-transcript.md`;
+    a.download = `transcript-${title.toLowerCase().replace(/[^a-z0-9]/g, "_")}-${timestamp}.md`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -347,14 +357,17 @@ export function ChatWindow({
   }
 
   function submitQuestion(question: string) {
-    if (!siteId || streaming || !question.trim()) return;
+    if (!question.trim() || !siteId || streaming) return;
 
-    setInput("");
     setError(null);
-    setStreaming(true);
+    setInput("");
+    if (inputRef.current) {
+      inputRef.current.style.height = "auto";
+    }
 
     const controller = new AbortController();
     abortControllerRef.current = controller;
+    setStreaming(true);
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
@@ -373,7 +386,12 @@ export function ChatWindow({
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ question: question.trim(), siteId, sessionId, language: language === "auto" ? null : language }),
+          body: JSON.stringify({
+            question: question.trim(),
+            siteId,
+            sessionId,
+            language: language === "auto" ? null : language,
+          }),
           signal: controller.signal,
         });
 
@@ -412,33 +430,28 @@ export function ChatWindow({
                         ...m,
                         citations: payload.citations,
                         standaloneQuery: payload.standaloneQuery,
+                        latencyMs: payload.latencyMs,
+                        dbId: payload.assistantMessageId,
                       }
                     : m
                 )
               );
-            } else if (payload.type === "token" && payload.content) {
+            } else if (payload.type === "chunk") {
               setMessages((prev) =>
                 prev.map((m) =>
-                  m.id === assistantId
-                    ? { ...m, content: m.content + payload.content }
-                    : m
+                  m.id === assistantId ? { ...m, content: m.content + payload.text } : m
                 )
               );
             } else if (payload.type === "done") {
-              if (payload.sessionId) onSessionId(payload.sessionId);
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId
-                    ? {
-                        ...m,
-                        dbId: payload.messageId || m.dbId,
-                        latencyMs: payload.latencyMs,
-                      }
-                    : m
-                )
-              );
+              if (payload.assistantMessageId) {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId ? { ...m, dbId: payload.assistantMessageId } : m
+                  )
+                );
+              }
             } else if (payload.type === "error") {
-              throw new Error(payload.error || "Stream error");
+              throw new Error(payload.error || "Streaming error");
             }
           }
         }
@@ -449,19 +462,24 @@ export function ChatWindow({
           );
         }
       } catch (err: any) {
-        if (err?.name === "AbortError") {
-          // Gracefully halted by user clicking "Stop Generating"
-          return;
+        if (err.name === "AbortError") {
+          console.log("[chat] user aborted response stream");
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? {
+                    ...m,
+                    content: m.content
+                      ? m.content + "\n\n*(Response stopped by user)*"
+                      : "*(Response stopped by user)*",
+                  }
+                : m
+            )
+          );
+        } else {
+          setError(err.message || "Something went wrong.");
+          setMessages((prev) => prev.filter((m) => m.id !== assistantId));
         }
-        const message = err instanceof Error ? err.message : "Chat failed";
-        setError(message);
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantId && !m.content
-              ? { ...m, content: `Error: ${message}` }
-              : m
-          )
-        );
       } finally {
         setStreaming(false);
         abortControllerRef.current = null;
@@ -496,6 +514,21 @@ export function ChatWindow({
     submitQuestion(input);
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (ready && !streaming && input.trim()) {
+        submitQuestion(input);
+      }
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    e.target.style.height = "auto";
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 160)}px`;
+  };
+
   const ready = Boolean(siteId);
 
   return (
@@ -507,127 +540,169 @@ export function ChatWindow({
         role="log"
         aria-live="polite"
       >
-        {messages.length === 0 ? (
-          <WelcomeScreen
-            siteName={siteTitle || "this site"}
-            onSuggest={(q) => submitQuestion(q)}
-            starterQuestions={starterQuestions}
-          />
-        ) : (
-          messages.map((m) => (
-            <div key={m.id} className={`msg msg-${m.role}`}>
-              {m.role === "assistant" && m.standaloneQuery && (
-                <div className="msg-search-chip" title="Follow-up query resolved using conversation context">
-                  <svg className="search-chip-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75">
-                    <circle cx="7" cy="7" r="4.5" />
-                    <path d="M10.5 10.5L14 14" strokeLinecap="round" />
-                  </svg>
-                  <span>Contextual query: <strong>{m.standaloneQuery}</strong></span>
-                </div>
-              )}
-              <div className="msg-bubble">
-                {m.role === "assistant" && m.content && <CopyButton text={m.content} />}
-                {m.role === "assistant" ? (
-                  m.content ? (
-                    <div className="md-content">
-                      <MarkdownRenderer
-                        content={m.content}
-                        isStreaming={streaming && m.id === messages[messages.length - 1]?.id}
-                      />
-                    </div>
-                  ) : streaming ? (
-                    <TypingIndicator />
-                  ) : null
+        <div className="chat-thread-container">
+          {messages.length === 0 ? (
+            <WelcomeScreen
+              siteName={siteTitle || "this site"}
+              onSuggest={(q) => submitQuestion(q)}
+              starterQuestions={starterQuestions}
+            />
+          ) : (
+            messages.map((m) => (
+              <div key={m.id} className={`msg msg-${m.role}`}>
+                {m.role === "user" ? (
+                  <div className="msg-user-wrapper">
+                    <div className="msg-user-bubble">{m.content}</div>
+                  </div>
                 ) : (
-                  m.content
+                  <div className="msg-assistant-card">
+                    <div className="assistant-header">
+                      <div className="assistant-avatar-badge">
+                        <span className="avatar-icon">✦</span>
+                      </div>
+                      <div className="assistant-title-meta">
+                        <span className="assistant-name">{siteTitle || "Knowledge Assistant"}</span>
+                        <span className="assistant-model-pill">Llama 3.3 70B</span>
+                      </div>
+                      {m.content && <CopyButton text={m.content} />}
+                    </div>
+
+                    {m.standaloneQuery && (
+                      <div
+                        className="msg-search-chip"
+                        title="Follow-up query resolved using conversation context"
+                      >
+                        <svg
+                          className="search-chip-icon"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                        >
+                          <circle cx="7" cy="7" r="4.5" />
+                          <path d="M10.5 10.5L14 14" strokeLinecap="round" />
+                        </svg>
+                        <span>
+                          Contextual query: <strong>{m.standaloneQuery}</strong>
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="msg-bubble-content">
+                      {m.content ? (
+                        <div className="md-content">
+                          <MarkdownRenderer
+                            content={m.content}
+                            isStreaming={streaming && m.id === messages[messages.length - 1]?.id}
+                          />
+                        </div>
+                      ) : streaming ? (
+                        <TypingIndicator />
+                      ) : null}
+                    </div>
+
+                    {m.content && (
+                      <div className="msg-actions-row">
+                        <div className="feedback-group">
+                          <button
+                            type="button"
+                            className={`speak-pill ${speakingMsgId === m.id ? "active-speaking" : ""}`}
+                            onClick={() => toggleSpeak(m.id, m.content)}
+                            title={speakingMsgId === m.id ? "Stop reading aloud" : "Read aloud (Voice)"}
+                          >
+                            {speakingMsgId === m.id ? (
+                              <>
+                                <span className="speaking-waves">
+                                  <span className="sw-bar" />
+                                  <span className="sw-bar" />
+                                  <span className="sw-bar" />
+                                </span>
+                                <span>Stop</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>🔊</span>
+                                <span>Listen</span>
+                              </>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            className={`feedback-pill ${m.rating === "up" ? "active-up" : ""}`}
+                            onClick={() => handleRateMessage(m.id, "up")}
+                            title="Good response"
+                          >
+                            👍
+                          </button>
+                          <button
+                            type="button"
+                            className={`feedback-pill ${m.rating === "down" ? "active-down" : ""}`}
+                            onClick={() => handleRateMessage(m.id, "down")}
+                            title="Inaccurate or unhelpful"
+                          >
+                            👎
+                          </button>
+                          {m.rating && (
+                            <span className="feedback-toast">
+                              {m.rating === "up" ? "Thanks for feedback!" : "Feedback recorded"}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="perf-pills-group">
+                          {m.latencyMs && (
+                            <span className="perf-chip" title="Serverless RAG retrieval + generation latency">
+                              ⚡ {m.latencyMs < 1000 ? `${m.latencyMs}ms` : `${(m.latencyMs / 1000).toFixed(1)}s`}
+                            </span>
+                          )}
+                          {m.citations &&
+                            m.citations.length > 0 &&
+                            !m.content.includes("I couldn't find that in the source.") && (
+                              <span className="perf-chip verified-chip" title="Verified against indexed document chunks">
+                                🛡️ {m.citations.length} {m.citations.length === 1 ? "source" : "sources"}
+                              </span>
+                            )}
+                        </div>
+                      </div>
+                    )}
+
+                    {m.citations &&
+                      m.citations.length > 0 &&
+                      !m.content.includes("I couldn't find that in the source.") && (
+                        <div className="msg-citations-block">
+                          <span className="citations-header-label">Verified Sources</span>
+                          <div className="msg-citations-tray">
+                            {m.citations.map((c) => (
+                              <CitationCard
+                                key={c.chunkId}
+                                citation={c}
+                                query={
+                                  m.standaloneQuery ||
+                                  messages
+                                    .slice(0, messages.indexOf(m))
+                                    .reverse()
+                                    .find((x) => x.role === "user")?.content ||
+                                  ""
+                                }
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                  </div>
                 )}
               </div>
-              {m.role === "assistant" && m.content && (
-                <div className="msg-actions-row">
-                  <div className="feedback-group">
-                    <button
-                      type="button"
-                      className={`speak-pill ${speakingMsgId === m.id ? "active-speaking" : ""}`}
-                      onClick={() => toggleSpeak(m.id, m.content)}
-                      title={speakingMsgId === m.id ? "Stop reading aloud" : "Read aloud (Voice)"}
-                    >
-                      {speakingMsgId === m.id ? (
-                        <>
-                          <span className="speaking-waves">
-                            <span className="sw-bar" />
-                            <span className="sw-bar" />
-                            <span className="sw-bar" />
-                          </span>
-                          <span>Stop</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>🔊</span>
-                          <span>Listen</span>
-                        </>
-                      )}
-                    </button>
-                    <button
-                      type="button"
-                      className={`feedback-pill ${m.rating === "up" ? "active-up" : ""}`}
-                      onClick={() => handleRateMessage(m.id, "up")}
-                      title="Good response"
-                    >
-                      👍
-                    </button>
-                    <button
-                      type="button"
-                      className={`feedback-pill ${m.rating === "down" ? "active-down" : ""}`}
-                      onClick={() => handleRateMessage(m.id, "down")}
-                      title="Inaccurate or unhelpful"
-                    >
-                      👎
-                    </button>
-                    {m.rating && (
-                      <span className="feedback-toast">
-                        {m.rating === "up" ? "Thanks for feedback!" : "Feedback recorded"}
-                      </span>
-                    )}
-                  </div>
-                  <div className="perf-pills-group">
-                    {m.latencyMs && (
-                      <span className="perf-chip" title="Serverless RAG retrieval + generation latency">
-                        ⚡ {m.latencyMs < 1000 ? `${m.latencyMs}ms` : `${(m.latencyMs / 1000).toFixed(1)}s`}
-                      </span>
-                    )}
-                    {m.citations && m.citations.length > 0 && !m.content.includes("I couldn't find that in the source.") && (
-                      <span className="perf-chip verified-chip" title="Verified against indexed document chunks">
-                        🛡️ {m.citations.length} {m.citations.length === 1 ? "source" : "sources"}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-              {m.citations && m.citations.length > 0 && !m.content.includes("I couldn't find that in the source.") && (
-                <div className="msg-citations">
-                  {m.citations.map((c) => (
-                    <CitationCard
-                      key={c.chunkId}
-                      citation={c}
-                      query={
-                        m.standaloneQuery ||
-                        messages.slice(0, messages.indexOf(m)).reverse().find((x) => x.role === "user")?.content ||
-                        ""
-                      }
-                    />
-                  ))}
-                </div>
-              )}
+            ))
+          )}
+
+          {loadingSession && (
+            <div className="session-loading-banner">
+              <span className="session-spinner" />
+              <span>Restoring conversation history…</span>
             </div>
-          ))
-        )}
-        {loadingSession && (
-          <div className="session-loading-banner">
-            <span className="session-spinner" />
-            <span>Restoring conversation history…</span>
-          </div>
-        )}
-        <div ref={bottomRef} />
+          )}
+          <div ref={bottomRef} />
+        </div>
       </div>
 
       {isUserScrolledUp && (
@@ -642,120 +717,222 @@ export function ChatWindow({
         </button>
       )}
 
-      {streaming && (
-        <div className="stop-generating-wrap">
-          <button
-            type="button"
-            className="stop-generating-btn"
-            onClick={handleStopGenerating}
-            title="Stop generating response"
-          >
-            <span className="stop-sq">■</span>
-            <span>Stop generating</span>
-          </button>
-        </div>
-      )}
+      {/* Floating Command Dock */}
+      <div className="chat-dock-wrapper">
+        <form onSubmit={handleSubmit} className="chat-dock-form">
+          <textarea
+            ref={inputRef}
+            rows={1}
+            value={input}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder={
+              isListening
+                ? "🎙️ Listening... speak your question now"
+                : ready
+                ? `Ask ${siteTitle ? `about ${siteTitle}` : "a question"}…`
+                : "Index a page first"
+            }
+            disabled={!ready || streaming}
+            className={`dock-textarea ${isListening ? "is-listening" : ""}`}
+          />
 
-      {messages.length > 0 && !streaming && (
-        <div className="chat-top-utility-bar">
-          <button
-            type="button"
-            className="export-transcript-btn"
-            onClick={handleExportTranscript}
-            title="Export conversation as Markdown transcript"
-          >
-            <span>📥 Export Transcript (.md)</span>
-          </button>
-        </div>
-      )}
+          <div className="dock-toolbar">
+            <div className="dock-tools-left">
+              <select
+                className="dock-language-select"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                disabled={!ready || streaming}
+                title="Select AI Response Language"
+              >
+                <option value="auto">🌐 Auto</option>
+                <option value="English">🇬🇧 EN</option>
+                <option value="Spanish">🇪🇸 ES</option>
+                <option value="French">🇫🇷 FR</option>
+                <option value="Hindi">🇮🇳 HI</option>
+                <option value="Tamil">🇮🇳 TA</option>
+              </select>
+
+              <button
+                type="button"
+                onClick={toggleListening}
+                disabled={!ready || streaming}
+                className={`dock-tool-btn ${isListening ? "listening" : ""}`}
+                title={isListening ? "Stop voice listening" : "Speak question (Voice input)"}
+              >
+                {isListening ? (
+                  <span className="mic-pulse-ring">
+                    <span className="mic-dot" />
+                  </span>
+                ) : (
+                  <span>🎙️</span>
+                )}
+              </button>
+
+              {messages.length > 0 && !streaming && (
+                <button
+                  type="button"
+                  className="dock-transcript-pill"
+                  onClick={handleExportTranscript}
+                  title="Export conversation as Markdown transcript"
+                >
+                  <span>📥 Export (.md)</span>
+                </button>
+              )}
+            </div>
+
+            <div className="dock-tools-right">
+              {streaming ? (
+                <button
+                  type="button"
+                  className="dock-stop-btn"
+                  onClick={handleStopGenerating}
+                  title="Stop generating response"
+                >
+                  <span className="stop-sq">■</span>
+                  <span>Stop</span>
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  disabled={!ready || !input.trim()}
+                  className="dock-send-btn"
+                  title="Send question (Enter)"
+                >
+                  <span className="send-arrow">↑</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </form>
+      </div>
 
       {error && <p className="chat-error">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="chat-form">
-        <select 
-          className="chat-language-select" 
-          value={language} 
-          onChange={(e) => setLanguage(e.target.value)}
-          disabled={!ready || streaming}
-          title="Select AI Response Language"
-        >
-          <option value="auto">🌐 Auto</option>
-          <option value="English">🇬🇧 EN</option>
-          <option value="Spanish">🇪🇸 ES</option>
-          <option value="French">🇫🇷 FR</option>
-          <option value="Hindi">🇮🇳 HI</option>
-          <option value="Tamil">🇮🇳 TA</option>
-        </select>
-        <input
-          ref={inputRef}
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder={
-            isListening
-              ? "🎙️ Listening... speak your question now"
-              : ready
-              ? "Ask about this site…"
-              : "Index a page first"
-          }
-          disabled={!ready || streaming}
-          className={`chat-input ${isListening ? "is-listening" : ""}`}
-        />
-        <button
-          type="button"
-          onClick={toggleListening}
-          disabled={!ready || streaming}
-          className={`chat-mic-btn ${isListening ? "listening" : ""}`}
-          title={isListening ? "Stop voice listening" : "Speak question (Voice input)"}
-        >
-          {isListening ? (
-            <span className="mic-pulse-ring">
-              <span className="mic-dot" />
-            </span>
-          ) : (
-            "🎙️"
-          )}
-        </button>
-        <button
-          type="submit"
-          disabled={!ready || streaming || !input.trim()}
-          className="chat-send"
-        >
-          {streaming ? "…" : "→"}
-        </button>
-      </form>
-
       <style jsx>{`
         .chat {
+          position: relative;
           display: flex;
           flex-direction: column;
           height: 100%;
           overflow: hidden;
+          background: radial-gradient(circle at 50% 0%, rgba(30, 34, 48, 0.3) 0%, transparent 65%), #090a0f;
         }
 
         .chat-messages {
           flex: 1;
           overflow-y: auto;
-          padding: 1rem 1.25rem;
+          overflow-x: hidden;
+          padding: 1.5rem 1rem 7.5rem 1rem;
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          align-items: center;
+          scroll-behavior: smooth;
+        }
+
+        .chat-thread-container {
+          width: 100%;
+          max-width: 820px;
+          display: flex;
+          flex-direction: column;
+          gap: 1.25rem;
         }
 
         /* Message layout */
         .msg {
           display: flex;
           flex-direction: column;
-          max-width: 85%;
-          animation: fadeUp 0.2s ease both;
+          width: 100%;
+          animation: fadeUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
+
         .msg-user {
-          align-self: flex-end;
           align-items: flex-end;
         }
+        .msg-user-wrapper {
+          max-width: 78%;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+        }
+        .msg-user-bubble {
+          position: relative;
+          padding: 0.75rem 1.15rem;
+          border-radius: 18px 18px 4px 18px;
+          font-size: 0.92rem;
+          line-height: 1.55;
+          word-break: break-word;
+          white-space: pre-wrap;
+          background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(79, 70, 229, 0.35) 100%);
+          border: 1px solid rgba(129, 140, 248, 0.35);
+          color: #f8fafc;
+          box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25), 0 0 14px rgba(99, 102, 241, 0.12);
+        }
+
         .msg-assistant {
-          align-self: flex-start;
           align-items: flex-start;
+        }
+        .msg-assistant-card {
+          position: relative;
+          width: 100%;
+          background: rgba(18, 20, 29, 0.76);
+          backdrop-filter: blur(16px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 18px 18px 18px 4px;
+          padding: 1rem 1.25rem;
+          box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+          display: flex;
+          flex-direction: column;
+          gap: 0.65rem;
+          transition: border-color 0.2s ease;
+        }
+        .msg-assistant-card:hover {
+          border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .assistant-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding-bottom: 0.4rem;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .assistant-avatar-badge {
+          width: 22px;
+          height: 22px;
+          border-radius: 6px;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 0.72rem;
+          box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+        }
+        .avatar-icon {
+          line-height: 1;
+        }
+        .assistant-title-meta {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex: 1;
+        }
+        .assistant-name {
+          font-size: 0.84rem;
+          font-weight: 600;
+          color: #f1f5f9;
+          letter-spacing: -0.01em;
+        }
+        .assistant-model-pill {
+          font-family: var(--font-mono, monospace);
+          font-size: 0.65rem;
+          color: #94a3b8;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          padding: 1px 6px;
+          border-radius: 4px;
         }
 
         .msg-search-chip {
@@ -763,55 +940,30 @@ export function ChatWindow({
           align-items: center;
           gap: 5px;
           font-size: 0.72rem;
-          color: var(--text-muted);
+          color: #94a3b8;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 6px;
           padding: 2px 7px;
-          margin-bottom: 5px;
           font-family: var(--font-mono, monospace);
+          width: fit-content;
         }
         .search-chip-icon {
           width: 11px;
           height: 11px;
-          color: var(--accent);
+          color: #818cf8;
           flex-shrink: 0;
         }
         .msg-search-chip strong {
-          color: var(--text);
+          color: #f1f5f9;
           font-weight: 500;
         }
 
-        .msg-bubble {
-          position: relative;
-          padding: 0.7rem 1rem;
-          border-radius: 14px;
-          font-size: 0.9rem;
-          line-height: 1.55;
+        .msg-bubble-content {
+          font-size: 0.91rem;
+          line-height: 1.6;
+          color: #e2e8f0;
           word-break: break-word;
-        }
-        .msg-user .msg-bubble {
-          background: var(--accent);
-          color: #fff;
-          border-bottom-right-radius: 4px;
-        }
-        .msg-assistant .msg-bubble {
-          background: var(--glass-bg);
-          backdrop-filter: blur(8px);
-          border: 1px solid var(--glass-border);
-          border-bottom-left-radius: 4px;
-          color: var(--text);
-        }
-        .msg-assistant .msg-bubble:hover :global(.copy-btn) {
-          opacity: 1;
-        }
-
-        .msg-citations {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.4rem;
-          margin-top: 0.4rem;
-          padding-left: 0.25rem;
         }
 
         .msg-actions-row {
@@ -819,152 +971,7 @@ export function ChatWindow({
           align-items: center;
           justify-content: space-between;
           gap: 0.5rem;
-          margin-top: 0.35rem;
-          padding-left: 0.25rem;
-        }
-
-        .perf-pills-group {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          margin-left: auto;
-        }
-        .perf-chip {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          padding: 2px 7px;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          border-radius: 4px;
-          font-size: 0.68rem;
-          color: var(--text-muted);
-          font-family: var(--font-mono, monospace);
-          letter-spacing: 0.02em;
-        }
-        .perf-chip.verified-chip {
-          color: #34d399;
-          border-color: rgba(52, 211, 153, 0.2);
-          background: rgba(52, 211, 153, 0.06);
-        }
-        .scroll-to-bottom-btn {
-          position: absolute;
-          bottom: 80px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 14px;
-          background: #18181c;
-          border: 1px solid rgba(124, 124, 255, 0.35);
-          border-radius: 20px;
-          color: #f7f7f8;
-          font-size: 0.78rem;
-          font-weight: 500;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-          cursor: pointer;
-          z-index: 10;
-          transition: all 0.2s ease;
-          animation: bounceIn 0.25s ease both;
-        }
-        .scroll-to-bottom-btn:hover {
-          background: #202026;
-          border-color: var(--accent);
-          transform: translateX(-50%) translateY(-2px);
-        }
-        .scroll-arrow {
-          font-size: 0.85rem;
-          color: var(--accent);
-        }
-        @keyframes bounceIn {
-          0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
-          100% { opacity: 1; transform: translateX(-50%) translateY(0); }
-        }
-
-        .stop-generating-wrap {
-          position: absolute;
-          bottom: 74px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 12;
-        }
-        .stop-generating-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 7px;
-          padding: 6px 14px;
-          background: #18181c;
-          border: 1px solid rgba(239, 68, 68, 0.4);
-          border-radius: 20px;
-          color: #fca5a5;
-          font-size: 0.78rem;
-          font-weight: 500;
-          cursor: pointer;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
-          transition: all 0.2s ease;
-          animation: bounceIn 0.2s ease both;
-        }
-        .stop-generating-btn:hover {
-          background: #251717;
-          border-color: #ef4444;
-          color: #fecaca;
-          transform: translateX(-50%) translateY(-2px);
-        }
-        .stop-sq {
-          font-size: 0.72rem;
-          color: #ef4444;
-        }
-
-        .chat-top-utility-bar {
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          padding: 0 1.25rem 0.35rem 1.25rem;
-        }
-        .export-transcript-btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 6px;
-          color: var(--text-muted);
-          font-size: 0.72rem;
-          padding: 3px 8px;
-          cursor: pointer;
-          transition: all 0.15s ease;
-        }
-        .export-transcript-btn:hover {
-          background: rgba(255, 255, 255, 0.06);
-          color: var(--text);
-          border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .session-loading-banner {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 6px 14px;
-          margin: 0.75rem auto;
-          background: rgba(124, 124, 255, 0.08);
-          border: 1px solid rgba(124, 124, 255, 0.2);
-          border-radius: 20px;
-          color: #a5b4fc;
-          font-size: 0.76rem;
-          width: fit-content;
-        }
-        .session-spinner {
-          width: 12px;
-          height: 12px;
-          border: 2px solid rgba(165, 180, 252, 0.3);
-          border-top-color: #a5b4fc;
-          border-radius: 50%;
-          animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
+          margin-top: 0.2rem;
         }
 
         .feedback-group {
@@ -976,7 +983,7 @@ export function ChatWindow({
         .feedback-pill {
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          color: var(--text-muted);
+          color: #94a3b8;
           width: 26px;
           height: 26px;
           border-radius: 6px;
@@ -993,14 +1000,12 @@ export function ChatWindow({
           background: rgba(255, 255, 255, 0.1);
           transform: scale(1.05);
         }
-
         .feedback-pill.active-up {
           opacity: 1;
           background: rgba(52, 211, 153, 0.15);
           border-color: rgba(52, 211, 153, 0.4);
           color: #34d399;
         }
-
         .feedback-pill.active-down {
           opacity: 1;
           background: rgba(248, 113, 113, 0.15);
@@ -1011,7 +1016,7 @@ export function ChatWindow({
         .speak-pill {
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid rgba(255, 255, 255, 0.1);
-          color: var(--text-muted);
+          color: #94a3b8;
           padding: 3px 8px;
           border-radius: 6px;
           font-size: 0.75rem;
@@ -1054,31 +1059,195 @@ export function ChatWindow({
           100% { transform: scaleY(1.2); }
         }
 
-        .chat-mic-btn {
-          width: 42px;
-          height: 42px;
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          background: var(--bg-input);
-          color: var(--text);
-          font-size: 1.15rem;
+        .feedback-toast {
+          font-size: 0.72rem;
+          color: #94a3b8;
+          margin-left: 4px;
+          animation: fadeUp 0.15s ease both;
+        }
+
+        .perf-pills-group {
           display: flex;
           align-items: center;
-          justify-content: center;
+          gap: 6px;
+          margin-left: auto;
+        }
+        .perf-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 7px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          border-radius: 4px;
+          font-size: 0.68rem;
+          color: #94a3b8;
+          font-family: var(--font-mono, monospace);
+          letter-spacing: 0.02em;
+        }
+        .perf-chip.verified-chip {
+          color: #34d399;
+          border-color: rgba(52, 211, 153, 0.2);
+          background: rgba(52, 211, 153, 0.06);
+        }
+
+        .msg-citations-block {
+          display: flex;
+          flex-direction: column;
+          gap: 0.4rem;
+          margin-top: 0.35rem;
+          padding-top: 0.65rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .citations-header-label {
+          font-size: 0.68rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: #64748b;
+        }
+        .msg-citations-tray {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.4rem;
+        }
+
+        .scroll-to-bottom-btn {
+          position: absolute;
+          bottom: 100px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 14px;
+          background: #18181c;
+          border: 1px solid rgba(124, 124, 255, 0.35);
+          border-radius: 20px;
+          color: #f7f7f8;
+          font-size: 0.78rem;
+          font-weight: 500;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
           cursor: pointer;
-          transition: all 0.18s ease;
-          position: relative;
+          z-index: 10;
+          transition: all 0.2s ease;
+          animation: bounceIn 0.25s ease both;
         }
-        .chat-mic-btn:hover:not(:disabled) {
+        .scroll-to-bottom-btn:hover {
+          background: #202026;
           border-color: var(--accent);
-          color: var(--accent);
-          background: rgba(255, 255, 255, 0.05);
+          transform: translateX(-50%) translateY(-2px);
         }
-        .chat-mic-btn.listening {
+        .scroll-arrow {
+          font-size: 0.85rem;
+          color: var(--accent);
+        }
+
+        /* Floating Command Dock */
+        .chat-dock-wrapper {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          display: flex;
+          justify-content: center;
+          padding: 0 1rem 1.25rem 1rem;
+          background: linear-gradient(to top, rgba(9, 10, 15, 0.96) 60%, rgba(9, 10, 15, 0) 100%);
+          pointer-events: none;
+          z-index: 15;
+        }
+        .chat-dock-form {
+          width: 100%;
+          max-width: 820px;
+          pointer-events: auto;
+          background: rgba(18, 20, 29, 0.88);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(24px);
+          border-radius: 20px;
+          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.04);
+          padding: 0.75rem 0.95rem 0.65rem 1rem;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .chat-dock-form:focus-within {
+          border-color: rgba(99, 102, 241, 0.55);
+          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(99, 102, 241, 0.3), 0 0 20px rgba(99, 102, 241, 0.15);
+        }
+
+        .dock-textarea {
+          width: 100%;
+          background: transparent;
+          border: none;
+          outline: none;
+          resize: none;
+          font-family: inherit;
+          font-size: 0.92rem;
+          line-height: 1.5;
+          color: #f8fafc;
+          max-height: 160px;
+          overflow-y: auto;
+        }
+        .dock-textarea::placeholder {
+          color: #64748b;
+        }
+
+        .dock-toolbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          padding-top: 0.3rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .dock-tools-left {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .dock-language-select {
+          padding: 3px 7px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 7px;
+          background: rgba(255, 255, 255, 0.04);
+          color: #94a3b8;
+          font-size: 0.72rem;
+          font-weight: 500;
+          outline: none;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .dock-language-select:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: #f1f5f9;
+          border-color: rgba(255, 255, 255, 0.16);
+        }
+
+        .dock-tool-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 28px;
+          height: 28px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 7px;
+          background: rgba(255, 255, 255, 0.04);
+          color: #94a3b8;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .dock-tool-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          color: #f1f5f9;
+          border-color: rgba(255, 255, 255, 0.16);
+        }
+        .dock-tool-btn.listening {
           background: rgba(239, 68, 68, 0.15);
           border-color: #ef4444;
           color: #ef4444;
-          box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+          box-shadow: 0 0 10px rgba(239, 68, 68, 0.35);
         }
 
         .mic-pulse-ring {
@@ -1088,8 +1257,8 @@ export function ChatWindow({
           justify-content: center;
         }
         .mic-dot {
-          width: 10px;
-          height: 10px;
+          width: 9px;
+          height: 9px;
           border-radius: 50%;
           background: #ef4444;
           animation: micPulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -1101,138 +1270,142 @@ export function ChatWindow({
           }
           50% {
             transform: scale(1.25);
-            box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+            box-shadow: 0 0 0 5px rgba(239, 68, 68, 0);
           }
         }
 
-        .chat-input.is-listening {
-          border-color: #ef4444;
-          background: rgba(239, 68, 68, 0.04);
-          box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+        .dock-textarea.is-listening {
+          color: #f87171;
         }
 
-        .feedback-toast {
-          font-size: 0.72rem;
+        .dock-transcript-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 3px 8px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 7px;
+          background: transparent;
+          color: #64748b;
+          font-size: 0.7rem;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .dock-transcript-pill:hover {
+          background: rgba(255, 255, 255, 0.05);
           color: #94a3b8;
-          margin-left: 4px;
-          animation: fadeUp 0.15s ease both;
+          border-color: rgba(255, 255, 255, 0.12);
         }
 
-        /* Markdown */
-        .md-content :global(h1),
-        .md-content :global(h2),
-        .md-content :global(h3) {
-          margin: 0.6rem 0 0.3rem;
-          font-weight: 600;
-          color: var(--text);
+        .dock-tools-right {
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
-        .md-content :global(h1) { font-size: 1.05rem; }
-        .md-content :global(h2) { font-size: 0.98rem; }
-        .md-content :global(h3) { font-size: 0.92rem; }
-        .md-content :global(p) { margin: 0.35rem 0; }
-        .md-content :global(ul), .md-content :global(ol) {
-          margin: 0.3rem 0;
-          padding-left: 1.4rem;
+        .dock-send-btn {
+          width: 32px;
+          height: 32px;
+          border: none;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          color: #ffffff;
+          font-size: 1.1rem;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
         }
-        .md-content :global(li) { margin: 0.15rem 0; }
-        .md-content :global(strong) { color: var(--text); font-weight: 600; }
-        .md-content :global(a) { color: var(--accent); }
-        .md-content :global(a:hover) { text-decoration: underline; }
-        .md-content :global(code) {
-          background: rgba(255,255,255,0.08);
-          padding: 0.12rem 0.3rem;
-          border-radius: 4px;
-          font-size: 0.84em;
-          font-family: var(--font-mono);
+        .dock-send-btn:hover:not(:disabled) {
+          transform: translateY(-1px) scale(1.04);
+          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
         }
-        .md-content :global(pre) {
-          background: rgba(0,0,0,0.35);
-          padding: 0.75rem;
-          border-radius: 8px;
-          overflow-x: auto;
-          margin: 0.4rem 0;
+        .dock-send-btn:disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+          background: rgba(255, 255, 255, 0.08);
+          box-shadow: none;
+          color: #64748b;
         }
-        .md-content :global(pre code) { background: none; padding: 0; }
-        .md-content :global(blockquote) {
-          border-left: 3px solid var(--accent-dim);
-          margin: 0.4rem 0;
-          padding: 0.25rem 0.75rem;
-          color: var(--text-muted);
-        }
-        .md-content :global(table) {
-          width: 100%;
-          border-collapse: collapse;
-          margin: 0.5rem 0;
-          font-size: 0.84rem;
-        }
-        .md-content :global(th), .md-content :global(td) {
-          border: 1px solid var(--border);
-          padding: 0.35rem 0.5rem;
-        }
-        .md-content :global(th) {
-          background: rgba(255,255,255,0.04);
-          font-weight: 600;
+        .send-arrow {
+          line-height: 1;
         }
 
-        /* Form */
+        .dock-stop-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 12px;
+          border: 1px solid rgba(239, 68, 68, 0.4);
+          border-radius: 999px;
+          background: rgba(239, 68, 68, 0.12);
+          color: #fca5a5;
+          font-size: 0.74rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .dock-stop-btn:hover {
+          background: rgba(239, 68, 68, 0.2);
+          border-color: #ef4444;
+          color: #fecaca;
+          transform: translateY(-1px);
+        }
+        .stop-sq {
+          font-size: 0.72rem;
+          color: #ef4444;
+        }
+
+        .session-loading-banner {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 6px 14px;
+          margin: 0.75rem auto;
+          background: rgba(124, 124, 255, 0.08);
+          border: 1px solid rgba(124, 124, 255, 0.2);
+          border-radius: 20px;
+          color: #a5b4fc;
+          font-size: 0.76rem;
+          width: fit-content;
+        }
+        .session-spinner {
+          width: 12px;
+          height: 12px;
+          border: 2px solid rgba(165, 180, 252, 0.3);
+          border-top-color: #a5b4fc;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
         .chat-error {
           margin: 0;
           padding: 0.5rem 1.15rem;
           font-size: 0.82rem;
           color: var(--danger);
-          border-top: 1px solid var(--border);
+          text-align: center;
         }
-        .chat-form {
-          display: flex;
-          gap: 0.5rem;
-          padding: 0.85rem 1.15rem;
-          border-top: 1px solid var(--border);
-          background: rgba(0, 0, 0, 0.15);
+
+        @keyframes bounceIn {
+          0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
+          100% { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
-        .chat-language-select {
-          padding: 0.7rem;
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          background: var(--bg-input);
-          color: var(--text);
-          outline: none;
-          cursor: pointer;
-          transition: border-color 0.15s ease;
-        }
-        .chat-language-select:focus {
-          border-color: var(--accent);
-          box-shadow: 0 0 0 2px var(--accent-soft);
-        }
-        .chat-input {
-          flex: 1;
-          padding: 0.7rem 0.9rem;
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          background: var(--bg-input);
-          color: var(--text);
-          outline: none;
-          transition: border-color 0.15s ease;
-        }
-        .chat-input:focus {
-          border-color: var(--accent);
-          box-shadow: 0 0 0 2px var(--accent-soft);
-        }
-        .chat-send {
-          width: 42px;
-          height: 42px;
-          border: none;
-          border-radius: var(--radius);
-          background: var(--accent);
-          color: #fff;
-          font-size: 1.1rem;
-          font-weight: 600;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: opacity 0.15s ease;
-        }
-        .chat-send:hover:not(:disabled) {
-          opacity: 0.85;
+
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(6px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
     </section>

@@ -566,107 +566,125 @@ function AppInner() {
                 <button className="back-btn" onClick={goHome} title="Return to Knowledge Bases grid">
                   ← Back
                 </button>
-                <div className="chat-site-text">
-                  <span className="chat-site-name">{selectedSite.name}</span>
-                  <span className="chat-site-status">
-                    <span className="live-pulse-dot" />
-                    <span>{selectedSite.pages.length} Pages • {selectedSite.totalChunks} Chunks</span>
-                  </span>
+                <div className="chat-breadcrumb-wrap">
+                  <span className="breadcrumb-root" onClick={goHome}>Bots</span>
+                  <span className="breadcrumb-sep">/</span>
+                  <div className="chat-site-text">
+                    <span className="chat-site-name">{selectedSite.name}</span>
+                    <span className="chat-site-status">
+                      <span className="live-pulse-dot" />
+                      <span>{selectedSite.pages.length} Pages · {selectedSite.totalChunks.toLocaleString()} Chunks</span>
+                    </span>
+                  </div>
                 </div>
               </div>
 
               <div className="chat-nav-actions">
-                <button
-                  type="button"
-                  className="chat-sync-btn"
-                  onClick={async () => {
-                    setRefreshingSiteId(selectedSite.id);
-                    try {
-                      const res = await fetch(`/api/sites/${selectedSite.id}/sync`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ maxPages: 5 }),
-                      });
-                      const data = await res.json();
-                      if (!res.ok) throw new Error(data.error || "Sync failed");
-                      addToast(data.message || `Sync completed! ${data.addedPages} new pages added.`, "success");
-                      await loadSites();
-                    } catch (err: any) {
-                      addToast(err.message || "Failed to sync site", "error");
-                    } finally {
-                      setRefreshingSiteId(null);
-                    }
-                  }}
-                  disabled={refreshingSiteId === selectedSite.id}
-                  title="Check sitemap and homepage for newly published articles"
-                >
-                  <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
-                  </svg>
-                  <span>{refreshingSiteId === selectedSite.id ? "Syncing…" : "Sync News"}</span>
-                </button>
+                <div className="nav-primary-actions">
+                  <button
+                    type="button"
+                    className="chat-sync-btn"
+                    onClick={async () => {
+                      setRefreshingSiteId(selectedSite.id);
+                      try {
+                        const res = await fetch(`/api/sites/${selectedSite.id}/sync`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ maxPages: 5 }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok) throw new Error(data.error || "Sync failed");
+                        addToast(data.message || `Sync completed! ${data.addedPages} new pages added.`, "success");
+                        await loadSites();
+                      } catch (err: any) {
+                        addToast(err.message || "Failed to sync site", "error");
+                      } finally {
+                        setRefreshingSiteId(null);
+                      }
+                    }}
+                    disabled={refreshingSiteId === selectedSite.id}
+                    title="Check sitemap and homepage for newly published articles"
+                  >
+                    <svg
+                      className={`sync-icon ${refreshingSiteId === selectedSite.id ? "spinning" : ""}`}
+                      viewBox="0 0 24 24"
+                      width={12}
+                      height={12}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                    </svg>
+                    <span>{refreshingSiteId === selectedSite.id ? "Syncing…" : "Sync"}</span>
+                  </button>
 
-                <button
-                  type="button"
-                  className="chat-new-thread-btn"
-                  onClick={() => {
-                    setSessionId(null);
-                    addToast("Started a new conversation session", "info");
-                  }}
-                  title="Start a fresh conversation thread"
-                >
-                  <span>+ New Chat</span>
-                </button>
+                  <button
+                    type="button"
+                    className="chat-new-thread-btn"
+                    onClick={() => {
+                      setSessionId(null);
+                      addToast("Started a fresh conversation session", "info");
+                    }}
+                    title="Start a fresh conversation thread"
+                  >
+                    <span>+ New Chat</span>
+                  </button>
+                </div>
 
-                <button
-                  type="button"
-                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "history" ? "active" : ""}`}
-                  onClick={() => toggleDrawer("history")}
-                  title="View conversation history & past threads"
-                >
-                  <span>💬</span>
-                  <span>History</span>
-                </button>
+                <div className="nav-divider" />
 
-                <button
-                  type="button"
-                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "pages" ? "active" : ""}`}
-                  onClick={() => toggleDrawer("pages")}
-                  title="View and index document pages"
-                >
-                  <span>📁</span>
-                  <span>Knowledge</span>
-                </button>
+                <div className="nav-drawer-strip">
+                  <button
+                    type="button"
+                    className={`drawer-trigger-btn ${drawerOpen && drawerTab === "history" ? "active" : ""}`}
+                    onClick={() => toggleDrawer("history")}
+                    title="View conversation history & past threads"
+                  >
+                    <span>💬</span>
+                    <span className="btn-label">History</span>
+                  </button>
 
-                <button
-                  type="button"
-                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "analytics" ? "active" : ""}`}
-                  onClick={() => toggleDrawer("analytics")}
-                  title="View bot traffic, queries, and satisfaction"
-                >
-                  <span>📊</span>
-                  <span>Analytics</span>
-                </button>
+                  <button
+                    type="button"
+                    className={`drawer-trigger-btn ${drawerOpen && drawerTab === "pages" ? "active" : ""}`}
+                    onClick={() => toggleDrawer("pages")}
+                    title="View and index document pages"
+                  >
+                    <span>📁</span>
+                    <span className="btn-label">Sources</span>
+                  </button>
 
-                <button
-                  type="button"
-                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "settings" ? "active" : ""}`}
-                  onClick={() => toggleDrawer("settings")}
-                  title="Customize persona, tone, and starter prompts"
-                >
-                  <span>⚙️</span>
-                  <span>Settings</span>
-                </button>
+                  <button
+                    type="button"
+                    className={`drawer-trigger-btn ${drawerOpen && drawerTab === "analytics" ? "active" : ""}`}
+                    onClick={() => toggleDrawer("analytics")}
+                    title="View bot traffic, queries, and satisfaction"
+                  >
+                    <span>📊</span>
+                    <span className="btn-label">Analytics</span>
+                  </button>
 
-                <button
-                  type="button"
-                  className={`drawer-trigger-btn ${drawerOpen && drawerTab === "embed" ? "active" : ""}`}
-                  onClick={() => toggleDrawer("embed")}
-                  title="Get 1-line embed snippet for your website"
-                >
-                  <span>&lt;/&gt;</span>
-                  <span>Embed</span>
-                </button>
+                  <button
+                    type="button"
+                    className={`drawer-trigger-btn ${drawerOpen && drawerTab === "settings" ? "active" : ""}`}
+                    onClick={() => toggleDrawer("settings")}
+                    title="Customize persona, tone, and starter prompts"
+                  >
+                    <span>⚙️</span>
+                    <span className="btn-label">Settings</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`drawer-trigger-btn ${drawerOpen && drawerTab === "embed" ? "active" : ""}`}
+                    onClick={() => toggleDrawer("embed")}
+                    title="Get 1-line embed snippet for your website"
+                  >
+                    <span>&lt;/&gt;</span>
+                    <span className="btn-label">Embed</span>
+                  </button>
+                </div>
               </div>
             </nav>
 
@@ -1356,8 +1374,28 @@ function AppInner() {
         .chat-site-info {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           min-width: 0;
+        }
+        .chat-breadcrumb-wrap {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          min-width: 0;
+        }
+        .breadcrumb-root {
+          font-size: 0.76rem;
+          color: #64748b;
+          font-weight: 500;
+          cursor: pointer;
+          transition: color 0.15s ease;
+        }
+        .breadcrumb-root:hover {
+          color: #cbd5e1;
+        }
+        .breadcrumb-sep {
+          font-size: 0.74rem;
+          color: #475569;
         }
         .chat-site-text {
           display: flex;
@@ -1367,7 +1405,7 @@ function AppInner() {
         .chat-site-name {
           font-size: 0.88rem;
           font-weight: 600;
-          color: #f7f7f8;
+          color: #f8fafc;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -1377,7 +1415,7 @@ function AppInner() {
           align-items: center;
           gap: 5px;
           font-size: 0.68rem;
-          color: var(--text-muted);
+          color: #94a3b8;
         }
         .live-pulse-dot {
           width: 5px;
@@ -1410,74 +1448,95 @@ function AppInner() {
           margin-left: auto;
           display: flex;
           align-items: center;
+          gap: 8px;
+        }
+        .nav-primary-actions {
+          display: flex;
+          align-items: center;
           gap: 6px;
         }
         .chat-sync-btn {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          background: rgba(16, 185, 129, 0.1);
-          border: 1px solid rgba(16, 185, 129, 0.3);
+          background: rgba(16, 185, 129, 0.08);
+          border: 1px solid rgba(16, 185, 129, 0.25);
           color: #34d399;
-          font-size: 0.76rem;
+          font-size: 0.74rem;
           font-weight: 500;
-          padding: 0.35rem 0.65rem;
-          border-radius: 6px;
+          padding: 0.32rem 0.65rem;
+          border-radius: 7px;
           cursor: pointer;
           transition: all 0.15s ease;
         }
         .chat-sync-btn:hover:not(:disabled) {
-          background: rgba(16, 185, 129, 0.2);
+          background: rgba(16, 185, 129, 0.18);
           border-color: #34d399;
-          color: #fff;
+          color: #ffffff;
         }
         .chat-sync-btn:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
+        .sync-icon.spinning {
+          animation: spin 1s linear infinite;
+        }
         .chat-new-thread-btn {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          background: rgba(124, 124, 255, 0.12);
-          border: 1px solid rgba(124, 124, 255, 0.3);
-          color: #c4b5fd;
-          font-size: 0.76rem;
+          background: linear-gradient(135deg, #6366f1, #7c3aed);
+          border: 1px solid rgba(167, 139, 250, 0.35);
+          color: #ffffff;
+          font-size: 0.74rem;
           font-weight: 600;
-          padding: 0.35rem 0.75rem;
-          border-radius: 6px;
+          padding: 0.32rem 0.75rem;
+          border-radius: 7px;
           cursor: pointer;
           transition: all 0.15s ease;
+          box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
         }
         .chat-new-thread-btn:hover {
-          background: #7c7cff;
-          border-color: #7c7cff;
-          color: #fff;
           transform: translateY(-1px);
+          box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+        }
+        .nav-divider {
+          width: 1px;
+          height: 18px;
+          background: rgba(255, 255, 255, 0.08);
+          margin: 0 2px;
+        }
+        .nav-drawer-strip {
+          display: flex;
+          align-items: center;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: 8px;
+          padding: 2px;
+          gap: 2px;
         }
         .drawer-trigger-btn {
           background: transparent;
-          border: 1px solid var(--border);
-          color: var(--text-muted);
-          font-size: 0.76rem;
+          border: none;
+          color: #94a3b8;
+          font-size: 0.74rem;
           font-weight: 500;
-          padding: 0.35rem 0.65rem;
+          padding: 0.3rem 0.6rem;
           border-radius: 6px;
           cursor: pointer;
           transition: all 0.12s ease;
           display: inline-flex;
           align-items: center;
-          gap: 5px;
+          gap: 4px;
         }
         .drawer-trigger-btn:hover {
-          background: rgba(255, 255, 255, 0.04);
-          color: #ffffff;
-          border-color: rgba(255, 255, 255, 0.16);
+          background: rgba(255, 255, 255, 0.06);
+          color: #f1f5f9;
         }
         .drawer-trigger-btn.active {
-          background: rgba(124, 124, 255, 0.12);
-          border-color: #7c7cff;
+          background: rgba(255, 255, 255, 0.12);
           color: #ffffff;
+          box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
         }
 
         /* ── Modal ─────────────────────────────────────────────────── */
