@@ -31,6 +31,7 @@ function AppInner() {
   const [view, setView] = useState<View>("home");
   const [selectedSite, setSelectedSite] = useState<SiteSummary | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [chatKey, setChatKey] = useState<number>(0);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTab, setDrawerTab] = useState<DrawerTab>("pages");
@@ -157,10 +158,17 @@ function AppInner() {
   // ── navigation handlers ──────────────────────────────────────────────────
   function openChat(site: SiteSummary) {
     setSelectedSite(site);
-    setSessionId(site.latestSessionId);
+    setSessionId(site.latestSessionId ?? null);
+    setChatKey((k) => k + 1);
     setView("chat");
     setPagesOpen(false);
     setDrawerOpen(false);
+  }
+
+  function handleNewChat() {
+    setSessionId(null);
+    setChatKey((k) => k + 1);
+    addToast("Started a fresh conversation session", "info");
   }
 
   function goHome() {
@@ -622,10 +630,7 @@ function AppInner() {
                   <button
                     type="button"
                     className="chat-new-thread-btn"
-                    onClick={() => {
-                      setSessionId(null);
-                      addToast("Started a fresh conversation session", "info");
-                    }}
+                    onClick={handleNewChat}
                     title="Start a fresh conversation thread"
                   >
                     <span>+ New Chat</span>
@@ -691,6 +696,7 @@ function AppInner() {
             <div className="chat-workspace-split">
               <div className="chat-body">
                 <ChatWindow
+                  key={`${selectedSite.id}-${chatKey}`}
                   siteId={selectedSite.id}
                   sessionId={sessionId}
                   onSessionId={setSessionId}
@@ -712,7 +718,7 @@ function AppInner() {
                 onToast={addToast}
                 currentSessionId={sessionId}
                 onSelectSession={(newSessionId) => setSessionId(newSessionId)}
-                onNewChat={() => setSessionId(null)}
+                onNewChat={handleNewChat}
               />
             </div>
           </div>
@@ -984,8 +990,7 @@ function AppInner() {
         }}
         onNewChat={() => {
           setCommandPaletteOpen(false);
-          setSessionId(null);
-          addToast("Started a new conversation session", "info");
+          handleNewChat();
         }}
         onOpenApiKeys={() => {
           setCommandPaletteOpen(false);

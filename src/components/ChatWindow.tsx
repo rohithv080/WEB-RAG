@@ -121,6 +121,7 @@ export function ChatWindow({
   const recognitionRef = useRef<any>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const [loadingSession, setLoadingSession] = useState(false);
+  const currentSessionIdRef = useRef<string | null>(sessionId);
 
   function handleScroll() {
     const container = messagesContainerRef.current;
@@ -141,6 +142,9 @@ export function ChatWindow({
       }
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
       }
     };
   }, []);
@@ -263,8 +267,16 @@ export function ChatWindow({
 
   // Load existing session messages if sessionId is passed
   useEffect(() => {
+    // If sessionId matches what we already have loaded / active in this window, skip refetching
+    if (sessionId && sessionId === currentSessionIdRef.current && messages.length > 0) {
+      return;
+    }
+
+    currentSessionIdRef.current = sessionId;
+
     if (!sessionId) {
       setMessages([]);
+      setLoadingSession(false);
       return;
     }
 
@@ -309,6 +321,24 @@ export function ChatWindow({
   }, [messages, streaming]);
 
   useEffect(() => {
+    // Reset state and cancel ongoing activity when switching bots
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      setStreaming(false);
+    }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setSpeakingMsgId(null);
+    }
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+      setIsListening(false);
+    }
+    setInput("");
+    setError(null);
+    setMessages([]);
+    currentSessionIdRef.current = null;
     inputRef.current?.focus();
   }, [siteId]);
 
@@ -421,7 +451,10 @@ export function ChatWindow({
             const payload = JSON.parse(line.slice(6));
 
             if (payload.type === "meta") {
-              if (payload.sessionId) onSessionId(payload.sessionId);
+              if (payload.sessionId) {
+                currentSessionIdRef.current = payload.sessionId;
+                onSessionId(payload.sessionId);
+              }
               citations = payload.citations;
               setMessages((prev) =>
                 prev.map((m) =>
