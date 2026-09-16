@@ -431,25 +431,32 @@ export function ChatWindow({
                         citations: payload.citations,
                         standaloneQuery: payload.standaloneQuery,
                         latencyMs: payload.latencyMs,
-                        dbId: payload.assistantMessageId,
+                        dbId: payload.messageId || payload.assistantMessageId,
                       }
                     : m
                 )
               );
-            } else if (payload.type === "chunk") {
+            } else if (payload.type === "token" || payload.type === "chunk") {
+              const tokenText = payload.content ?? payload.text ?? "";
               setMessages((prev) =>
                 prev.map((m) =>
-                  m.id === assistantId ? { ...m, content: m.content + payload.text } : m
+                  m.id === assistantId ? { ...m, content: m.content + tokenText } : m
                 )
               );
             } else if (payload.type === "done") {
-              if (payload.assistantMessageId) {
-                setMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === assistantId ? { ...m, dbId: payload.assistantMessageId } : m
-                  )
-                );
-              }
+              const msgId = payload.messageId || payload.assistantMessageId;
+              const latency = payload.latencyMs;
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === assistantId
+                    ? {
+                        ...m,
+                        dbId: msgId || m.dbId,
+                        latencyMs: latency || m.latencyMs,
+                      }
+                    : m
+                )
+              );
             } else if (payload.type === "error") {
               throw new Error(payload.error || "Streaming error");
             }
@@ -477,8 +484,18 @@ export function ChatWindow({
             )
           );
         } else {
+          console.error("[chat error]", err);
           setError(err.message || "Something went wrong.");
-          setMessages((prev) => prev.filter((m) => m.id !== assistantId));
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantId
+                ? {
+                    ...m,
+                    content: m.content || `⚠️ ${err.message || "Something went wrong. Please try again."}`,
+                  }
+                : m
+            )
+          );
         }
       } finally {
         setStreaming(false);
@@ -596,9 +613,13 @@ export function ChatWindow({
                             isStreaming={streaming && m.id === messages[messages.length - 1]?.id}
                           />
                         </div>
-                      ) : streaming ? (
+                      ) : streaming && m.id === messages[messages.length - 1]?.id ? (
                         <TypingIndicator />
-                      ) : null}
+                      ) : (
+                        <div style={{ color: "#64748b", fontStyle: "italic", fontSize: "0.82rem" }}>
+                          *(No response generated)*
+                        </div>
+                      )}
                     </div>
 
                     {m.content && (
