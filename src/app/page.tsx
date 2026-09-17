@@ -171,6 +171,11 @@ function AppInner() {
     addToast("Started a fresh conversation session", "info");
   }
 
+  function handleSelectSession(newSessionId: string) {
+    setSessionId(newSessionId);
+    setChatKey((k) => k + 1);
+  }
+
   function goHome() {
     setView("home");
     setSelectedSite(null);
@@ -717,7 +722,7 @@ function AppInner() {
                 onPageAdded={loadSites}
                 onToast={addToast}
                 currentSessionId={sessionId}
-                onSelectSession={(newSessionId) => setSessionId(newSessionId)}
+                onSelectSession={handleSelectSession}
                 onNewChat={handleNewChat}
               />
             </div>

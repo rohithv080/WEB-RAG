@@ -122,6 +122,7 @@ export function ChatWindow({
   const abortControllerRef = useRef<AbortController | null>(null);
   const [loadingSession, setLoadingSession] = useState(false);
   const currentSessionIdRef = useRef<string | null>(sessionId);
+  const prevSiteIdRef = useRef<string | null>(siteId);
 
   function handleScroll() {
     const container = messagesContainerRef.current;
@@ -290,8 +291,14 @@ export function ChatWindow({
       })
       .then((data) => {
         if (!isMounted) return;
-        if (data.session && Array.isArray(data.session.messages)) {
-          const loaded: ChatMessage[] = data.session.messages.map((m: any) => ({
+        const msgList = Array.isArray(data.messages)
+          ? data.messages
+          : Array.isArray(data.session?.messages)
+          ? data.session.messages
+          : [];
+
+        if (msgList.length > 0) {
+          const loaded: ChatMessage[] = msgList.map((m: any) => ({
             id: m.id,
             dbId: m.id,
             role: m.role as "user" | "assistant",
@@ -300,6 +307,8 @@ export function ChatWindow({
             rating: m.rating || null,
           }));
           setMessages(loaded);
+        } else {
+          setMessages([]);
         }
       })
       .catch((err) => {
@@ -321,24 +330,27 @@ export function ChatWindow({
   }, [messages, streaming]);
 
   useEffect(() => {
-    // Reset state and cancel ongoing activity when switching bots
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-      abortControllerRef.current = null;
-      setStreaming(false);
+    // Only reset state if siteId actually changed
+    if (prevSiteIdRef.current !== siteId) {
+      prevSiteIdRef.current = siteId;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+        setStreaming(false);
+      }
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        setSpeakingMsgId(null);
+      }
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch {}
+        setIsListening(false);
+      }
+      setInput("");
+      setError(null);
+      setMessages([]);
+      currentSessionIdRef.current = null;
     }
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      setSpeakingMsgId(null);
-    }
-    if (recognitionRef.current) {
-      try { recognitionRef.current.stop(); } catch {}
-      setIsListening(false);
-    }
-    setInput("");
-    setError(null);
-    setMessages([]);
-    currentSessionIdRef.current = null;
     inputRef.current?.focus();
   }, [siteId]);
 
@@ -591,7 +603,12 @@ export function ChatWindow({
         aria-live="polite"
       >
         <div className="chat-thread-container">
-          {messages.length === 0 ? (
+          {loadingSession && messages.length === 0 ? (
+            <div className="session-restoring-state">
+              <div className="restoring-spinner" />
+              <p className="restoring-text">Restoring conversation history…</p>
+            </div>
+          ) : messages.length === 0 ? (
             <WelcomeScreen
               siteName={siteTitle || "this site"}
               onSuggest={(q) => submitQuestion(q)}
@@ -749,7 +766,7 @@ export function ChatWindow({
             ))
           )}
 
-          {loadingSession && (
+          {loadingSession && messages.length > 0 && (
             <div className="session-loading-banner">
               <span className="session-spinner" />
               <span>Restoring conversation history…</span>
@@ -1410,6 +1427,28 @@ export function ChatWindow({
         .stop-sq {
           font-size: 0.72rem;
           color: #ef4444;
+        }
+
+        .session-restoring-state {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 6rem 1rem;
+          gap: 14px;
+        }
+        .restoring-spinner {
+          width: 28px;
+          height: 28px;
+          border: 2.5px solid rgba(129, 140, 248, 0.2);
+          border-top-color: #818cf8;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        .restoring-text {
+          font-size: 0.88rem;
+          color: #94a3b8;
+          font-weight: 500;
         }
 
         .session-loading-banner {
