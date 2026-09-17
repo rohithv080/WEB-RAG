@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
 
+export const runtime = "nodejs";
+
 export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -16,7 +18,7 @@ export async function GET(
       where: { id },
       include: {
         site: {
-          select: { id: true, name: true, userId: true },
+          select: { id: true, name: true, userId: true, isPublic: true },
         },
         messages: {
           orderBy: { createdAt: "asc" },
@@ -38,11 +40,12 @@ export async function GET(
       return NextResponse.json({ error: "Session not found" }, { status: 404 });
     }
 
-    const { userId: currentUserId, isAdmin } = await getAuthUser();
-
-    // Verify ownership if site is owned
-    if (session.site.userId && session.site.userId !== currentUserId && !isAdmin) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    // If the bot is explicitly private and owned, verify caller is owner or admin
+    if (session.site.isPublic === false && session.site.userId) {
+      const { userId: currentUserId, isAdmin } = await getAuthUser();
+      if (session.site.userId !== currentUserId && !isAdmin) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      }
     }
 
     return NextResponse.json({

@@ -285,8 +285,11 @@ export function ChatWindow({
     setLoadingSession(true);
 
     fetch(`/api/sessions/${sessionId}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to load session");
+      .then(async (res) => {
+        if (!res.ok) {
+          const errBody = await res.json().catch(() => ({}));
+          throw new Error(errBody.error || `Failed to load session (HTTP ${res.status})`);
+        }
         return res.json();
       })
       .then((data) => {
