@@ -109,6 +109,31 @@ function AppInner() {
   const [refreshingPageId, setRefreshingPageId] = useState<string | null>(null);
   const [refreshingSiteId, setRefreshingSiteId] = useState<string | null>(null);
 
+  // ── dashboard search, filter & sort ──────────────────────────────────────
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterTag, setFilterTag] = useState<"all" | "web" | "sync" | "private">("all");
+  const [sortBy, setSortBy] = useState<"recent" | "chunks" | "name">("recent");
+
+  const filteredSites = sites
+    .filter((s) => {
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchName = s.name.toLowerCase().includes(q);
+        const matchDesc = (s.description || "").toLowerCase().includes(q);
+        const matchUrl = s.pages?.some((p) => p.url.toLowerCase().includes(q));
+        if (!matchName && !matchDesc && !matchUrl) return false;
+      }
+      if (filterTag === "web" && s.enableWebSearch === false) return false;
+      if (filterTag === "sync" && !s.autoSync) return false;
+      if (filterTag === "private" && s.isPublic !== false) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      if (sortBy === "name") return a.name.localeCompare(b.name);
+      if (sortBy === "chunks") return (b.totalChunks || 0) - (a.totalChunks || 0);
+      return new Date(b.scrapedAt).getTime() - new Date(a.scrapedAt).getTime();
+    });
+
   function handleSaveSettings(updatedSite: SiteSummary) {
     updateSiteInList(updatedSite);
     addToast(`Bot "${updatedSite.name}" updated!`, "success");
@@ -513,26 +538,130 @@ function AppInner() {
             ) : sites.length === 0 ? (
               <EmptyState />
             ) : (
-              <div className="bot-grid">
-                {sites.map((s) => (
-                  <BotCard
-                    key={s.id}
-                    site={s}
-                    onClick={() => openChat(s)}
-                    onDelete={handleDeleteSite}
-                    onEmbed={openEmbed}
-                    onSettings={openSettings}
-                    onAnalytics={openAnalytics}
-                  />
-                ))}
-                <button type="button" className="add-bot-card" onClick={openModal}>
-                  <span className="add-bot-icon">+</span>
-                  <div className="add-bot-info">
-                    <span className="add-bot-title">Deploy New Bot</span>
-                    <span className="add-bot-desc">Index a web URL or upload document</span>
+              <>
+                {/* ── Bot Search, Filter Tabs & Sort Ribbon ────────────── */}
+                <div className="bot-filter-ribbon">
+                  <div className="filter-search-box">
+                    <svg
+                      className="search-icon"
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                    >
+                      <circle cx="7" cy="7" r="4.5" />
+                      <path d="M10.5 10.5L14 14" strokeLinecap="round" />
+                    </svg>
+                    <input
+                      type="text"
+                      placeholder="Search bots by name, description, or URL..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="filter-search-input"
+                    />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        className="search-clear-btn"
+                        onClick={() => setSearchQuery("")}
+                        title="Clear search"
+                      >
+                        ✕
+                      </button>
+                    )}
                   </div>
-                </button>
-              </div>
+
+                  <div className="filter-actions-right">
+                    <div className="filter-pills">
+                      <button
+                        type="button"
+                        className={`filter-pill ${filterTag === "all" ? "active" : ""}`}
+                        onClick={() => setFilterTag("all")}
+                      >
+                        All ({sites.length})
+                      </button>
+                      <button
+                        type="button"
+                        className={`filter-pill ${filterTag === "web" ? "active" : ""}`}
+                        onClick={() => setFilterTag("web")}
+                        title="Show only bots with Live Web Search fallback enabled"
+                      >
+                        🌐 Web Search
+                      </button>
+                      <button
+                        type="button"
+                        className={`filter-pill ${filterTag === "sync" ? "active" : ""}`}
+                        onClick={() => setFilterTag("sync")}
+                        title="Show only bots with automated sitemap sync"
+                      >
+                        ⚡ Auto-Sync
+                      </button>
+                      <button
+                        type="button"
+                        className={`filter-pill ${filterTag === "private" ? "active" : ""}`}
+                        onClick={() => setFilterTag("private")}
+                        title="Show only private bots"
+                      >
+                        🔒 Private
+                      </button>
+                    </div>
+
+                    <div className="sort-selector-wrap">
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as any)}
+                        className="sort-select"
+                        title="Sort bots"
+                      >
+                        <option value="recent">Recently Updated</option>
+                        <option value="chunks">Most Chunks</option>
+                        <option value="name">Alphabetical</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                {filteredSites.length === 0 ? (
+                  <div className="empty-search-results">
+                    <div className="empty-search-icon">🔍</div>
+                    <h3 className="empty-search-title">No matching knowledge bots</h3>
+                    <p className="empty-search-sub">
+                      No bots match {searchQuery ? `"${searchQuery}"` : "the selected filter"}.
+                    </p>
+                    <button
+                      type="button"
+                      className="reset-filters-btn"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setFilterTag("all");
+                      }}
+                    >
+                      Reset Filters & Show All
+                    </button>
+                  </div>
+                ) : (
+                  <div className="bot-grid">
+                    {filteredSites.map((s) => (
+                      <BotCard
+                        key={s.id}
+                        site={s}
+                        onClick={() => openChat(s)}
+                        onDelete={handleDeleteSite}
+                        onEmbed={openEmbed}
+                        onSettings={openSettings}
+                        onAnalytics={openAnalytics}
+                      />
+                    ))}
+                    <button type="button" className="add-bot-card" onClick={openModal}>
+                      <span className="add-bot-icon">+</span>
+                      <div className="add-bot-info">
+                        <span className="add-bot-title">Deploy New Bot</span>
+                        <span className="add-bot-desc">Index a web URL or upload document</span>
+                      </div>
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -1210,10 +1339,180 @@ function AppInner() {
           background: #34d399;
         }
 
-        .status-online {
-          font-size: 0.78rem;
+        /* ── Bot Search, Filter & Sort Ribbon ──────────────────── */
+        .bot-filter-ribbon {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-wrap: wrap;
+          gap: 0.75rem;
+          margin-bottom: 1.25rem;
+          padding: 0.5rem 0.65rem;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          border-radius: var(--radius-md);
+        }
+
+        .filter-search-box {
+          position: relative;
+          display: flex;
+          align-items: center;
+          flex: 1;
+          min-width: 240px;
+          max-width: 420px;
+        }
+
+        .search-icon {
+          position: absolute;
+          left: 10px;
+          width: 14px;
+          height: 14px;
+          color: var(--text-dim);
+          pointer-events: none;
+        }
+
+        .filter-search-input {
+          width: 100%;
+          padding: 0.42rem 1.75rem 0.42rem 2.1rem;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          border-radius: 6px;
+          color: #f7f7f8;
+          font-size: 0.8rem;
+          transition: all 0.15s ease;
+        }
+
+        .filter-search-input:focus {
+          outline: none;
+          background: rgba(255, 255, 255, 0.07);
+          border-color: rgba(124, 124, 255, 0.4);
+          box-shadow: 0 0 12px rgba(124, 124, 255, 0.15);
+        }
+
+        .search-clear-btn {
+          position: absolute;
+          right: 8px;
+          background: none;
+          border: none;
+          color: var(--text-dim);
+          font-size: 0.75rem;
+          padding: 2px;
+          cursor: pointer;
+          border-radius: 50%;
+        }
+
+        .search-clear-btn:hover {
+          color: #f7f7f8;
+        }
+
+        .filter-actions-right {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          flex-wrap: wrap;
+        }
+
+        .filter-pills {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+        }
+
+        .filter-pill {
+          padding: 0.32rem 0.65rem;
+          border-radius: 6px;
+          background: transparent;
+          border: 1px solid transparent;
+          color: var(--text-muted);
+          font-size: 0.75rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.12s ease;
+        }
+
+        .filter-pill:hover {
+          color: #f7f7f8;
+          background: rgba(255, 255, 255, 0.04);
+        }
+
+        .filter-pill.active {
+          background: rgba(124, 124, 255, 0.12);
+          border-color: rgba(124, 124, 255, 0.3);
+          color: #a5b4fc;
+        }
+
+        .sort-selector-wrap {
+          display: flex;
+          align-items: center;
+          gap: 0.4rem;
+        }
+
+        .sort-select {
+          padding: 0.32rem 0.6rem;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 6px;
+          color: var(--text-muted);
+          font-size: 0.74rem;
+          cursor: pointer;
+          outline: none;
+        }
+
+        .sort-select:hover, .sort-select:focus {
+          border-color: rgba(255, 255, 255, 0.16);
+          color: #f7f7f8;
+        }
+
+        /* ── Empty Search Results ────────────────────────────── */
+        .empty-search-results {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 3.5rem 1.5rem;
+          text-align: center;
+          background: rgba(255, 255, 255, 0.015);
+          border: 1px dashed rgba(255, 255, 255, 0.08);
+          border-radius: var(--radius-lg);
+          margin-top: 0.5rem;
+        }
+
+        .empty-search-icon {
+          font-size: 2rem;
+          margin-bottom: 0.75rem;
+          opacity: 0.7;
+        }
+
+        .empty-search-title {
+          margin: 0 0 0.35rem;
+          font-size: 1.1rem;
           font-weight: 600;
-          color: #34d399;
+          color: #f7f7f8;
+        }
+
+        .empty-search-sub {
+          margin: 0 0 1.25rem;
+          font-size: 0.85rem;
+          color: var(--text-muted);
+          max-width: 320px;
+        }
+
+        .reset-filters-btn {
+          padding: 0.45rem 0.9rem;
+          border-radius: 6px;
+          background: rgba(124, 124, 255, 0.12);
+          border: 1px solid rgba(124, 124, 255, 0.3);
+          color: #a5b4fc;
+          font-size: 0.78rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+
+        .reset-filters-btn:hover {
+          background: rgba(124, 124, 255, 0.2);
+          border-color: rgba(124, 124, 255, 0.5);
+          color: #ffffff;
         }
 
         .bot-grid {

@@ -95,6 +95,11 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
               Private
             </span>
           )}
+          {site.enableWebSearch !== false && (
+            <span className="badge badge-web" title="Live Web Search Fallback Enabled">
+              🌐 Web
+            </span>
+          )}
           {site.autoSync && (
             <span className="badge badge-sync" title={`Auto-sync scheduled (${site.syncFrequency || "daily"})`}>
               ⚡ Sync
@@ -233,6 +238,23 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
         }
 
+        .bot-card::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.5) 50%, transparent 100%);
+          opacity: 0;
+          transition: opacity 0.25s ease;
+          pointer-events: none;
+        }
+
+        .bot-card:hover::before {
+          opacity: 1;
+        }
+
         /* ── Header ─────────────────────────────────────────────── */
         .bot-card-header {
           display: flex;
@@ -299,6 +321,12 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
           background: rgba(16, 185, 129, 0.1);
           border-color: rgba(16, 185, 129, 0.3);
           color: #34d399;
+        }
+
+        .badge-web {
+          background: rgba(6, 182, 212, 0.1);
+          border-color: rgba(6, 182, 212, 0.3);
+          color: #22d3ee;
         }
 
         .badge-tone {
