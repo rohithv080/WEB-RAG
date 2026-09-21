@@ -4,6 +4,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { CitationCard, type Citation } from "./CitationCard";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { MarkdownRenderer } from "./MarkdownRenderer";
+import { SourceInspectModal } from "./SourceInspectModal";
 
 export type ChatMessage = {
   id: string;
@@ -68,21 +69,29 @@ function CopyButton({ text }: { text: string }) {
 
 function TypingIndicator() {
   return (
-    <div className="typing">
-      <span className="typing-dot" />
-      <span className="typing-dot" />
-      <span className="typing-dot" />
+    <div className="typing-state-wrapper">
+      <div className="typing-dots-pill">
+        <span className="typing-dot" />
+        <span className="typing-dot" />
+        <span className="typing-dot" />
+      </div>
+      <span className="typing-label">Searching indexed vectors & reasoning…</span>
 
       <style jsx>{`
-        .typing {
+        .typing-state-wrapper {
           display: flex;
           align-items: center;
-          gap: 5px;
-          padding: 0.4rem 0.2rem;
+          gap: 9px;
+          padding: 0.35rem 0.1rem;
+        }
+        .typing-dots-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
         }
         .typing-dot {
-          width: 7px;
-          height: 7px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
           background: #818cf8;
           animation: bounce 1.4s ease-in-out infinite both;
@@ -92,7 +101,17 @@ function TypingIndicator() {
         .typing-dot:nth-child(3) { animation-delay: 0s; }
         @keyframes bounce {
           0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-          40% { transform: scale(1.1); opacity: 1; }
+          40% { transform: scale(1.15); opacity: 1; }
+        }
+        .typing-label {
+          color: #94a3b8;
+          font-size: 0.78rem;
+          font-style: italic;
+          animation: pulse-typing-text 2s ease-in-out infinite;
+        }
+        @keyframes pulse-typing-text {
+          0%, 100% { opacity: 0.55; }
+          50% { opacity: 0.95; }
         }
       `}</style>
     </div>
@@ -114,6 +133,7 @@ export function ChatWindow({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
+  const [inspectingCitation, setInspectingCitation] = useState<Citation | null>(null);
 
   const [language, setLanguage] = useState<string>("auto");
   const [isListening, setIsListening] = useState(false);
@@ -426,6 +446,12 @@ export function ChatWindow({
       { id: assistantId, role: "assistant", content: "" },
     ]);
 
+    // 0ms instant scroll to anchored response
+    setIsUserScrolledUp(false);
+    requestAnimationFrame(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    });
+
     (async () => {
       try {
         const res = await fetch("/api/chat", {
@@ -664,6 +690,8 @@ export function ChatWindow({
                           <MarkdownRenderer
                             content={m.content}
                             isStreaming={streaming && m.id === messages[messages.length - 1]?.id}
+                            citations={m.citations}
+                            onInspectCitation={(c) => setInspectingCitation(c)}
                           />
                         </div>
                       ) : streaming && m.id === messages[messages.length - 1]?.id ? (
@@ -883,6 +911,13 @@ export function ChatWindow({
       </div>
 
       {error && <p className="chat-error">{error}</p>}
+
+      {inspectingCitation && (
+        <SourceInspectModal
+          citation={inspectingCitation}
+          onClose={() => setInspectingCitation(null)}
+        />
+      )}
 
       <style jsx>{`
         .chat {

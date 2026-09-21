@@ -17,25 +17,67 @@ import { CrawlProgressBar, type CrawlProgressState } from "@/components/CrawlPro
 import { RightInspectorDrawer, type DrawerTab } from "@/components/RightInspectorDrawer";
 import { CommandPalette } from "@/components/CommandPalette";
 import { ApiKeysModal } from "@/components/ApiKeysModal";
+import { useAppStore, type View } from "@/lib/store/useAppStore";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Inner app (needs ToastProvider context)
 // ─────────────────────────────────────────────────────────────────────────────
 
-type View = "home" | "chat";
-
 function AppInner() {
   const { addToast } = useToast();
 
-  // ── navigation ──────────────────────────────────────────────────────────
-  const [view, setView] = useState<View>("home");
-  const [selectedSite, setSelectedSite] = useState<SiteSummary | null>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [chatKey, setChatKey] = useState<number>(0);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [drawerTab, setDrawerTab] = useState<DrawerTab>("pages");
-  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
+  // ── Centralized Zustand Store ────────────────────────────────────────────
+  const {
+    view,
+    setView,
+    selectedSite,
+    setSelectedSite,
+    sessionId,
+    setSessionId,
+    chatKey,
+    sidebarCollapsed,
+    setSidebarCollapsed,
+    drawerOpen,
+    setDrawerOpen,
+    drawerTab,
+    setDrawerTab,
+    toggleDrawer,
+    commandPaletteOpen,
+    setCommandPaletteOpen,
+    sites,
+    setSites,
+    sitesLoading,
+    setSitesLoading,
+    isAdmin,
+    setIsAdmin,
+    adminScope,
+    setAdminScope,
+    showAddBotModal,
+    openAddBot,
+    closeAddBot,
+    showEmbedModal,
+    embedSite,
+    openEmbed,
+    closeEmbed,
+    showSettingsModal,
+    settingsSite,
+    openSettings,
+    closeSettings,
+    showAnalyticsModal,
+    analyticsSite,
+    openAnalytics,
+    closeAnalytics,
+    showApiKeysModal,
+    setShowApiKeysModal,
+    openChat,
+    startNewChat,
+    switchSession,
+    goHome,
+    updateSiteInList,
+  } = useAppStore();
+
+  const showModal = showAddBotModal;
+  const setShowModal = (open: boolean) => (open ? openAddBot() : closeAddBot());
 
   // Global Cmd + K / Ctrl + K shortcut
   useEffect(() => {
@@ -47,25 +89,9 @@ function AppInner() {
     }
     window.addEventListener("keydown", handleGlobalKeyDown);
     return () => window.removeEventListener("keydown", handleGlobalKeyDown);
-  }, []);
-
-  function toggleDrawer(tab: DrawerTab) {
-    if (drawerOpen && drawerTab === tab) {
-      setDrawerOpen(false);
-    } else {
-      setDrawerTab(tab);
-      setDrawerOpen(true);
-    }
-  }
-
-  // ── sites ────────────────────────────────────────────────────────────────
-  const [sites, setSites] = useState<SiteSummary[]>([]);
-  const [sitesLoading, setSitesLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [adminScope, setAdminScope] = useState<"user" | "all">("user");
+  }, [setCommandPaletteOpen]);
 
   // ── modal ────────────────────────────────────────────────────────────────
-  const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<"url" | "file">("url");
   const [modalFile, setModalFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -80,46 +106,12 @@ function AppInner() {
   const modalNameRef = useRef<HTMLInputElement>(null);
 
   // ── page manager ─────────────────────────────────────────────────────────
-  const [pagesOpen, setPagesOpen] = useState(false);
   const [refreshingPageId, setRefreshingPageId] = useState<string | null>(null);
   const [refreshingSiteId, setRefreshingSiteId] = useState<string | null>(null);
 
-  // ── embed modal ──────────────────────────────────────────────────────────
-  const [embedSite, setEmbedSite] = useState<SiteSummary | null>(null);
-  const [showEmbedModal, setShowEmbedModal] = useState(false);
-
-  function openEmbed(site: SiteSummary) {
-    setEmbedSite(site);
-    setShowEmbedModal(true);
-  }
-
-  // ── api keys modal ───────────────────────────────────────────────────────
-  const [showApiKeysModal, setShowApiKeysModal] = useState(false);
-
-  // ── bot settings modal ───────────────────────────────────────────────────
-  const [settingsSite, setSettingsSite] = useState<SiteSummary | null>(null);
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-
-  function openSettings(site: SiteSummary) {
-    setSettingsSite(site);
-    setShowSettingsModal(true);
-  }
-
   function handleSaveSettings(updatedSite: SiteSummary) {
-    setSites((prev) => prev.map((s) => (s.id === updatedSite.id ? updatedSite : s)));
-    if (selectedSite?.id === updatedSite.id) {
-      setSelectedSite(updatedSite);
-    }
+    updateSiteInList(updatedSite);
     addToast(`Bot "${updatedSite.name}" updated!`, "success");
-  }
-
-  // ── bot analytics modal ──────────────────────────────────────────────────
-  const [analyticsSite, setAnalyticsSite] = useState<SiteSummary | null>(null);
-  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
-
-  function openAnalytics(site: SiteSummary) {
-    setAnalyticsSite(site);
-    setShowAnalyticsModal(true);
   }
 
   // ── data loading ─────────────────────────────────────────────────────────
@@ -134,7 +126,7 @@ function AppInner() {
       }
     } catch { /* ignore */ }
     finally { setSitesLoading(false); }
-  }, [adminScope]);
+  }, [adminScope, setSites, setIsAdmin, setSitesLoading]);
 
   useEffect(() => { loadSites(); }, [loadSites]);
 
@@ -156,31 +148,13 @@ function AppInner() {
   }, [modalLoading]);
 
   // ── navigation handlers ──────────────────────────────────────────────────
-  function openChat(site: SiteSummary) {
-    setSelectedSite(site);
-    setSessionId(site.latestSessionId ?? null);
-    setChatKey((k) => k + 1);
-    setView("chat");
-    setPagesOpen(false);
-    setDrawerOpen(false);
-  }
-
   function handleNewChat() {
-    setSessionId(null);
-    setChatKey((k) => k + 1);
+    startNewChat();
     addToast("Started a fresh conversation session", "info");
   }
 
   function handleSelectSession(newSessionId: string) {
-    setSessionId(newSessionId);
-    setChatKey((k) => k + 1);
-  }
-
-  function goHome() {
-    setView("home");
-    setSelectedSite(null);
-    setSessionId(null);
-    setDrawerOpen(false);
+    switchSession(newSessionId);
   }
 
   // ── modal ────────────────────────────────────────────────────────────────
@@ -929,14 +903,14 @@ function AppInner() {
       <EmbedModal
         site={embedSite}
         isOpen={showEmbedModal}
-        onClose={() => setShowEmbedModal(false)}
+        onClose={closeEmbed}
       />
 
       {/* ── BOT SETTINGS MODAL ───────────────────────────────────── */}
       <BotSettingsModal
         site={settingsSite}
         isOpen={showSettingsModal}
-        onClose={() => setShowSettingsModal(false)}
+        onClose={closeSettings}
         onSave={handleSaveSettings}
       />
 
@@ -944,7 +918,7 @@ function AppInner() {
       <AnalyticsModal
         site={analyticsSite}
         isOpen={showAnalyticsModal}
-        onClose={() => setShowAnalyticsModal(false)}
+        onClose={closeAnalytics}
       />
 
       {/* ── GLOBAL COMMAND PALETTE (CMD + K) ───────────────────────── */}
