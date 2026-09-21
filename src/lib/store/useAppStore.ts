@@ -37,6 +37,10 @@ interface AppState {
   isAdmin: boolean;
   adminScope: "user" | "all";
 
+  // Language Preferences
+  selectedLanguage: string;
+  setSelectedLanguage: (lang: string) => void;
+
   // Actions
   setView: (view: View) => void;
   setSelectedSite: (site: SiteSummary | null) => void;
@@ -105,6 +109,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   sitesLoading: true,
   isAdmin: false,
   adminScope: "user",
+
+  selectedLanguage: typeof window !== "undefined" ? (localStorage.getItem("web_rag_language") || "auto") : "auto",
+  setSelectedLanguage: (selectedLanguage) => {
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("web_rag_language", selectedLanguage);
+      } catch {}
+    }
+    set({ selectedLanguage });
+  },
 
   // Simple Setters
   setView: (view) => set({ view }),

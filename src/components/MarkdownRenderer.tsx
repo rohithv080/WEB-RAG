@@ -658,7 +658,7 @@ function linkifyCitations(text: string): string {
         (match, prefix) => {
           const inner = match.slice(match.indexOf("[") + 1, match.lastIndexOf("]"));
           const nums = inner.split(",").map((s) => s.replace("^", "").trim());
-          const links = nums.map((n) => `[cite:${n}](citation:${n})`).join(" ");
+          const links = nums.map((n) => `[${n}](#citation-${n})`).join(" ");
           return `${prefix}${links}`;
         }
       );
@@ -666,7 +666,7 @@ function linkifyCitations(text: string): string {
       // 2. Single citations like [1], [2], [^1]
       processed = processed.replace(
         /(^|[\s.,;:!?()"]|\])\[\^?(\d+)\](?!\()/g,
-        "$1[cite:$2](citation:$2)"
+        "$1[$2](#citation-$2)"
       );
 
       return processed;
@@ -727,6 +727,7 @@ export function MarkdownRenderer({
       {formattedContent && (
         <ReactMarkdown
           remarkPlugins={[remarkGfm]}
+          urlTransform={(url) => url}
           components={{
             code({ node, inline, className, children, ...props }: any) {
               const match = /language-(\w+)/.exec(className || "");
@@ -752,8 +753,11 @@ export function MarkdownRenderer({
             },
             a({ href, children, ...props }: any) {
               // Intercept citation links
-              if (href && href.startsWith("citation:")) {
-                const citationIndex = parseInt(href.replace("citation:", ""), 10);
+              if (href && (href.startsWith("#citation-") || href.startsWith("citation:"))) {
+                const citationIndex = parseInt(
+                  href.replace(/^(#citation-|citation:)/, ""),
+                  10
+                );
                 const citation =
                   citations?.find((c) => c.index === citationIndex) ||
                   citations?.[citationIndex - 1];

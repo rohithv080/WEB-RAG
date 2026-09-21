@@ -66,10 +66,20 @@ function getSystemPrompt(
     prompt += `\n\nTONE & LENGTH REQUIREMENT:\nMaintain a balanced, clear, and informative response style.`;
   }
 
-  if (language && language !== 'auto') {
-    return prompt + `\n\nLANGUAGE OVERRIDE:\nThe user has explicitly selected to receive answers in ${language}. You MUST translate your final response entirely into ${language}, regardless of the language of the source documents or the user's query.`;
+  if (language && language !== "auto") {
+    return (
+      prompt +
+      `\n\nLANGUAGE ENFORCEMENT:\nThe user has explicitly selected to receive answers in ${language}. You MUST formulate and translate your entire final answer into ${language}, regardless of the language of the source documents or the user's query.`
+    );
   } else {
-    return prompt + `\n\nLANGUAGE MATCHING:\nDetect the language of the user's latest query. Provide your response entirely in that same language. Do not switch back to English simply because the retrieved context documents are written in English. When citing terms, translate or transcribe naturally unless it is a proper noun or code identifier.`;
+    return (
+      prompt +
+      `\n\nLANGUAGE ENFORCEMENT:\nYou MUST respond strictly in the exact same language as the user's latest query.
+- If the user's question is in English (e.g. "still is it safe", "who won most awards"), your response MUST be in English.
+- If the user's question is in Hindi, your response MUST be in Hindi.
+- If the user's question is in Tamil, your response MUST be in Tamil.
+- Under NO circumstances should you output in German, Dutch, French, Hindi, or any other unprompted language unless the user wrote their question in that language.`
+    );
   }
 }
 

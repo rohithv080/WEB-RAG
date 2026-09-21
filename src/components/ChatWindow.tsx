@@ -5,6 +5,7 @@ import { CitationCard, type Citation } from "./CitationCard";
 import { WelcomeScreen } from "./WelcomeScreen";
 import { MarkdownRenderer } from "./MarkdownRenderer";
 import { SourceInspectModal } from "./SourceInspectModal";
+import { useAppStore } from "@/lib/store/useAppStore";
 
 export type ChatMessage = {
   id: string;
@@ -135,7 +136,8 @@ export function ChatWindow({
   const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
   const [inspectingCitation, setInspectingCitation] = useState<Citation | null>(null);
 
-  const [language, setLanguage] = useState<string>("auto");
+  const language = useAppStore((s) => s.selectedLanguage);
+  const setLanguage = useAppStore((s) => s.setSelectedLanguage);
   const [isListening, setIsListening] = useState(false);
   const [speakingMsgId, setSpeakingMsgId] = useState<string | null>(null);
   const recognitionRef = useRef<any>(null);
