@@ -8,7 +8,14 @@ import {
   condenseQuery,
   type ChatHistoryItem,
 } from "@/lib/groq";
-import { searchChunks, formatContext, buildCitations } from "@/lib/retrieval/search";
+import {
+  searchChunks,
+  formatContext,
+  buildCitations,
+  formatWebContext,
+  buildWebCitations,
+} from "@/lib/retrieval/search";
+import { searchWeb } from "@/lib/retrieval/webSearch";
 import { rateLimit, getClientIp } from "@/lib/rateLimit";
 import { auth } from "@clerk/nextjs/server";
 
@@ -126,6 +133,7 @@ export async function POST(req: NextRequest) {
     let context = "";
     let citations: any[] = [];
     let standaloneQuery: string | undefined;
+    let isWebFallback = false;
 
     if (!isGreeting) {
       // 1. Condense follow-up questions using recent chat history into a standalone query
@@ -138,15 +146,40 @@ export async function POST(req: NextRequest) {
 
       // 3. Decoupled search: vector & reranker use standaloneQuery, BM25 uses expandedQuery
       const chunks = await searchChunks(siteId, standaloneQuery, 6, 12000, expandedQuery);
-      if (chunks.length === 0) {
+      
+      // Pre-generation confidence evaluation: avoid double-inference delay
+      const fallbackThreshold = Number(process.env.RERANKER_FALLBACK_THRESHOLD || 0.28);
+      const topScore = chunks.length > 0 ? Math.max(...chunks.map((c) => c.score)) : 0;
+      const isFallbackAllowed = (site as any).enableWebSearch !== false;
+      const needsWebFallback = isFallbackAllowed && (chunks.length === 0 || topScore < fallbackThreshold);
+
+      if (needsWebFallback) {
+        console.log(
+          `[chat] Local confidence low (topScore=${topScore.toFixed(3)} < ${fallbackThreshold} or chunks=${chunks.length}). Triggering live web search for "${standaloneQuery || question}"`
+        );
+        const webResults = await searchWeb(standaloneQuery || question);
+        if (webResults.length > 0) {
+          isWebFallback = true;
+          context = formatWebContext(webResults);
+          citations = buildWebCitations(webResults);
+        } else if (chunks.length > 0) {
+          context = formatContext(chunks);
+          citations = buildCitations(chunks);
+        } else {
+          return NextResponse.json(
+            { error: "No indexed chunks or web results found for this query." },
+            { status: 422, headers: corsHeaders }
+          );
+        }
+      } else if (chunks.length > 0) {
+        context = formatContext(chunks);
+        citations = buildCitations(chunks);
+      } else {
         return NextResponse.json(
           { error: "No indexed chunks for this site. Scrape a URL first." },
           { status: 422, headers: corsHeaders }
         );
       }
-
-      context = formatContext(chunks);
-      citations = buildCitations(chunks);
     } else {
       console.log(`[chat] greeting detected, skipping search: "${question}"`);
     }
@@ -159,6 +192,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    const activeCustomPrompt = isWebFallback
+      ? `You are an expert AI assistant providing a live, web-grounded answer to the user's question because the specific details were not found in the local site documents.\nAnswer using ONLY the provided web search document blocks. Cite them inline using [1], [2], etc. Keep your tone objective, clear, and direct.`
+      : site.systemPrompt;
+
     let groqStream;
     try {
       groqStream = await streamAnswer(
@@ -166,7 +203,7 @@ export async function POST(req: NextRequest) {
         context,
         language,
         history,
-        site.systemPrompt,
+        activeCustomPrompt,
         site.tone
       );
     } catch (err) {
@@ -199,6 +236,7 @@ export async function POST(req: NextRequest) {
             sessionId,
             citations,
             standaloneQuery: isRewritten ? standaloneQuery : undefined,
+            isWebFallback,
           });
 
           for await (const part of groqStream) {
@@ -215,6 +253,7 @@ export async function POST(req: NextRequest) {
               role: "assistant",
               content: fullAnswer,
               citations,
+              isWebFallback,
               latencyMs: Date.now() - startTime,
             },
           });
@@ -223,6 +262,7 @@ export async function POST(req: NextRequest) {
             type: "done",
             sessionId,
             messageId: assistantMessage.id,
+            isWebFallback,
             latencyMs: assistantMessage.latencyMs,
           });
           controller.close();

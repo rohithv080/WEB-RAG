@@ -23,6 +23,7 @@ model Site {
   syncFrequency    String?       @default("daily") // "daily" | "weekly"
   lastSyncedAt     DateTime?
   sourceUrl        String?
+  enableWebSearch  Boolean       @default(true) // live web search fallback toggle
   pages            Page[]
   sessions         ChatSession[]
   apiKeys          ApiKey[]
@@ -75,8 +76,9 @@ model Message {
   citations Json? // [{ chunkId, heading, snippet, pageUrl }]
   rating    String? // "up" | "down"
   feedback  String? // optional comment
-  latencyMs Int? // generation latency in ms
-  createdAt DateTime    @default(now())
+  latencyMs     Int? // generation latency in ms
+  isWebFallback Boolean  @default(false)
+  createdAt     DateTime @default(now())
 
   @@index([sessionId])
   @@index([role])

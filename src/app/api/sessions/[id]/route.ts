@@ -30,6 +30,7 @@ export async function GET(
             rating: true,
             feedback: true,
             latencyMs: true,
+            isWebFallback: true,
             createdAt: true,
           },
         },

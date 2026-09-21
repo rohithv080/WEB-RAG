@@ -354,6 +354,8 @@ function InlineCitationChip({
     ? Math.min(99, Math.max(70, Math.round(citation.score * 100)))
     : null;
 
+  const isWebCitation = Boolean(citation?.chunkId?.startsWith("web-") || (citation as any)?.isWeb);
+
   const handleMouseEnter = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
     setIsHovered(true);
@@ -370,6 +372,10 @@ function InlineCitationChip({
     e.stopPropagation();
     setIsHovered(false);
     if (citation) {
+      if (isWebCitation && citation.pageUrl) {
+        window.open(citation.pageUrl, "_blank", "noopener,noreferrer");
+        return;
+      }
       if (onInspect) {
         onInspect(citation);
       } else {
@@ -386,9 +392,15 @@ function InlineCitationChip({
     >
       <button
         type="button"
-        className={`inline-cite-badge ${citation ? "has-data" : "pending"}`}
+        className={`inline-cite-badge ${citation ? "has-data" : "pending"} ${isWebCitation ? "is-web" : ""}`}
         onClick={handleClick}
-        title={citation ? `[${index}] ${displayTitle} — Click to inspect source` : `[${index}] Source reference`}
+        title={
+          citation
+            ? isWebCitation
+              ? `[${index}] ${displayTitle} — Click to open live article`
+              : `[${index}] ${displayTitle} — Click to inspect source`
+            : `[${index}] Source reference`
+        }
       >
         <span className="cite-num">{index}</span>
       </button>
@@ -414,7 +426,11 @@ function InlineCitationChip({
                   )}
                   <span className="popover-domain">{domain}</span>
                 </span>
-                {matchPercent && <span className="popover-badge">{matchPercent}% match</span>}
+                {isWebCitation ? (
+                  <span className="popover-badge popover-web-badge">🌐 Web</span>
+                ) : (
+                  matchPercent && <span className="popover-badge">{matchPercent}% match</span>
+                )}
               </span>
 
               <span className="popover-title">{displayTitle}</span>
@@ -424,7 +440,7 @@ function InlineCitationChip({
               </span>
 
               <span className="popover-footer">
-                <span>Click to inspect passage</span>
+                <span>{isWebCitation ? "Click to open article" : "Click to inspect passage"}</span>
                 <span className="popover-arrow">↗</span>
               </span>
             </>
@@ -437,7 +453,7 @@ function InlineCitationChip({
         </span>
       )}
 
-      {showModal && citation && (
+      {showModal && citation && !isWebCitation && (
         <SourceInspectModal citation={citation} onClose={() => setShowModal(false)} />
       )}
 
@@ -473,12 +489,25 @@ function InlineCitationChip({
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
+        .inline-cite-badge.is-web {
+          background: rgba(6, 182, 212, 0.18);
+          border-color: rgba(6, 182, 212, 0.4);
+          color: #67e8f9;
+        }
+
         .inline-cite-badge:hover {
           background: rgba(139, 92, 246, 0.35);
           border-color: rgba(167, 139, 250, 0.6);
           color: #ffffff;
           transform: translateY(-1px);
           box-shadow: 0 0 10px rgba(139, 92, 246, 0.45);
+        }
+
+        .inline-cite-badge.is-web:hover {
+          background: rgba(6, 182, 212, 0.35);
+          border-color: rgba(6, 182, 212, 0.65);
+          color: #ffffff;
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.45);
         }
 
         .inline-cite-badge.pending {
@@ -569,6 +598,12 @@ function InlineCitationChip({
           font-size: 0.65rem;
           font-weight: 600;
           flex-shrink: 0;
+        }
+
+        .popover-web-badge {
+          background: rgba(6, 182, 212, 0.15) !important;
+          border-color: rgba(6, 182, 212, 0.35) !important;
+          color: #22d3ee !important;
         }
 
         .popover-title {

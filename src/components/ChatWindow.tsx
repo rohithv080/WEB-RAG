@@ -16,6 +16,7 @@ export type ChatMessage = {
   rating?: "up" | "down" | null;
   standaloneQuery?: string;
   latencyMs?: number;
+  isWebFallback?: boolean;
 };
 
 type Props = {
@@ -330,6 +331,8 @@ export function ChatWindow({
             content: m.content,
             citations: (m.citations as Citation[]) || undefined,
             rating: m.rating || null,
+            latencyMs: m.latencyMs || undefined,
+            isWebFallback: Boolean(m.isWebFallback),
           }));
           setMessages(loaded);
         } else {
@@ -508,6 +511,7 @@ export function ChatWindow({
                         standaloneQuery: payload.standaloneQuery,
                         latencyMs: payload.latencyMs,
                         dbId: payload.messageId || payload.assistantMessageId,
+                        isWebFallback: Boolean(payload.isWebFallback),
                       }
                     : m
                 )
@@ -529,6 +533,7 @@ export function ChatWindow({
                         ...m,
                         dbId: msgId || m.dbId,
                         latencyMs: latency || m.latencyMs,
+                        isWebFallback: payload.isWebFallback !== undefined ? Boolean(payload.isWebFallback) : m.isWebFallback,
                       }
                     : m
                 )
@@ -661,6 +666,15 @@ export function ChatWindow({
                       <div className="assistant-title-meta">
                         <span className="assistant-name">{siteTitle || "Knowledge Assistant"}</span>
                         <span className="assistant-model-pill">Llama 3.3 70B</span>
+                        {m.isWebFallback && (
+                          <span
+                            className="assistant-web-badge"
+                            title="Specific details were not found in local site documents; answer is grounded in live web search"
+                          >
+                            <span className="web-pulse-dot" />
+                            🌐 Live Web Grounded
+                          </span>
+                        )}
                       </div>
                       {m.content && <CopyButton text={m.content} />}
                     </div>
@@ -762,9 +776,15 @@ export function ChatWindow({
                           {m.citations &&
                             m.citations.length > 0 &&
                             !m.content.includes("I couldn't find that in the source.") && (
-                              <span className="perf-chip verified-chip" title="Verified against indexed document chunks">
-                                🛡️ {m.citations.length} {m.citations.length === 1 ? "source" : "sources"}
-                              </span>
+                              m.isWebFallback ? (
+                                <span className="perf-chip web-chip" title="Grounded in real-time live web search results">
+                                  🌐 {m.citations.length} web {m.citations.length === 1 ? "source" : "sources"}
+                                </span>
+                              ) : (
+                                <span className="perf-chip verified-chip" title="Verified against indexed document chunks">
+                                  🛡️ {m.citations.length} {m.citations.length === 1 ? "source" : "sources"}
+                                </span>
+                              )
                             )}
                         </div>
                       </div>
@@ -774,7 +794,9 @@ export function ChatWindow({
                       m.citations.length > 0 &&
                       !m.content.includes("I couldn't find that in the source.") && (
                         <div className="msg-citations-block">
-                          <span className="citations-header-label">Verified Sources</span>
+                          <span className="citations-header-label">
+                            {m.isWebFallback ? "🌐 Live Web Sources" : "Verified Sources"}
+                          </span>
                           <div className="msg-citations-tray">
                             {m.citations.map((c) => (
                               <CitationCard
@@ -1037,13 +1059,48 @@ export function ChatWindow({
           letter-spacing: -0.01em;
         }
         .assistant-model-pill {
-          font-family: var(--font-mono, monospace);
-          font-size: 0.65rem;
-          color: #94a3b8;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          font-size: 0.68rem;
+          color: #818cf8;
+          background: rgba(99, 102, 241, 0.1);
+          border: 1px solid rgba(99, 102, 241, 0.2);
           padding: 1px 6px;
           border-radius: 4px;
+          font-weight: 500;
+        }
+
+        .assistant-web-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 1px 8px;
+          background: rgba(16, 185, 129, 0.12);
+          border: 1px solid rgba(16, 185, 129, 0.32);
+          border-radius: 9999px;
+          color: #34d399;
+          font-size: 0.68rem;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+
+        .web-pulse-dot {
+          width: 5px;
+          height: 5px;
+          border-radius: 50%;
+          background: #34d399;
+          box-shadow: 0 0 5px #34d399;
+          animation: web-pulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes web-pulse {
+          0%, 100% { opacity: 0.4; transform: scale(0.85); }
+          50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .perf-chip.web-chip {
+          background: rgba(16, 185, 129, 0.1);
+          border-color: rgba(16, 185, 129, 0.25);
+          color: #6ee7b7;
         }
 
         .msg-search-chip {

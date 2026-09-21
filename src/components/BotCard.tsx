@@ -21,6 +21,7 @@ export type SiteSummary = {
   syncFrequency?: string | null;
   lastSyncedAt?: string | null;
   sourceUrl?: string | null;
+  enableWebSearch?: boolean;
   scrapedAt: string;
   lastScrapedAt: string;
   latestSessionId: string | null;

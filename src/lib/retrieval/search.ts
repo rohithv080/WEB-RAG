@@ -570,3 +570,32 @@ export function buildCitations(chunks: RetrievedChunk[]) {
     pageUrl: c.pageUrl,
   }));
 }
+
+export type WebSearchResultItem = {
+  title: string;
+  snippet: string;
+  url: string;
+};
+
+export function formatWebContext(results: WebSearchResultItem[]): string {
+  return results
+    .map((r, i) => {
+      const heading = r.title ? ` heading="${r.title.replace(/"/g, "&quot;")}"` : "";
+      return `<document id="${i + 1}"${heading} url="${r.url}">\n${r.snippet}\n</document>`;
+    })
+    .join("\n\n");
+}
+
+export function buildWebCitations(results: WebSearchResultItem[]) {
+  return results.map((r, i) => ({
+    index: i + 1,
+    chunkId: `web-${i + 1}-${Date.now()}`,
+    heading: r.title || "Web Source",
+    snippet: r.snippet.slice(0, 220) + (r.snippet.length > 220 ? "…" : ""),
+    score: 0.95,
+    isBoilerplate: false,
+    pageUrl: r.url,
+    isWeb: true,
+  }));
+}
+

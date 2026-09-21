@@ -56,7 +56,7 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, description, systemPrompt, starterQuestions, tone, isPublic, autoSync, syncFrequency, sourceUrl } = body;
+    const { name, description, systemPrompt, starterQuestions, tone, isPublic, autoSync, syncFrequency, sourceUrl, enableWebSearch } = body;
 
     const dataToUpdate: any = {};
     if (typeof name === "string") dataToUpdate.name = name.trim();
@@ -89,6 +89,9 @@ export async function PATCH(
     }
     if (sourceUrl !== undefined) {
       dataToUpdate.sourceUrl = typeof sourceUrl === "string" ? sourceUrl.trim() || null : null;
+    }
+    if (typeof enableWebSearch === "boolean") {
+      dataToUpdate.enableWebSearch = enableWebSearch;
     }
 
     const updated = await prisma.site.update({

@@ -18,6 +18,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
   const [starterQuestions, setStarterQuestions] = useState<string[]>([]);
   const [newQuestion, setNewQuestion] = useState("");
   const [isPublic, setIsPublic] = useState(true);
+  const [enableWebSearch, setEnableWebSearch] = useState(true);
 
   // Auto-Sync state
   const [autoSync, setAutoSync] = useState(false);
@@ -39,6 +40,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
         Array.isArray(site.starterQuestions) ? site.starterQuestions : []
       );
       setIsPublic(site.isPublic !== false);
+      setEnableWebSearch(site.enableWebSearch !== false);
       setAutoSync(Boolean(site.autoSync));
       setSyncFrequency((site.syncFrequency as any) || "daily");
       setSourceUrl(site.sourceUrl || site.pages?.[0]?.url || "");
@@ -133,6 +135,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           starterQuestions: starterQuestions.length > 0 ? starterQuestions : null,
           tone,
           isPublic,
+          enableWebSearch,
           autoSync,
           syncFrequency,
           sourceUrl: sourceUrl.trim() || null,
@@ -150,6 +153,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
         starterQuestions: starterQuestions.length > 0 ? starterQuestions : null,
         tone,
         isPublic,
+        enableWebSearch,
         autoSync,
         syncFrequency,
         sourceUrl: sourceUrl.trim() || null,
@@ -404,6 +408,31 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
                 <span>{syncResult.message}</span>
               </div>
             )}
+          </div>
+
+          {/* Live Web Search Fallback */}
+          <div className="form-section web-search-toggle-section">
+            <div className="visibility-info">
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <h3 className="section-heading" style={{ margin: 0 }}>Live Web Search Fallback</h3>
+                <span className="badge-sync-pill" style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399", border: "1px solid rgba(16, 185, 129, 0.25)" }}>
+                  🌐 Agentic RAG
+                </span>
+              </div>
+              <p className="section-hint" style={{ marginTop: "0.25rem" }}>
+                {enableWebSearch
+                  ? "Active: When local site docs lack relevant answers, the bot automatically searches the live web."
+                  : "Inactive: Strict local documents only. Will never query the external web."}
+              </p>
+            </div>
+            <label className="toggle-switch">
+              <input
+                type="checkbox"
+                checked={enableWebSearch}
+                onChange={(e) => setEnableWebSearch(e.target.checked)}
+              />
+              <span className="toggle-slider" />
+            </label>
           </div>
 
           {/* Visibility / Multi-Tenancy */}

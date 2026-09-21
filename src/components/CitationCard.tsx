@@ -10,6 +10,7 @@ export type Citation = {
   snippet: string;
   score: number;
   pageUrl: string;
+  isWeb?: boolean;
 };
 
 type Props = {
@@ -21,6 +22,17 @@ export function CitationCard({ citation, query }: Props) {
   const [showModal, setShowModal] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const isWebCitation = citation.chunkId?.startsWith("web-") || citation.isWeb;
+
+  const handleClick = () => {
+    setIsHovered(false);
+    if (isWebCitation && citation.pageUrl) {
+      window.open(citation.pageUrl, "_blank", "noopener,noreferrer");
+    } else {
+      setShowModal(true);
+    }
+  };
 
   const domain = (() => {
     try {
@@ -81,12 +93,13 @@ export function CitationCard({ citation, query }: Props) {
     >
       <button
         type="button"
-        className="cite-chip"
-        onClick={() => {
-          setIsHovered(false);
-          setShowModal(true);
-        }}
-        title={`[${citation.index}] ${displayTitle} — Click to inspect source passage`}
+        className={`cite-chip ${isWebCitation ? "cite-chip-web" : ""}`}
+        onClick={handleClick}
+        title={
+          isWebCitation
+            ? `[${citation.index}] ${displayTitle} — Click to open external webpage`
+            : `[${citation.index}] ${displayTitle} — Click to inspect source passage`
+        }
       >
         <span className="cite-idx">[{citation.index}]</span>
         {favicon && (
@@ -107,7 +120,7 @@ export function CitationCard({ citation, query }: Props) {
 
       {/* Floating Rich Popover Preview on Hover */}
       {isHovered && (
-        <div className="cite-popover" onClick={() => { setIsHovered(false); setShowModal(true); }}>
+        <div className="cite-popover" onClick={handleClick}>
           <div className="cite-popover-header">
             <div className="cite-popover-meta">
               {favicon && (
@@ -124,7 +137,9 @@ export function CitationCard({ citation, query }: Props) {
               )}
               <span className="cite-popover-domain">{domain}</span>
             </div>
-            <span className="cite-match-badge">{matchPercent}% match</span>
+            <span className={`cite-match-badge ${isWebCitation ? "cite-web-tag" : ""}`}>
+              {isWebCitation ? "🌐 Web Search" : `${matchPercent}% match`}
+            </span>
           </div>
 
           <h5 className="cite-popover-title">{displayTitle}</h5>
@@ -134,13 +149,13 @@ export function CitationCard({ citation, query }: Props) {
           </p>
 
           <div className="cite-popover-footer">
-            <span>Click to inspect verified context</span>
-            <span className="cite-popover-key">Space / ⏎</span>
+            <span>{isWebCitation ? "Click to open article ↗" : "Click to inspect verified context"}</span>
+            <span className="cite-popover-key">{isWebCitation ? "Open URL" : "Space / ⏎"}</span>
           </div>
         </div>
       )}
 
-      {showModal && (
+      {showModal && !isWebCitation && (
         <SourceInspectModal citation={citation} query={query} onClose={() => setShowModal(false)} />
       )}
 
@@ -164,6 +179,23 @@ export function CitationCard({ citation, query }: Props) {
           transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
           text-align: left;
           user-select: none;
+        }
+        .cite-chip-web {
+          border-color: rgba(6, 182, 212, 0.25);
+          background: rgba(6, 182, 212, 0.04);
+        }
+        .cite-chip-web:hover {
+          border-color: rgba(6, 182, 212, 0.5);
+          background: rgba(6, 182, 212, 0.1);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 10px rgba(6, 182, 212, 0.2);
+        }
+        .cite-chip-web .cite-idx {
+          color: #22d3ee;
+        }
+        .cite-web-tag {
+          background: rgba(6, 182, 212, 0.12) !important;
+          border-color: rgba(6, 182, 212, 0.3) !important;
+          color: #22d3ee !important;
         }
         .cite-chip:hover {
           border-color: rgba(99, 102, 241, 0.4);
