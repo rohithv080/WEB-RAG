@@ -247,7 +247,7 @@ export async function POST(req: NextRequest) {
             }
           }
 
-          const assistantMessage = await prisma.message.create({
+          const assistantMessage = await (prisma.message.create as any)({
             data: {
               sessionId,
               role: "assistant",
