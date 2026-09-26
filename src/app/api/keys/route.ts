@@ -61,7 +61,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Specified bot not found" }, { status: 404 });
       }
       if (site.userId && site.userId !== userId) {
-        return NextResponse.json({ error: "Unauthorized to scope key to this bot" }, { status: 403 });
+        return NextResponse.json(
+          { error: "Unauthorized to scope key to this bot" },
+          { status: 403 }
+        );
       }
     }
 

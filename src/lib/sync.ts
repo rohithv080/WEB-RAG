@@ -12,7 +12,12 @@ function extractLinksFast(html: string, baseUrl: URL): string[] {
   while ((match = hrefRegex.exec(html)) !== null) {
     try {
       const rawHref = match[2]?.trim();
-      if (!rawHref || rawHref.startsWith("javascript:") || rawHref.startsWith("mailto:") || rawHref.startsWith("tel:")) {
+      if (
+        !rawHref ||
+        rawHref.startsWith("javascript:") ||
+        rawHref.startsWith("mailto:") ||
+        rawHref.startsWith("tel:")
+      ) {
         continue;
       }
 
@@ -47,7 +52,10 @@ async function fetchSitemapUrls(baseUrl: URL): Promise<string[]> {
   for (const sitemapUrl of sitemapEndpoints) {
     try {
       const res = await fetch(sitemapUrl, {
-        headers: { "User-Agent": "Mozilla/5.0 (compatible; WebRAGBot/1.0; +https://github.com/local/web-rag)" },
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (compatible; WebRAGBot/1.0; +https://github.com/local/web-rag)",
+        },
         signal: AbortSignal.timeout(2_500),
       });
       if (!res.ok) continue;
@@ -131,7 +139,9 @@ export async function syncSite(
   // 1. Resolve Seed URL
   let seedUrl = (site as any).sourceUrl;
   if (!seedUrl) {
-    const firstWebPage = site.pages.find((p) => p.url.startsWith("http://") || p.url.startsWith("https://"));
+    const firstWebPage = site.pages.find(
+      (p) => p.url.startsWith("http://") || p.url.startsWith("https://")
+    );
     if (firstWebPage) {
       seedUrl = firstWebPage.url;
     }

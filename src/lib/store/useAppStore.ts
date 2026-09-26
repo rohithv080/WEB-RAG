@@ -110,7 +110,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   isAdmin: false,
   adminScope: "user",
 
-  selectedLanguage: typeof window !== "undefined" ? (localStorage.getItem("web_rag_language") || "auto") : "auto",
+  selectedLanguage:
+    typeof window !== "undefined" ? localStorage.getItem("web_rag_language") || "auto" : "auto",
   setSelectedLanguage: (selectedLanguage) => {
     if (typeof window !== "undefined") {
       try {

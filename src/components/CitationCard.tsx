@@ -86,11 +86,7 @@ export function CitationCard({ citation, query }: Props) {
   };
 
   return (
-    <div
-      className="cite-wrapper"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className="cite-wrapper" onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
       <button
         type="button"
         className={`cite-chip ${isWebCitation ? "cite-chip-web" : ""}`}
@@ -149,7 +145,9 @@ export function CitationCard({ citation, query }: Props) {
           </p>
 
           <div className="cite-popover-footer">
-            <span>{isWebCitation ? "Click to open article ↗" : "Click to inspect verified context"}</span>
+            <span>
+              {isWebCitation ? "Click to open article ↗" : "Click to inspect verified context"}
+            </span>
             <span className="cite-popover-key">{isWebCitation ? "Open URL" : "Space / ⏎"}</span>
           </div>
         </div>
@@ -187,7 +185,9 @@ export function CitationCard({ citation, query }: Props) {
         .cite-chip-web:hover {
           border-color: rgba(6, 182, 212, 0.5);
           background: rgba(6, 182, 212, 0.1);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 10px rgba(6, 182, 212, 0.2);
+          box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.3),
+            0 0 10px rgba(6, 182, 212, 0.2);
         }
         .cite-chip-web .cite-idx {
           color: #22d3ee;
@@ -202,7 +202,9 @@ export function CitationCard({ citation, query }: Props) {
           color: #f1f5f9;
           background: rgba(99, 102, 241, 0.08);
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 10px rgba(99, 102, 241, 0.15);
+          box-shadow:
+            0 4px 12px rgba(0, 0, 0, 0.3),
+            0 0 10px rgba(99, 102, 241, 0.15);
         }
         .cite-idx {
           font-family: var(--font-mono, monospace);
@@ -247,7 +249,9 @@ export function CitationCard({ citation, query }: Props) {
           background: #11131a;
           border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 12px;
-          box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(99, 102, 241, 0.2);
+          box-shadow:
+            0 16px 36px rgba(0, 0, 0, 0.65),
+            0 0 0 1px rgba(99, 102, 241, 0.2);
           backdrop-filter: blur(16px);
           z-index: 100;
           display: flex;

@@ -99,17 +99,11 @@ export async function handleChatCompletions(req: NextRequest) {
     // Lookup site by ID or case-insensitive Name
     const foundSite = await prisma.site.findFirst({
       where: {
-        OR: [
-          { id: requestedModel },
-          { name: { equals: requestedModel, mode: "insensitive" } },
-        ],
+        OR: [{ id: requestedModel }, { name: { equals: requestedModel, mode: "insensitive" } }],
         AND: [
           verifiedKey.siteId ? { id: verifiedKey.siteId } : {},
           {
-            OR: [
-              { userId: verifiedKey.userId },
-              { isPublic: true },
-            ],
+            OR: [{ userId: verifiedKey.userId }, { isPublic: true }],
           },
         ],
       },
@@ -227,14 +221,7 @@ export async function handleChatCompletions(req: NextRequest) {
 
   let groqStream;
   try {
-    groqStream = await streamAnswer(
-      question,
-      context,
-      null,
-      history,
-      site.systemPrompt,
-      site.tone
-    );
+    groqStream = await streamAnswer(question, context, null, history, site.systemPrompt, site.tone);
   } catch (err: any) {
     if (err instanceof GroqBusyError) {
       return NextResponse.json(

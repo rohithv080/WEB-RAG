@@ -10,10 +10,7 @@ export const maxDuration = 30;
  * On-Demand Manual Sync Endpoint
  * Triggered by the user clicking "Sync Latest News Now" in the dashboard or settings.
  */
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     if (!id) {

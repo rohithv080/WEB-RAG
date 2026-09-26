@@ -184,9 +184,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         {/* Modal Header */}
         <div className="modal-header">
           <div className="header-left">
-            <div className="bot-avatar">
-              📊
-            </div>
+            <div className="bot-avatar">📊</div>
             <div>
               <div className="title-row">
                 <h2 className="modal-title">{site.name} Analytics</h2>
@@ -195,7 +193,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                 </span>
               </div>
               <p className="modal-subtitle">
-                Inspect real-time queries, satisfaction feedback, cited documentation, and content gaps.
+                Inspect real-time queries, satisfaction feedback, cited documentation, and content
+                gaps.
               </p>
             </div>
           </div>
@@ -203,10 +202,20 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           <div className="header-actions">
             {data && (
               <div className="export-dropdown">
-                <button type="button" className="export-btn" onClick={exportCSV} title="Export as CSV spreadsheet">
+                <button
+                  type="button"
+                  className="export-btn"
+                  onClick={exportCSV}
+                  title="Export as CSV spreadsheet"
+                >
                   📥 Export CSV
                 </button>
-                <button type="button" className="export-btn-secondary" onClick={exportJSON} title="Export full JSON">
+                <button
+                  type="button"
+                  className="export-btn-secondary"
+                  onClick={exportJSON}
+                  title="Export full JSON"
+                >
                   JSON
                 </button>
               </div>
@@ -264,7 +273,11 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                   <span className="kpi-label">⭐ Satisfaction Score</span>
                   <div className="kpi-value">
                     {data.metrics.satisfactionRate !== null ? (
-                      <span className={data.metrics.satisfactionRate >= 75 ? "text-success" : "text-warning"}>
+                      <span
+                        className={
+                          data.metrics.satisfactionRate >= 75 ? "text-success" : "text-warning"
+                        }
+                      >
                         {data.metrics.satisfactionRate}%
                       </span>
                     ) : (
@@ -295,7 +308,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                   <div className="activity-header">
                     <span className="activity-title">📈 Query Activity (Last 14 Days)</span>
                     <span className="activity-count">
-                      {data.activityTimeline.reduce((acc, cur) => acc + cur.count, 0)} total in period
+                      {data.activityTimeline.reduce((acc, cur) => acc + cur.count, 0)} total in
+                      period
                     </span>
                   </div>
                   <div className="chart-bars">
@@ -306,14 +320,19 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                       );
                       const dayLabel = item.date.slice(5); // MM-DD
                       return (
-                        <div key={item.date} className="bar-wrapper" title={`${item.date}: ${item.count} queries`}>
+                        <div
+                          key={item.date}
+                          className="bar-wrapper"
+                          title={`${item.date}: ${item.count} queries`}
+                        >
                           <div className="bar-column">
                             <span className="bar-count-popup">{item.count}</span>
                             <div
                               className="bar-fill"
                               style={{
                                 height: `${heightPercent}%`,
-                                background: item.count > 0 ? "var(--accent)" : "rgba(255,255,255,0.06)",
+                                background:
+                                  item.count > 0 ? "var(--accent)" : "rgba(255,255,255,0.06)",
                               }}
                             />
                           </div>
@@ -390,16 +409,13 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
 
                         return (
                           <div key={t.id} className="transcript-session-card">
-                            <div
-                              className="session-header"
-                              onClick={() => toggleSession(t.id)}
-                            >
+                            <div className="session-header" onClick={() => toggleSession(t.id)}>
                               <div className="session-summary">
-                                <span className="session-chevron">
-                                  {isExpanded ? "▼" : "▶"}
-                                </span>
+                                <span className="session-chevron">{isExpanded ? "▼" : "▶"}</span>
                                 <span className="session-preview">
-                                  {firstUserMsg ? firstUserMsg.content : `Session #${t.id.slice(-6)}`}
+                                  {firstUserMsg
+                                    ? firstUserMsg.content
+                                    : `Session #${t.id.slice(-6)}`}
                                 </span>
                               </div>
 
@@ -414,10 +430,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                             {isExpanded && (
                               <div className="session-body">
                                 {t.messages.map((m) => (
-                                  <div
-                                    key={m.id}
-                                    className={`transcript-msg msg-${m.role}`}
-                                  >
+                                  <div key={m.id} className={`transcript-msg msg-${m.role}`}>
                                     <div className="msg-header">
                                       <span className="msg-role-tag">
                                         {m.role === "user" ? "👤 User" : "🤖 Assistant"}
@@ -430,9 +443,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                                         })}
                                       </span>
                                       {m.latencyMs && (
-                                        <span className="msg-latency">
-                                          ⚡ {m.latencyMs}ms
-                                        </span>
+                                        <span className="msg-latency">⚡ {m.latencyMs}ms</span>
                                       )}
                                       {m.rating && (
                                         <span
@@ -463,9 +474,14 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                                         <span className="cite-label">📚 Referenced Sources:</span>
                                         <div className="cite-tags">
                                           {m.citations.map((c, i) => {
-                                            const label = c.heading || c.pageUrl || c.url || `Source ${i + 1}`;
+                                            const label =
+                                              c.heading || c.pageUrl || c.url || `Source ${i + 1}`;
                                             return (
-                                              <span key={i} className="cite-tag" title={c.snippet || ""}>
+                                              <span
+                                                key={i}
+                                                className="cite-tag"
+                                                title={c.snippet || ""}
+                                              >
                                                 {label}
                                               </span>
                                             );
@@ -500,8 +516,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                     <div>
                       <strong>What are Content Gaps?</strong>
                       <p>
-                        These are questions asked by users where your bot couldn't find the answers in the crawled
-                        documentation. Add pages or documents answering these queries to boost your bot's coverage!
+                        These are questions asked by users where your bot couldn't find the answers
+                        in the crawled documentation. Add pages or documents answering these queries
+                        to boost your bot's coverage!
                       </p>
                     </div>
                   </div>
@@ -510,7 +527,10 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                     <div className="empty-gaps">
                       <span className="check-icon">✨</span>
                       <h3>Zero Content Gaps Detected</h3>
-                      <p>Your documentation successfully provided answers for all recent user inquiries!</p>
+                      <p>
+                        Your documentation successfully provided answers for all recent user
+                        inquiries!
+                      </p>
                     </div>
                   ) : (
                     <div className="gaps-list">
@@ -544,7 +564,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                 <div className="tab-pane">
                   <div className="sources-explainer">
                     <p>
-                      The most frequently referenced documentation URLs retrieved and cited across user conversations.
+                      The most frequently referenced documentation URLs retrieved and cited across
+                      user conversations.
                     </p>
                   </div>
 
@@ -602,8 +623,12 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
 
         .modal-card {
@@ -613,7 +638,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           background: #11151f;
           border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 20px;
-          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 40px rgba(56, 189, 248, 0.1);
+          box-shadow:
+            0 24px 60px rgba(0, 0, 0, 0.6),
+            0 0 40px rgba(56, 189, 248, 0.1);
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -621,8 +648,14 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         @keyframes scaleUp {
-          from { transform: scale(0.96); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
+          from {
+            transform: scale(0.96);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
         }
 
         .modal-header {
@@ -766,7 +799,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         /* Loading & Error */
-        .loading-state, .error-state {
+        .loading-state,
+        .error-state {
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -785,7 +819,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
-          to { transform: rotate(360deg); }
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .retry-btn {
@@ -836,9 +872,15 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           color: #64748b;
         }
 
-        .text-success { color: #34d399; }
-        .text-warning { color: #fbbf24; }
-        .text-muted { color: #64748b; }
+        .text-success {
+          color: #34d399;
+        }
+        .text-warning {
+          color: #fbbf24;
+        }
+        .text-muted {
+          color: #64748b;
+        }
 
         /* Activity Card */
         .activity-card {
@@ -1182,7 +1224,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         /* Gaps */
-        .gaps-explainer, .sources-explainer {
+        .gaps-explainer,
+        .sources-explainer {
           display: flex;
           align-items: flex-start;
           gap: 0.75rem;
@@ -1261,7 +1304,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           margin-bottom: 0.2rem;
         }
 
-        .empty-gaps, .empty-sources, .empty-logs {
+        .empty-gaps,
+        .empty-sources,
+        .empty-logs {
           display: flex;
           flex-direction: column;
           align-items: center;

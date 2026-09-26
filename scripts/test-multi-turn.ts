@@ -38,4 +38,6 @@ async function main() {
   console.log("Turn 2 Answer:\n", a2.slice(0, 200), "...\n");
 }
 
-main().catch(console.error).finally(() => prisma.$disconnect());
+main()
+  .catch(console.error)
+  .finally(() => prisma.$disconnect());

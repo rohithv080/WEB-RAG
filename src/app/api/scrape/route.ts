@@ -86,21 +86,24 @@ export async function indexPagesBatch(
   }
 
   // 1. Fetch pages in parallel
-  const fetchResults = await Promise.allSettled(
-    rawUrls.map((u) => fetchPage(u))
-  );
+  const fetchResults = await Promise.allSettled(rawUrls.map((u) => fetchPage(u)));
 
   const successfulPages: Array<{ page: Awaited<ReturnType<typeof fetchPage>>; url: string }> = [];
   fetchResults.forEach((res, idx) => {
     if (res.status === "fulfilled") {
       successfulPages.push({ page: res.value, url: rawUrls[idx] });
     } else {
-      console.warn(`[scrape batch] Failed to fetch ${rawUrls[idx]}:`, res.reason?.message || res.reason);
+      console.warn(
+        `[scrape batch] Failed to fetch ${rawUrls[idx]}:`,
+        res.reason?.message || res.reason
+      );
     }
   });
 
   if (successfulPages.length === 0) {
-    throw new ScrapeContentError("Failed to fetch or extract content from any of the requested URLs.");
+    throw new ScrapeContentError(
+      "Failed to fetch or extract content from any of the requested URLs."
+    );
   }
 
   // 2. Resolve target Site
@@ -171,7 +174,9 @@ export async function indexPagesBatch(
       pageId: item.pageId,
       embedding: embeddings[idx],
     }))
-    .filter((item): item is { chunk: Chunk; pageId: string; embedding: number[] } => Boolean(item.embedding));
+    .filter((item): item is { chunk: Chunk; pageId: string; embedding: number[] } =>
+      Boolean(item.embedding)
+    );
 
   await insertChunksBulk(itemsToInsert);
 
@@ -222,14 +227,14 @@ async function reindexSinglePage(pageId: string): Promise<BatchIndexResult> {
     data: { url: page.url, title: page.title, scrapedAt: new Date() },
   });
 
-  const embedTexts = chunks.map((c) =>
-    c.heading ? `${c.heading}\n\n${c.content}` : c.content
-  );
+  const embedTexts = chunks.map((c) => (c.heading ? `${c.heading}\n\n${c.content}` : c.content));
   const embeddings = await embedDocuments(embedTexts);
 
   const itemsToInsert = chunks
     .map((c, idx) => ({ chunk: c, pageId, embedding: embeddings[idx] }))
-    .filter((item): item is { chunk: Chunk; pageId: string; embedding: number[] } => Boolean(item.embedding));
+    .filter((item): item is { chunk: Chunk; pageId: string; embedding: number[] } =>
+      Boolean(item.embedding)
+    );
 
   await insertChunksBulk(itemsToInsert);
 
@@ -261,8 +266,7 @@ function errorResponse(err: unknown) {
     return NextResponse.json({ error: err.message }, { status: 422 });
   }
   const message = err instanceof Error ? err.message : "Scrape failed";
-  const status =
-    message === "Site not found" || message === "Page not found" ? 404 : 500;
+  const status = message === "Site not found" || message === "Page not found" ? 404 : 500;
   return NextResponse.json({ error: message }, { status });
 }
 
@@ -312,7 +316,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Site not found" }, { status: 404 });
       }
       if (existingSite.userId && existingSite.userId !== authCheck.userId && !authCheck.isAdmin) {
-        return NextResponse.json({ error: "Unauthorized to add pages to this bot" }, { status: 403 });
+        return NextResponse.json(
+          { error: "Unauthorized to add pages to this bot" },
+          { status: 403 }
+        );
       }
     }
 

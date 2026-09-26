@@ -83,7 +83,10 @@ async function searchDuckDuckGo(query: string): Promise<WebSearchResult[]> {
     for (let i = 0; i < bodies.length; i++) {
       const b = bodies[i];
       // Skip advertisement results
-      if (b.querySelector(".badge--ad") || b.textContent?.includes("Viewing ads is privacy protected")) {
+      if (
+        b.querySelector(".badge--ad") ||
+        b.textContent?.includes("Viewing ads is privacy protected")
+      ) {
         continue;
       }
 

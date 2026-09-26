@@ -40,7 +40,12 @@ async function runTest() {
     });
     console.log("Status:", modelsRes.status);
     const modelsData = await modelsRes.json();
-    console.log("Models returned:", modelsData.data?.length, "first model ID:", modelsData.data?.[0]?.id);
+    console.log(
+      "Models returned:",
+      modelsData.data?.length,
+      "first model ID:",
+      modelsData.data?.[0]?.id
+    );
     if (modelsRes.status !== 200) throw new Error("Models endpoint failed");
 
     // 2. Test POST /v1/chat/completions non-streaming

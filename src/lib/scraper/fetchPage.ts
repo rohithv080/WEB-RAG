@@ -76,7 +76,9 @@ async function fetchJinaReaderFallback(url: string): Promise<ScrapedPage | null>
       return null;
     }
 
-    console.log(`[scrape] Jina Reader successfully extracted ${textContent.length} chars for: ${url}`);
+    console.log(
+      `[scrape] Jina Reader successfully extracted ${textContent.length} chars for: ${url}`
+    );
     return {
       url,
       title: title || url,
@@ -120,18 +122,33 @@ export async function fetchPage(url: string): Promise<ScrapedPage> {
     try {
       const dom = new JSDOM(html, { url });
       const document = dom.window.document;
-      
-      const mainNode = document.querySelector("main, [role='main'], article, #content, .content") || document.body;
+
+      const mainNode =
+        document.querySelector("main, [role='main'], article, #content, .content") || document.body;
 
       const unwantedSelectors = [
-        "script", "style", "noscript", "iframe", "svg", "nav", "header", "footer", "aside",
-        "[role='navigation']", "[role='banner']", "[role='contentinfo']", ".sidebar"
+        "script",
+        "style",
+        "noscript",
+        "iframe",
+        "svg",
+        "nav",
+        "header",
+        "footer",
+        "aside",
+        "[role='navigation']",
+        "[role='banner']",
+        "[role='contentinfo']",
+        ".sidebar",
       ];
-      mainNode.querySelectorAll(unwantedSelectors.join(", ")).forEach(el => el.remove());
+      mainNode.querySelectorAll(unwantedSelectors.join(", ")).forEach((el) => el.remove());
 
-      const turndownService = new TurndownService({ headingStyle: "atx", codeBlockStyle: "fenced" });
+      const turndownService = new TurndownService({
+        headingStyle: "atx",
+        codeBlockStyle: "fenced",
+      });
       turndownService.use(tables);
-      
+
       const contentHtml = mainNode.innerHTML || "";
       const textContent = turndownService.turndown(contentHtml);
 
@@ -144,7 +161,9 @@ export async function fetchPage(url: string): Promise<ScrapedPage> {
           rawHtml: html,
         };
       }
-      console.log(`[scrape] Standard extraction yielded only ${textContent.length} chars. Triggering Jina Reader fallback.`);
+      console.log(
+        `[scrape] Standard extraction yielded only ${textContent.length} chars. Triggering Jina Reader fallback.`
+      );
     } catch (parseErr) {
       console.warn(`[scrape] Local DOM parsing failed for ${url}:`, parseErr);
     }

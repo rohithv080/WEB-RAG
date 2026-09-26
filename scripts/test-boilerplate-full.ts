@@ -13,29 +13,30 @@ import { embedDocuments, embeddingToSql } from "../src/lib/embeddings/embed";
 
 async function testUrl(url: string) {
   console.log(`=== Testing ${url} ===`);
-  
+
   // Scrape and chunk
   const page = await fetchPage(url);
   console.log(`Title: ${page.title}`);
   console.log(`Text content: ${page.textContent.length} chars`);
-  
+
   // Check raw HTML for fundraising banner
-  const rawHtml = (page.rawHtml || '').toLowerCase();
-  const hasDonate = rawHtml.includes('donate');
-  const hasFund = rawHtml.includes('fund');
-  const hasSupport = rawHtml.includes('support');
+  const rawHtml = (page.rawHtml || "").toLowerCase();
+  const hasDonate = rawHtml.includes("donate");
+  const hasFund = rawHtml.includes("fund");
+  const hasSupport = rawHtml.includes("support");
   console.log(`Raw HTML contains donate: ${hasDonate}, fund: ${hasFund}, support: ${hasSupport}`);
-  
+
   const chunks = chunkDocument(page.textContent);
   console.log(`Total chunks: ${chunks.length}`);
-  const boilerplateChunks = chunks.filter(c => c.isBoilerplate);
+  const boilerplateChunks = chunks.filter((c) => c.isBoilerplate);
   console.log(`Boilerplate chunks: ${boilerplateChunks.length}`);
-  
+
   // Look for fundraising banner specifically in chunks
-  const fundraisingChunks = chunks.filter(c => 
-    c.content.toLowerCase().includes('donate') || 
-    c.content.toLowerCase().includes('fund') ||
-    c.content.toLowerCase().includes('support')
+  const fundraisingChunks = chunks.filter(
+    (c) =>
+      c.content.toLowerCase().includes("donate") ||
+      c.content.toLowerCase().includes("fund") ||
+      c.content.toLowerCase().includes("support")
   );
   console.log(`Chunks mentioning donate/fund/support: ${fundraisingChunks.length}`);
   if (fundraisingChunks.length > 0) {
@@ -46,7 +47,7 @@ async function testUrl(url: string) {
   } else if (hasDonate || hasFund || hasSupport) {
     console.log("Raw HTML contains fundraising terms but they were filtered out by Readability");
   }
-  
+
   // Create a test site in database
   const site = await prisma.site.create({
     data: { name: page.title },
@@ -55,7 +56,7 @@ async function testUrl(url: string) {
     data: { siteId: site.id, url: page.url, title: page.title },
   });
   console.log(`Created test site: ${site.id} page: ${pg.id}`);
-  
+
   // Embed and store chunks
   const embeddings = await embedDocuments(chunks.map((c) => c.content));
   for (let i = 0; i < chunks.length; i++) {
@@ -78,7 +79,7 @@ async function testUrl(url: string) {
     );
   }
   console.log(`Stored ${chunks.length} chunks`);
-  
+
   // Test 1: Relevant question (should get answer)
   console.log("\n=== Test 1: Relevant question ===");
   const relevantQuestion = "What is this page about?";
@@ -88,7 +89,7 @@ async function testUrl(url: string) {
     console.log(`Top chunk score: ${relevantChunks[0].score.toFixed(3)}`);
     console.log(`Top chunk is boilerplate: ${relevantChunks[0].isBoilerplate}`);
   }
-  
+
   const relevantContext = formatContext(relevantChunks);
   const relevantStream = await streamAnswer(relevantQuestion, relevantContext);
   let relevantAnswer = "";
@@ -96,10 +97,11 @@ async function testUrl(url: string) {
     relevantAnswer += part.choices[0]?.delta?.content ?? "";
   }
   console.log(`Answer: ${relevantAnswer.slice(0, 200)}...`);
-  
+
   // Test 2: Unrelated question (should get no-answer phrase)
   console.log("\n=== Test 2: Unrelated question (LLM refusal test) ===");
-  const unrelatedQuestion = "What is the exact orbital period of Kepler-186f according to NASA's secret appendix Z?";
+  const unrelatedQuestion =
+    "What is the exact orbital period of Kepler-186f according to NASA's secret appendix Z?";
   const unrelatedChunks = await searchChunks(site.id, unrelatedQuestion, 5);
   console.log(`Retrieved ${unrelatedChunks.length} chunks (no hard threshold, LLM will refuse)`);
   if (unrelatedChunks.length > 0) {
@@ -107,7 +109,7 @@ async function testUrl(url: string) {
     console.log(`Top chunk is boilerplate: ${unrelatedChunks[0].isBoilerplate}`);
     console.log(`Top chunk content: ${unrelatedChunks[0].content.slice(0, 150)}...`);
   }
-  
+
   const unrelatedContext = formatContext(unrelatedChunks);
   const unrelatedStream = await streamAnswer(unrelatedQuestion, unrelatedContext);
   let unrelatedAnswer = "";
@@ -115,26 +117,29 @@ async function testUrl(url: string) {
     unrelatedAnswer += part.choices[0]?.delta?.content ?? "";
   }
   console.log(`Answer: ${unrelatedAnswer}`);
-  
+
   const normalized = unrelatedAnswer.trim();
-  const ok = normalized === NO_ANSWER_PHRASE || normalized.includes("couldn't find that in the source");
-  
+  const ok =
+    normalized === NO_ANSWER_PHRASE || normalized.includes("couldn't find that in the source");
+
   if (ok) {
-    console.log("✓ Similarity threshold working correctly - refused to answer from missing context");
+    console.log(
+      "✓ Similarity threshold working correctly - refused to answer from missing context"
+    );
   } else {
     console.error("✗ Similarity threshold may be too low - answered unrelated question");
   }
-  
+
   // Cleanup — deleting site cascades to pages → chunks
   await prisma.site.delete({ where: { id: site.id } });
   console.log(`\nCleaned up test site ${site.id}`);
-  
-  return { 
-    totalChunks: chunks.length, 
+
+  return {
+    totalChunks: chunks.length,
     boilerplateChunks: boilerplateChunks.length,
     relevantChunksRetrieved: relevantChunks.length,
     unrelatedChunksRetrieved: unrelatedChunks.length,
-    thresholdTestPassed: ok
+    thresholdTestPassed: ok,
   };
 }
 
@@ -148,20 +153,20 @@ async function main() {
     console.error("GROQ_API_KEY missing");
     process.exit(1);
   }
-  
+
   const result = await testUrl(url);
-  
+
   console.log("\n=== Summary ===");
   console.log(`Total chunks: ${result.totalChunks}`);
   console.log(`Boilerplate chunks: ${result.boilerplateChunks}`);
   console.log(`Relevant question retrieved: ${result.relevantChunksRetrieved} chunks`);
   console.log(`Unrelated question retrieved: ${result.unrelatedChunksRetrieved} chunks`);
   console.log(`Similarity threshold test: ${result.thresholdTestPassed ? "PASS" : "FAIL"}`);
-  
+
   process.exit(result.thresholdTestPassed ? 0 : 1);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(err);
   process.exit(1);
 });

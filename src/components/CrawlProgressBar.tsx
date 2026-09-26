@@ -22,8 +22,8 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
   const label = progress.customLabel
     ? progress.customLabel
     : isDiscovering
-    ? "Discovering internal page links…"
-    : `Indexing ${itemType} ${progress.current} of ${progress.total}`;
+      ? "Discovering internal page links…"
+      : `Indexing ${itemType} ${progress.current} of ${progress.total}`;
 
   return (
     <div className={`crawl-progress-card ${compact ? "compact" : ""}`}>
@@ -174,18 +174,35 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
         }
 
         @keyframes pulseGlow {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.9); }
+          0%,
+          100% {
+            opacity: 1;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.5;
+            transform: scale(0.9);
+          }
         }
 
         @keyframes indeterminateMove {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(350%); }
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(350%);
+          }
         }
 
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(4px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(4px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
     </div>

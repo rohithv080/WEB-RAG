@@ -32,7 +32,13 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
     <div className="code-block-wrapper">
       <div className="code-header">
         <div className="code-lang">
-          <svg className="code-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <svg
+            className="code-icon"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          >
             <polyline points="5 4 1 8 5 12" />
             <polyline points="11 4 15 8 11 12" />
             <line x1="9" y1="3" x2="7" y2="13" />
@@ -52,7 +58,13 @@ function CodeBlock({ language, code }: { language: string; code: string }) {
             </>
           ) : (
             <>
-              <svg className="copy-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg
+                className="copy-svg"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
                 <rect x="5" y="5" width="8" height="8" rx="1.5" />
                 <path d="M3 11V3.5A1.5 1.5 0 014.5 2H11" />
               </svg>
@@ -178,7 +190,7 @@ function TableWithCsvCopy({ children }: { children: React.ReactNode }) {
       <div className="table-top-bar">
         <span className="table-badge">
           <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor">
-            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z"/>
+            <path d="M0 2a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V2zm15 2h-4v3h4V4zm0 4h-4v3h4V8zm0 4h-4v3h3a1 1 0 0 0 1-1v-2zm-5 3v-3H6v3h4zm-5 0v-3H1v2a1 1 0 0 0 1 1h3zm-4-4h4V8H1v3zm0-4h4V4H1v3zm5-3v3h4V4H6zm4 4H6v3h4V8z" />
           </svg>
           Structured Table
         </span>
@@ -195,7 +207,14 @@ function TableWithCsvCopy({ children }: { children: React.ReactNode }) {
             </>
           ) : (
             <>
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
                 <path d="M4 2v12M8 2v12M12 2v12M2 5h12M2 11h12" />
               </svg>
               <span>Copy CSV</span>
@@ -530,7 +549,9 @@ function InlineCitationChip({
           background: #111116;
           border: 1px solid rgba(139, 92, 246, 0.25);
           border-radius: 10px;
-          box-shadow: 0 14px 34px -4px rgba(0, 0, 0, 0.7), 0 0 14px rgba(139, 92, 246, 0.18);
+          box-shadow:
+            0 14px 34px -4px rgba(0, 0, 0, 0.7),
+            0 0 14px rgba(139, 92, 246, 0.18);
           z-index: 1000;
           display: flex;
           flex-direction: column;
@@ -664,7 +685,9 @@ function InlineCitationChip({
         }
 
         @keyframes spin {
-          to { transform: rotate(360deg); }
+          to {
+            transform: rotate(360deg);
+          }
         }
       `}</style>
     </span>
@@ -743,9 +766,7 @@ export function MarkdownRenderer({
           >
             <div className="thinking-title">
               <span className="thinking-icon">💭</span>
-              <span>
-                {isStillThinking ? "Reasoning & Analyzing..." : "Thought Process"}
-              </span>
+              <span>{isStillThinking ? "Reasoning & Analyzing..." : "Thought Process"}</span>
               {isStillThinking && <span className="thinking-pulse" />}
             </div>
             <span className={`thinking-chevron ${showThinking ? "open" : ""}`}>▾</span>
@@ -769,12 +790,7 @@ export function MarkdownRenderer({
               const codeString = String(children).replace(/\n$/, "");
 
               if (!inline && (match || codeString.includes("\n"))) {
-                return (
-                  <CodeBlock
-                    language={match ? match[1] : ""}
-                    code={codeString}
-                  />
-                );
+                return <CodeBlock language={match ? match[1] : ""} code={codeString} />;
               }
 
               return (
@@ -789,10 +805,7 @@ export function MarkdownRenderer({
             a({ href, children, ...props }: any) {
               // Intercept citation links
               if (href && (href.startsWith("#citation-") || href.startsWith("citation:"))) {
-                const citationIndex = parseInt(
-                  href.replace(/^(#citation-|citation:)/, ""),
-                  10
-                );
+                const citationIndex = parseInt(href.replace(/^(#citation-|citation:)/, ""), 10);
                 const citation =
                   citations?.find((c) => c.index === citationIndex) ||
                   citations?.[citationIndex - 1];
@@ -940,8 +953,15 @@ export function MarkdownRenderer({
           animation: pulse-dot 1.2s ease-in-out infinite;
         }
         @keyframes pulse-dot {
-          0%, 100% { opacity: 0.3; transform: scale(0.8); }
-          50% { opacity: 1; transform: scale(1.2); }
+          0%,
+          100% {
+            opacity: 0.3;
+            transform: scale(0.8);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2);
+          }
         }
         .thinking-body {
           padding: 8px 12px 10px 12px;
@@ -969,8 +989,13 @@ export function MarkdownRenderer({
           animation: caret-blink 0.8s ease-in-out infinite;
         }
         @keyframes caret-blink {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0;
+          }
         }
       `}</style>
     </div>

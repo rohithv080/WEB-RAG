@@ -13,7 +13,7 @@ async function embedText(text: string, task?: string): Promise<number[] | null> 
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: EMBED_MODEL,
@@ -21,8 +21,8 @@ async function embedText(text: string, task?: string): Promise<number[] | null> 
         normalized: true,
         embedding_type: "float",
         input: [text],
-        ...(task ? { task } : {})
-      })
+        ...(task ? { task } : {}),
+      }),
     });
 
     if (!res.ok) {
@@ -62,7 +62,7 @@ export async function embedDocuments(texts: string[]): Promise<(number[] | null)
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           model: EMBED_MODEL,
@@ -130,16 +130,16 @@ export async function rerankDocuments(
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: "jina-reranker-v2-base-multilingual",
         query: query,
         documents: documents,
-        top_n: Math.min(topK, documents.length)
-      })
+        top_n: Math.min(topK, documents.length),
+      }),
     });
-    
+
     if (!res.ok) {
       const errorText = await res.text();
       console.warn("[rerank] Jina API failed:", errorText);

@@ -137,7 +137,6 @@ export function LandingPage() {
     []
   );
 
-
   const currentWord = TYPEWRITER_WORDS[wordIdx];
   const displayText = currentWord.slice(0, charIdx);
 
@@ -187,16 +186,25 @@ export function LandingPage() {
         </h1>
 
         <p className="lp-hero-sub">
-          Production-grade conversational AI trained on your websites and documents.
-          Hybrid RAG search, cross-encoder reranking, multi-turn memory, and
-          1-line embeddable widgets &mdash; all running on free-tier infrastructure.
+          Production-grade conversational AI trained on your websites and documents. Hybrid RAG
+          search, cross-encoder reranking, multi-turn memory, and 1-line embeddable widgets &mdash;
+          all running on free-tier infrastructure.
         </p>
 
         <div className="lp-hero-actions">
           <SignUpButton mode="modal">
             <button className="lp-btn-primary">
               <span>Get Started Free</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             </button>
@@ -204,7 +212,16 @@ export function LandingPage() {
           <SignInButton mode="modal">
             <button className="lp-btn-secondary">
               <span>Sign In</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13 12H3" />
               </svg>
             </button>
@@ -302,19 +319,13 @@ export function LandingPage() {
         <div className="lp-marquee-track">
           <div className="lp-marquee-inner">
             {[...TECH_STACK, ...TECH_STACK].map((t, i) => (
-              <span
-                key={`${t.name}-${i}`}
-                className="lp-tech-badge"
-                style={{ color: t.color }}
-              >
+              <span key={`${t.name}-${i}`} className="lp-tech-badge" style={{ color: t.color }}>
                 {t.name}
               </span>
             ))}
           </div>
         </div>
       </section>
-
-
 
       {/* CTA SECTION */}
       <section className="lp-cta-section">
@@ -329,7 +340,16 @@ export function LandingPage() {
         <SignUpButton mode="modal">
           <button className="lp-btn-primary lp-btn-lg">
             <span>Start Building &mdash; It&apos;s Free</span>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </button>

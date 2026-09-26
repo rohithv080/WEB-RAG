@@ -8,7 +8,8 @@ export function EmptyState() {
       </div>
       <h2 className="empty-title">No bots yet</h2>
       <p className="empty-sub">
-        Add your first website to get started. Scrape any page, and your AI bot will be ready to answer questions about it.
+        Add your first website to get started. Scrape any page, and your AI bot will be ready to
+        answer questions about it.
       </p>
 
       <style jsx>{`

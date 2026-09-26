@@ -70,22 +70,28 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
       </h2>
 
       <p className="welcome-sub">
-        Ask any question grounded in indexed documents. If local documents lack answers, the assistant automatically consults live web search.
+        Ask any question grounded in indexed documents. If local documents lack answers, the
+        assistant automatically consults live web search.
       </p>
 
       {/* Feature Capability Badges */}
       <div className="welcome-capabilities">
-        <span className="cap-pill verified-cap" title="Answers grounded strictly in retrieved chunks">
+        <span
+          className="cap-pill verified-cap"
+          title="Answers grounded strictly in retrieved chunks"
+        >
           <span className="cap-dot dot-emerald" />
           🛡️ Verified Grounding
         </span>
-        <span className="cap-pill web-cap" title="Real-time web search fallback when confidence is low">
+        <span
+          className="cap-pill web-cap"
+          title="Real-time web search fallback when confidence is low"
+        >
           <span className="cap-dot dot-cyan" />
           🌐 Live Web Fallback
         </span>
         <span className="cap-pill model-cap" title="Powered by Groq High-Speed Llama 3.3 70B">
-          <span className="cap-dot dot-indigo" />
-          ⚡ Llama 3.3 70B
+          <span className="cap-dot dot-indigo" />⚡ Llama 3.3 70B
         </span>
       </div>
 
@@ -152,15 +158,26 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
           width: 90px;
           height: 90px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, rgba(139, 92, 246, 0.15) 50%, transparent 70%);
+          background: radial-gradient(
+            circle,
+            rgba(99, 102, 241, 0.4) 0%,
+            rgba(139, 92, 246, 0.15) 50%,
+            transparent 70%
+          );
           filter: blur(14px);
           pointer-events: none;
           animation: glowPulse 3s ease-in-out infinite alternate;
         }
 
         @keyframes glowPulse {
-          0% { transform: scale(0.9); opacity: 0.7; }
-          100% { transform: scale(1.15); opacity: 1; }
+          0% {
+            transform: scale(0.9);
+            opacity: 0.7;
+          }
+          100% {
+            transform: scale(1.15);
+            opacity: 1;
+          }
         }
 
         .welcome-icon-box {
@@ -168,9 +185,15 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
           width: 52px;
           height: 52px;
           border-radius: 16px;
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(168, 85, 247, 0.15) 100%);
+          background: linear-gradient(
+            135deg,
+            rgba(99, 102, 241, 0.25) 0%,
+            rgba(168, 85, 247, 0.15) 100%
+          );
           border: 1px solid rgba(139, 92, 246, 0.4);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+          box-shadow:
+            0 8px 24px rgba(0, 0, 0, 0.4),
+            inset 0 1px 1px rgba(255, 255, 255, 0.2);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -242,9 +265,18 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
           border-radius: 50%;
         }
 
-        .dot-emerald { background: #34d399; box-shadow: 0 0 6px #34d399; }
-        .dot-cyan { background: #22d3ee; box-shadow: 0 0 6px #22d3ee; }
-        .dot-indigo { background: #818cf8; box-shadow: 0 0 6px #818cf8; }
+        .dot-emerald {
+          background: #34d399;
+          box-shadow: 0 0 6px #34d399;
+        }
+        .dot-cyan {
+          background: #22d3ee;
+          box-shadow: 0 0 6px #22d3ee;
+        }
+        .dot-indigo {
+          background: #818cf8;
+          box-shadow: 0 0 6px #818cf8;
+        }
 
         /* ── 2x2 Interactive Card Grid ─────────────────────────────── */
         .welcome-grid {
@@ -279,7 +311,11 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
           content: "";
           position: absolute;
           inset: 0;
-          background: radial-gradient(circle at top left, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+          background: radial-gradient(
+            circle at top left,
+            rgba(99, 102, 241, 0.12) 0%,
+            transparent 70%
+          );
           opacity: 0;
           transition: opacity 0.2s ease;
           pointer-events: none;
@@ -289,7 +325,9 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
           background: rgba(255, 255, 255, 0.05);
           border-color: rgba(99, 102, 241, 0.4);
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 16px rgba(99, 102, 241, 0.12);
+          box-shadow:
+            0 8px 24px rgba(0, 0, 0, 0.4),
+            0 0 16px rgba(99, 102, 241, 0.12);
         }
 
         .prompt-card:hover::before {
@@ -329,7 +367,9 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
         .card-arrow {
           font-size: 0.75rem;
           color: #64748b;
-          transition: transform 0.15s ease, color 0.15s ease;
+          transition:
+            transform 0.15s ease,
+            color 0.15s ease;
         }
 
         .prompt-card:hover .card-arrow {

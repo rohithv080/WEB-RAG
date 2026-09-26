@@ -51,7 +51,8 @@ export async function verifyApiKey(
       }
     }
   } else if (input && "get" in input) {
-    const authHeader = (input as Headers).get("authorization") || (input as Headers).get("x-api-key");
+    const authHeader =
+      (input as Headers).get("authorization") || (input as Headers).get("x-api-key");
     if (authHeader) {
       if (authHeader.startsWith("Bearer ") || authHeader.startsWith("bearer ")) {
         rawKey = authHeader.slice(7).trim();

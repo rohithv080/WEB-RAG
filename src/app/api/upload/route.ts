@@ -16,11 +16,7 @@ const INITIAL_CHUNK_BATCH = 25;
 /**
  * Bulk insert chunks using parameterized multi-row SQL queries.
  */
-async function insertChunksBulk(
-  pageId: string,
-  chunks: Chunk[],
-  embeddings: (number[] | null)[]
-) {
+async function insertChunksBulk(pageId: string, chunks: Chunk[], embeddings: (number[] | null)[]) {
   const validItems = chunks
     .map((c, idx) => ({ c, emb: embeddings[idx] }))
     .filter((item): item is { c: Chunk; emb: number[] } => Boolean(item.emb));
@@ -79,7 +75,10 @@ export async function POST(req: NextRequest) {
         };
 
         if (!pageId || !Array.isArray(chunks) || chunks.length === 0) {
-          return NextResponse.json({ error: "pageId and non-empty chunks array required" }, { status: 400 });
+          return NextResponse.json(
+            { error: "pageId and non-empty chunks array required" },
+            { status: 400 }
+          );
         }
 
         const page = await prisma.page.findUnique({
@@ -93,7 +92,9 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
         }
 
-        const embedTexts = chunks.map((c) => (c.heading ? `${c.heading}\n\n${c.content}` : c.content));
+        const embedTexts = chunks.map((c) =>
+          c.heading ? `${c.heading}\n\n${c.content}` : c.content
+        );
         const embeddings = await embedDocuments(embedTexts);
         const insertedCount = await insertChunksBulk(pageId, chunks, embeddings);
 
@@ -136,7 +137,9 @@ export async function POST(req: NextRequest) {
       extractedText = await file.text();
     } else {
       return NextResponse.json(
-        { error: `Unsupported file type (.${extension}). Please upload a PDF, Word (.docx), TXT, MD, or CSV.` },
+        {
+          error: `Unsupported file type (.${extension}). Please upload a PDF, Word (.docx), TXT, MD, or CSV.`,
+        },
         { status: 400 }
       );
     }
@@ -159,7 +162,10 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: "Target site not found" }, { status: 404 });
       }
       if (existingSite.userId && existingSite.userId !== authCheck.userId && !authCheck.isAdmin) {
-        return NextResponse.json({ error: "Unauthorized to add files to this bot" }, { status: 403 });
+        return NextResponse.json(
+          { error: "Unauthorized to add files to this bot" },
+          { status: 403 }
+        );
       }
       siteFinalName = existingSite.name;
     } else {
@@ -176,7 +182,9 @@ export async function POST(req: NextRequest) {
       siteFinalName = newSite.name;
 
       // Auto-sync Telegram commands in background
-      syncTelegramBotCommands().catch((e) => console.error("[upload] Telegram auto-sync failed:", e));
+      syncTelegramBotCommands().catch((e) =>
+        console.error("[upload] Telegram auto-sync failed:", e)
+      );
     }
 
     // Create Page entry representing this file

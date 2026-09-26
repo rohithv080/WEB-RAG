@@ -34,8 +34,7 @@ async function main() {
   console.log("Answer:\n", answer);
   const normalized = answer.trim();
   const ok =
-    normalized === NO_ANSWER_PHRASE ||
-    normalized.includes("couldn't find that in the source");
+    normalized === NO_ANSWER_PHRASE || normalized.includes("couldn't find that in the source");
   const hallucinatedCite = /\[\d+\]/.test(normalized) && !ok;
 
   if (hallucinatedCite) {

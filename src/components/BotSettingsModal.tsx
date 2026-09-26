@@ -36,9 +36,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
       setDescription(site.description || "");
       setSystemPrompt(site.systemPrompt || "");
       setTone(site.tone || "balanced");
-      setStarterQuestions(
-        Array.isArray(site.starterQuestions) ? site.starterQuestions : []
-      );
+      setStarterQuestions(Array.isArray(site.starterQuestions) ? site.starterQuestions : []);
       setIsPublic(site.isPublic !== false);
       setEnableWebSearch(site.enableWebSearch !== false);
       setAutoSync(Boolean(site.autoSync));
@@ -87,20 +85,24 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
 
       setSyncResult({
         success: true,
-        message: data.message || `Synced! ${data.addedPages} new pages indexed, ${data.addedChunks} chunks added.`,
+        message:
+          data.message ||
+          `Synced! ${data.addedPages} new pages indexed, ${data.addedChunks} chunks added.`,
       });
 
       if (data.site) {
         onSave({
           ...site,
           lastSyncedAt: data.site.lastSyncedAt || new Date().toISOString(),
-          pages: data.site.pages ? data.site.pages.map((p: any) => ({
-            id: p.id,
-            url: p.url,
-            title: p.title,
-            scrapedAt: p.scrapedAt,
-            chunkCount: 0,
-          })) : site.pages,
+          pages: data.site.pages
+            ? data.site.pages.map((p: any) => ({
+                id: p.id,
+                url: p.url,
+                title: p.title,
+                scrapedAt: p.scrapedAt,
+                chunkCount: 0,
+              }))
+            : site.pages,
         });
       }
     } catch (err: any) {
@@ -174,7 +176,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             <span className="header-icon">⚙️</span>
             <div>
               <h2 className="modal-title">Bot Customization</h2>
-              <p className="modal-subtitle">Customize persona, response tone, and suggested prompts</p>
+              <p className="modal-subtitle">
+                Customize persona, response tone, and suggested prompts
+              </p>
             </div>
           </div>
           <button className="modal-close" onClick={onClose} aria-label="Close">
@@ -217,7 +221,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
               <span className="badge-hint">Pro Feature</span>
             </div>
             <p className="section-hint">
-              Give your bot a unique identity, role, or specific answering rules. (e.g. <i>"Speak like a pirate"</i>, <i>"Focus strictly on pricing"</i>, or <i>"Always include step-by-step code"</i>)
+              Give your bot a unique identity, role, or specific answering rules. (e.g.{" "}
+              <i>"Speak like a pirate"</i>, <i>"Focus strictly on pricing"</i>, or{" "}
+              <i>"Always include step-by-step code"</i>)
             </p>
             <textarea
               className="field-textarea"
@@ -269,7 +275,8 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
               <span className="badge-count">{starterQuestions.length}/6</span>
             </div>
             <p className="section-hint">
-              These clickable chips will show up when visitors open your chatbot in the Web App or Embed Widget.
+              These clickable chips will show up when visitors open your chatbot in the Web App or
+              Embed Widget.
             </p>
 
             <div className="starter-input-row">
@@ -325,7 +332,8 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
                   <span className="badge-sync-pill">Automated</span>
                 </div>
                 <p className="section-hint">
-                  Keep daily news, fresh blog posts, or updated pages indexed automatically every day.
+                  Keep daily news, fresh blog posts, or updated pages indexed automatically every
+                  day.
                 </p>
               </div>
               <label className="toggle-switch">
@@ -349,7 +357,10 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
                     onChange={(e) => setSourceUrl(e.target.value)}
                     placeholder="https://www.thehindu.com or https://site.com/sitemap.xml"
                   />
-                  <span className="field-subtext">The scraper will probe sitemaps and homepage links to ingest newly published articles.</span>
+                  <span className="field-subtext">
+                    The scraper will probe sitemaps and homepage links to ingest newly published
+                    articles.
+                  </span>
                 </div>
 
                 <div className="field-group">
@@ -414,8 +425,17 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           <div className="form-section web-search-toggle-section">
             <div className="visibility-info">
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <h3 className="section-heading" style={{ margin: 0 }}>Live Web Search Fallback</h3>
-                <span className="badge-sync-pill" style={{ background: "rgba(16, 185, 129, 0.12)", color: "#34d399", border: "1px solid rgba(16, 185, 129, 0.25)" }}>
+                <h3 className="section-heading" style={{ margin: 0 }}>
+                  Live Web Search Fallback
+                </h3>
+                <span
+                  className="badge-sync-pill"
+                  style={{
+                    background: "rgba(16, 185, 129, 0.12)",
+                    color: "#34d399",
+                    border: "1px solid rgba(16, 185, 129, 0.25)",
+                  }}
+                >
                   🌐 Agentic RAG
                 </span>
               </div>
@@ -458,19 +478,10 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           {error && <div className="modal-error-banner">{error}</div>}
 
           <footer className="modal-footer">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={onClose}
-              disabled={saving}
-            >
+            <button type="button" className="btn-secondary" onClick={onClose} disabled={saving}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn-primary"
-              disabled={saving}
-            >
+            <button type="submit" className="btn-primary" disabled={saving}>
               {saving ? "Saving Changes…" : "Save Customization"}
             </button>
           </footer>
@@ -864,7 +875,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             display: inline-block;
           }
           @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+              transform: rotate(360deg);
+            }
           }
           .sync-banner {
             display: flex;
@@ -991,12 +1004,22 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
 
           @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+              opacity: 0;
+            }
+            to {
+              opacity: 1;
+            }
           }
           @keyframes slideUp {
-            from { transform: translateY(12px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+              transform: translateY(12px);
+              opacity: 0;
+            }
+            to {
+              transform: translateY(0);
+              opacity: 1;
+            }
           }
         `}</style>
       </div>

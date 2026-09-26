@@ -27,7 +27,6 @@ function getFavicon(site: SiteSummary): string {
   }
 }
 
-
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
@@ -59,13 +58,34 @@ export function Sidebar({
     : sites;
 
   const content = (
-    <aside className={`sidebar ${mobileOpen ? "sidebar-open" : ""} ${isCollapsed ? "sidebar-collapsed" : ""}`}>
+    <aside
+      className={`sidebar ${mobileOpen ? "sidebar-open" : ""} ${isCollapsed ? "sidebar-collapsed" : ""}`}
+    >
       {/* Brand & Collapse */}
       <div className="sidebar-brand-row">
-        <button className="sidebar-brand" onClick={() => { onHome(); setMobileOpen(false); }}>
+        <button
+          className="sidebar-brand"
+          onClick={() => {
+            onHome();
+            setMobileOpen(false);
+          }}
+        >
           <div className="sidebar-logo-box">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" stroke="none" />
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polygon
+                points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+                fill="currentColor"
+                stroke="none"
+              />
             </svg>
           </div>
           {!isCollapsed && (
@@ -95,7 +115,16 @@ export function Sidebar({
             onClick={onOpenCommandPalette}
             title="Search & Commands (⌘K)"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
@@ -112,7 +141,17 @@ export function Sidebar({
           }}
           style={{ cursor: onOpenCommandPalette ? "pointer" : "default" }}
         >
-          <svg className="sidebar-search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            className="sidebar-search-icon"
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <circle cx="11" cy="11" r="8" />
             <line x1="21" y1="21" x2="16.65" y2="16.65" />
           </svg>
@@ -153,16 +192,17 @@ export function Sidebar({
             <button
               key={site.id}
               className={`sidebar-item ${isActive ? "sidebar-item-active" : ""}`}
-              onClick={() => { onSelect(site); setMobileOpen(false); }}
+              onClick={() => {
+                onSelect(site);
+                setMobileOpen(false);
+              }}
             >
               {isActive && <span className="active-pill" />}
               <div className="sidebar-item-icon">
                 {favicon ? (
                   <img src={favicon} alt="" width={16} height={16} style={{ borderRadius: 3 }} />
                 ) : (
-                  <span className="sidebar-item-letter">
-                    {site.name.charAt(0).toUpperCase()}
-                  </span>
+                  <span className="sidebar-item-letter">{site.name.charAt(0).toUpperCase()}</span>
                 )}
               </div>
               <div className="sidebar-item-info">
@@ -177,7 +217,13 @@ export function Sidebar({
       </nav>
 
       {/* Add bot button */}
-      <button className="sidebar-add" onClick={() => { onAddBot(); setMobileOpen(false); }}>
+      <button
+        className="sidebar-add"
+        onClick={() => {
+          onAddBot();
+          setMobileOpen(false);
+        }}
+      >
         <span className="sidebar-add-icon">+</span>
         <span>New Knowledge Bot</span>
       </button>
@@ -187,7 +233,10 @@ export function Sidebar({
         <button
           type="button"
           className="sidebar-keys-btn"
-          onClick={() => { onOpenApiKeys(); setMobileOpen(false); }}
+          onClick={() => {
+            onOpenApiKeys();
+            setMobileOpen(false);
+          }}
           title="Developer API Keys & OpenAI SDK Endpoints"
         >
           <span className="sidebar-keys-icon">🔑</span>
@@ -604,9 +653,7 @@ export function Sidebar({
       <button className="mobile-menu-btn" onClick={() => setMobileOpen(!mobileOpen)}>
         {mobileOpen ? "✕" : "☰"}
       </button>
-      {mobileOpen && (
-        <div className="mobile-overlay" onClick={() => setMobileOpen(false)} />
-      )}
+      {mobileOpen && <div className="mobile-overlay" onClick={() => setMobileOpen(false)} />}
       {content}
 
       <style jsx>{`
@@ -636,8 +683,12 @@ export function Sidebar({
           z-index: 40;
         }
         @media (max-width: 768px) {
-          .mobile-menu-btn { display: flex; }
-          .mobile-overlay { display: block; }
+          .mobile-menu-btn {
+            display: flex;
+          }
+          .mobile-overlay {
+            display: block;
+          }
         }
       `}</style>
     </>

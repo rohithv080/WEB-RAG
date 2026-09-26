@@ -25,12 +25,7 @@ type Props = {
   onChunksUpdated?: () => Promise<void> | void;
 };
 
-export function ChunkExplorerView({
-  pageId,
-  onBack,
-  onToast,
-  onChunksUpdated,
-}: Props) {
+export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pageInfo, setPageInfo] = useState<PageInfo | null>(null);
@@ -80,10 +75,7 @@ export function ChunkExplorerView({
   }, [chunks, searchQuery]);
 
   // Total metrics
-  const totalChars = useMemo(
-    () => chunks.reduce((acc, c) => acc + c.content.length, 0),
-    [chunks]
-  );
+  const totalChars = useMemo(() => chunks.reduce((acc, c) => acc + c.content.length, 0), [chunks]);
   const totalWords = useMemo(
     () => chunks.reduce((acc, c) => acc + c.content.split(/\s+/).filter(Boolean).length, 0),
     [chunks]
@@ -106,7 +98,11 @@ export function ChunkExplorerView({
   }
 
   async function handleDeleteChunk(chunkId: string, orderNum: number) {
-    if (!confirm(`Are you sure you want to delete Chunk #${orderNum}? This removes it from pgvector search.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to delete Chunk #${orderNum}? This removes it from pgvector search.`
+      )
+    ) {
       return;
     }
     setDeletingId(chunkId);
@@ -133,7 +129,12 @@ export function ChunkExplorerView({
     <div className="chunk-explorer-panel">
       {/* Top Navigation Bar */}
       <div className="chunk-nav-bar">
-        <button type="button" className="chunk-back-btn" onClick={onBack} title="Return to sources list">
+        <button
+          type="button"
+          className="chunk-back-btn"
+          onClick={onBack}
+          title="Return to sources list"
+        >
           <span className="back-arrow">←</span>
           <span>Sources</span>
         </button>
@@ -224,7 +225,11 @@ export function ChunkExplorerView({
           </div>
         ) : filteredChunks.length === 0 ? (
           <div className="chunks-state-box empty-box">
-            <span>{searchQuery ? "No chunks match your search query." : "No chunks found for this source."}</span>
+            <span>
+              {searchQuery
+                ? "No chunks match your search query."
+                : "No chunks found for this source."}
+            </span>
           </div>
         ) : (
           filteredChunks.map((chunk) => {
@@ -601,8 +606,12 @@ export function ChunkExplorerView({
           animation: spin 1s linear infinite;
         }
         @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
         .error-box {
           color: #f87171;

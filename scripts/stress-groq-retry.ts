@@ -5,11 +5,7 @@
  * Light pace (default off): LIGHT=1 npx tsx scripts/stress-groq-retry.ts
  */
 import "dotenv/config";
-import {
-  createChatStreamWithRetry,
-  GroqBusyError,
-  getRetryAfterMs,
-} from "../src/lib/groq";
+import { createChatStreamWithRetry, GroqBusyError, getRetryAfterMs } from "../src/lib/groq";
 
 const PAD = "The quick brown fox jumps over the lazy dog. ".repeat(80);
 const CONTEXT = Array.from({ length: 8 }, (_, i) => `[${i + 1}] (Pad ${i + 1})\n${PAD}`).join(
@@ -69,7 +65,9 @@ async function oneCall(label: string): Promise<CallResult> {
     // Probe whether the underlying/cause error carried Retry-After
     const cause = (err as { cause?: unknown }).cause;
     const hadRetryAfter =
-      (busy && err.usedRetryAfter) || getRetryAfterMs(err) != null || getRetryAfterMs(cause) != null;
+      (busy && err.usedRetryAfter) ||
+      getRetryAfterMs(err) != null ||
+      getRetryAfterMs(cause) != null;
 
     console.error(
       `[${label}] FAIL in ${Date.now() - started}ms budgetCap=${busy ? err.hitBudgetCap : false} retryAfter=${hadRetryAfter} — ${msg.slice(0, 120)}`
@@ -169,9 +167,7 @@ async function main() {
     );
   }
   if (light) {
-    console.log(
-      `Light pace: ${light.ok}/${light.n} succeeded; 429s=${light.saw429} (want 0)`
-    );
+    console.log(`Light pace: ${light.ok}/${light.n} succeeded; 429s=${light.saw429} (want 0)`);
     if (light.saw429 > 0) {
       console.error("FAIL: light-pace chat should not hit 429");
       process.exit(1);

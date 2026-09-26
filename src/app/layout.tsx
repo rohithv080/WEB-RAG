@@ -17,13 +17,18 @@ const monoFont = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Web RAG — Production AI Knowledge Engine",
-  description: "Autonomous Web & Document RAG engine with hybrid search, reranking, and live embeddable widgets",
+  description:
+    "Autonomous Web & Document RAG engine with hybrid search, reranking, and live embeddable widgets",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClerkProvider>
-      <html lang="en" className={`${sansFont.variable} ${monoFont.variable}`} suppressHydrationWarning>
+      <html
+        lang="en"
+        className={`${sansFont.variable} ${monoFont.variable}`}
+        suppressHydrationWarning
+      >
         <body
           suppressHydrationWarning
           style={

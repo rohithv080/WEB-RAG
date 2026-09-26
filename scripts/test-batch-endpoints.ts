@@ -25,9 +25,10 @@ async function main() {
   }
 
   console.log("\n=== 2. Testing /api/scrape Batch Ingestion ===");
-  const batchUrls = (crawlData.urls && crawlData.urls.length >= 2)
-    ? crawlData.urls.slice(0, 2)
-    : ["https://redtaxi.co.in"];
+  const batchUrls =
+    crawlData.urls && crawlData.urls.length >= 2
+      ? crawlData.urls.slice(0, 2)
+      : ["https://redtaxi.co.in"];
 
   const t1 = Date.now();
   const scrapeRes = await fetch(`${baseUrl}/api/scrape`, {

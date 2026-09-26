@@ -40,12 +40,7 @@ function CopyButton({ text }: { text: string }) {
   }
 
   return (
-    <button
-      type="button"
-      className="copy-btn"
-      onClick={handleCopy}
-      title="Copy answer"
-    >
+    <button type="button" className="copy-btn" onClick={handleCopy} title="Copy answer">
       {copied ? "✓ Copied" : "Copy"}
       <style jsx>{`
         .copy-btn {
@@ -77,8 +72,7 @@ export function EmbedChatView({
   starterQuestions,
 }: Props) {
   const greeting =
-    initialGreeting ||
-    `Hello! 👋 I'm the AI assistant for ${siteName}. How can I help you today?`;
+    initialGreeting || `Hello! 👋 I'm the AI assistant for ${siteName}. How can I help you today?`;
 
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: "greeting", role: "assistant", content: greeting },
@@ -116,11 +110,7 @@ export function EmbedChatView({
     };
     const assistantId = `a-${Date.now()}`;
 
-    setMessages((prev) => [
-      ...prev,
-      userMsg,
-      { id: assistantId, role: "assistant", content: "" },
-    ]);
+    setMessages((prev) => [...prev, userMsg, { id: assistantId, role: "assistant", content: "" }]);
 
     try {
       const res = await fetch("/api/chat", {
@@ -176,9 +166,7 @@ export function EmbedChatView({
           } else if (payload.type === "token" && payload.content) {
             setMessages((prev) =>
               prev.map((m) =>
-                m.id === assistantId
-                  ? { ...m, content: m.content + payload.content }
-                  : m
+                m.id === assistantId ? { ...m, content: m.content + payload.content } : m
               )
             );
           } else if (payload.type === "done" && payload.sessionId) {
@@ -190,18 +178,12 @@ export function EmbedChatView({
       }
 
       if (citations) {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === assistantId ? { ...m, citations } : m))
-        );
+        setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, citations } : m)));
       }
     } catch (err: any) {
       const msg = err instanceof Error ? err.message : "Error generating answer";
       setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantId && !m.content
-            ? { ...m, content: `⚠️ ${msg}` }
-            : m
-        )
+        prev.map((m) => (m.id === assistantId && !m.content ? { ...m, content: `⚠️ ${msg}` } : m))
       );
     } finally {
       setStreaming(false);
@@ -267,18 +249,24 @@ export function EmbedChatView({
         {messages.map((m) => (
           <div key={m.id} className={`message-row ${m.role}`}>
             {m.role === "assistant" && (
-              <div className="bot-msg-avatar">
-                {siteName.slice(0, 1).toUpperCase()}
-              </div>
+              <div className="bot-msg-avatar">{siteName.slice(0, 1).toUpperCase()}</div>
             )}
             <div className="bubble-wrapper">
               {m.role === "assistant" && m.standaloneQuery && (
                 <div className="embed-search-chip" title="Contextual search query">
-                  <svg className="chip-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75">
+                  <svg
+                    className="chip-icon"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                  >
                     <circle cx="7" cy="7" r="4.5" />
                     <path d="M10.5 10.5L14 14" strokeLinecap="round" />
                   </svg>
-                  <span>Context: <strong>{m.standaloneQuery}</strong></span>
+                  <span>
+                    Context: <strong>{m.standaloneQuery}</strong>
+                  </span>
                 </div>
               )}
               <div className="bubble">
@@ -297,30 +285,30 @@ export function EmbedChatView({
               </div>
 
               {/* Citations */}
-              {m.citations && m.citations.length > 0 && !m.content.includes("I couldn't find that in the source.") && (
-                <div className="citations-tray">
-                  <span className="citations-label">Sources:</span>
-                  <div className="citations-list">
-                    {m.citations.slice(0, 3).map((c) => (
-                      <a
-                        key={c.chunkId}
-                        href={c.pageUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="citation-pill"
-                        title={c.snippet}
-                      >
-                        🔗 {c.heading || "Page"}
-                      </a>
-                    ))}
+              {m.citations &&
+                m.citations.length > 0 &&
+                !m.content.includes("I couldn't find that in the source.") && (
+                  <div className="citations-tray">
+                    <span className="citations-label">Sources:</span>
+                    <div className="citations-list">
+                      {m.citations.slice(0, 3).map((c) => (
+                        <a
+                          key={c.chunkId}
+                          href={c.pageUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="citation-pill"
+                          title={c.snippet}
+                        >
+                          🔗 {c.heading || "Page"}
+                        </a>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Copy button on assistant replies */}
-              {m.role === "assistant" && m.content && (
-                <CopyButton text={m.content} />
-              )}
+              {m.role === "assistant" && m.content && <CopyButton text={m.content} />}
             </div>
           </div>
         ))}
@@ -371,11 +359,7 @@ export function EmbedChatView({
         </form>
         <div className="branding">
           <span>Powered by </span>
-          <a
-            href="https://rohith-rag.vercel.app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://rohith-rag.vercel.app" target="_blank" rel="noopener noreferrer">
             Web RAG
           </a>
         </div>
@@ -461,8 +445,13 @@ export function EmbedChatView({
         }
 
         @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
+          0%,
+          100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.4;
+          }
         }
 
         .header-right {
@@ -601,7 +590,8 @@ export function EmbedChatView({
         .bubble :global(p:last-child) {
           margin-bottom: 0;
         }
-        .bubble :global(ul), .bubble :global(ol) {
+        .bubble :global(ul),
+        .bubble :global(ol) {
           margin: 0.4rem 0;
           padding-left: 1.2rem;
         }
@@ -624,13 +614,25 @@ export function EmbedChatView({
           background: #8b949e;
           animation: bounce 1.4s infinite both;
         }
-        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0s; }
+        .typing-dots span:nth-child(1) {
+          animation-delay: -0.32s;
+        }
+        .typing-dots span:nth-child(2) {
+          animation-delay: -0.16s;
+        }
+        .typing-dots span:nth-child(3) {
+          animation-delay: 0s;
+        }
 
         @keyframes bounce {
-          0%, 80%, 100% { transform: scale(0); }
-          40% { transform: scale(1); }
+          0%,
+          80%,
+          100% {
+            transform: scale(0);
+          }
+          40% {
+            transform: scale(1);
+          }
         }
 
         .citations-tray {
@@ -746,7 +748,9 @@ export function EmbedChatView({
           justify-content: center;
           cursor: pointer;
           flex-shrink: 0;
-          transition: opacity 0.15s ease, transform 0.15s ease;
+          transition:
+            opacity 0.15s ease,
+            transform 0.15s ease;
         }
         .send-btn:hover:not(:disabled) {
           transform: scale(1.05);

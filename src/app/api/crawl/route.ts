@@ -19,7 +19,12 @@ function extractLinksFast(html: string, baseUrl: URL): string[] {
   while ((match = hrefRegex.exec(html)) !== null) {
     try {
       const rawHref = match[2]?.trim();
-      if (!rawHref || rawHref.startsWith("javascript:") || rawHref.startsWith("mailto:") || rawHref.startsWith("tel:")) {
+      if (
+        !rawHref ||
+        rawHref.startsWith("javascript:") ||
+        rawHref.startsWith("mailto:") ||
+        rawHref.startsWith("tel:")
+      ) {
         continue;
       }
 
@@ -30,7 +35,9 @@ function extractLinksFast(html: string, baseUrl: URL): string[] {
 
       // Skip static assets
       const path = parsed.pathname.toLowerCase();
-      if (/\.(jpg|jpeg|png|gif|svg|webp|pdf|zip|css|js|xml|json|ico|woff|woff2|ttf|eot)$/.test(path)) {
+      if (
+        /\.(jpg|jpeg|png|gif|svg|webp|pdf|zip|css|js|xml|json|ico|woff|woff2|ttf|eot)$/.test(path)
+      ) {
         continue;
       }
 
@@ -71,10 +78,7 @@ async function fetchHtml(url: string): Promise<{ html: string; finalUrl: string 
  * Attempt to fetch and parse sitemap.xml for instant URL queue discovery (<300ms).
  */
 async function fetchSitemapUrls(baseUrl: URL, maxPages: number): Promise<string[]> {
-  const sitemapEndpoints = [
-    `${baseUrl.origin}/sitemap.xml`,
-    `${baseUrl.origin}/sitemap_index.xml`,
-  ];
+  const sitemapEndpoints = [`${baseUrl.origin}/sitemap.xml`, `${baseUrl.origin}/sitemap_index.xml`];
 
   for (const sitemapUrl of sitemapEndpoints) {
     try {
@@ -166,7 +170,9 @@ export async function POST(req: NextRequest) {
 
       while (queue.length > 0 && discovered.length < maxPages) {
         if (Date.now() - startTime > DEADLINE_MS) {
-          console.log(`[crawl] Approaching Vercel safety deadline (${DEADLINE_MS}ms), returning ${discovered.length} pages`);
+          console.log(
+            `[crawl] Approaching Vercel safety deadline (${DEADLINE_MS}ms), returning ${discovered.length} pages`
+          );
           break;
         }
 
@@ -216,7 +222,9 @@ export async function POST(req: NextRequest) {
     // If standard BFS found 0 additional links, fetch start URL via Jina Reader
     // to discover all rendered internal links from the client-side DOM.
     if (discovered.length <= 1 && maxPages > 1) {
-      console.log(`[crawl] Standard crawler found 0 sublinks for ${startUrl.href}. Attempting Jina Reader link discovery...`);
+      console.log(
+        `[crawl] Standard crawler found 0 sublinks for ${startUrl.href}. Attempting Jina Reader link discovery...`
+      );
       try {
         const jinaHeaders: Record<string, string> = { Accept: "text/plain" };
         if (process.env.JINA_API_KEY) {
@@ -247,7 +255,9 @@ export async function POST(req: NextRequest) {
               }
             } catch {}
           }
-          console.log(`[crawl] Jina Reader discovered ${discovered.length - 1} additional sublinks for ${startUrl.href}`);
+          console.log(
+            `[crawl] Jina Reader discovered ${discovered.length - 1} additional sublinks for ${startUrl.href}`
+          );
         }
       } catch (jinaErr) {
         console.warn("[crawl] Jina Reader link discovery error:", jinaErr);
@@ -257,7 +267,9 @@ export async function POST(req: NextRequest) {
     const uniqueUrls = [...new Set(discovered)].slice(0, maxPages);
     const elapsed = Date.now() - startTime;
 
-    console.log(`[crawl] Discovered ${uniqueUrls.length} pages in ${elapsed}ms (sitemap: ${sitemapFound})`);
+    console.log(
+      `[crawl] Discovered ${uniqueUrls.length} pages in ${elapsed}ms (sitemap: ${sitemapFound})`
+    );
 
     return NextResponse.json({
       urls: uniqueUrls,

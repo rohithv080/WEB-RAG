@@ -9,7 +9,9 @@ async function main() {
   console.log("Expected EMBEDDING_DIM:", EMBEDDING_DIM);
   console.log("Result:", result);
   if (!result.matchesSchema) {
-    console.error("FAIL: dimension does not match schema — update prisma vector(N) before indexing.");
+    console.error(
+      "FAIL: dimension does not match schema — update prisma vector(N) before indexing."
+    );
     process.exit(1);
   }
   console.log("OK: pooled embedding length matches vector(768).");

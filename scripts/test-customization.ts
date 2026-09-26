@@ -16,7 +16,8 @@ async function main() {
   const updated = await prisma.site.update({
     where: { id: site.id },
     data: {
-      systemPrompt: "You are a witty, cheerful AI guide named Sparky. Always add a spark emoji ⚡ to your greeting.",
+      systemPrompt:
+        "You are a witty, cheerful AI guide named Sparky. Always add a spark emoji ⚡ to your greeting.",
       starterQuestions: ["Tell me about this topic", "What are 3 key highlights?"],
       tone: "concise",
     },
@@ -31,7 +32,7 @@ async function main() {
   console.log("3. Testing streamAnswer with custom prompt and tone...");
   const stream = await streamAnswer(
     "Hello! What is this site about?",
-    "<document id=\"1\">\nThis site is an encyclopedia entry about Vijay, an Indian actor and politician who works in Tamil cinema.\n</document>",
+    '<document id="1">\nThis site is an encyclopedia entry about Vijay, an Indian actor and politician who works in Tamil cinema.\n</document>',
     "English",
     [],
     updated.systemPrompt,

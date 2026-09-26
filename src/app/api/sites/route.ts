@@ -16,10 +16,7 @@ export async function GET(req: NextRequest) {
     } else if (currentUserId) {
       // User view: show their bots + unassigned legacy bots
       whereClause = {
-        OR: [
-          { userId: currentUserId },
-          { userId: null },
-        ],
+        OR: [{ userId: currentUserId }, { userId: null }],
       };
     } else {
       // Unauthenticated public visitors

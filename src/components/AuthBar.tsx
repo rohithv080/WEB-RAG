@@ -61,7 +61,8 @@ export function AuthBar() {
   const adminEmail = "rohithjune05@gmail.com";
   const userEmails = user?.emailAddresses?.map((e) => e.emailAddress.toLowerCase()) || [];
   const isAdmin = userEmails.includes(adminEmail);
-  const displayName = user?.firstName || user?.username || userEmails[0]?.split("@")[0] || "Workspace";
+  const displayName =
+    user?.firstName || user?.username || userEmails[0]?.split("@")[0] || "Workspace";
 
   return (
     <div className="auth-bar">
@@ -80,7 +81,16 @@ export function AuthBar() {
           </div>
           <SignOutButton>
             <button className="logout-icon-btn" title="Sign out / Log out">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                 <polyline points="16 17 21 12 16 7" />
                 <line x1="21" y1="12" x2="9" y2="12" />

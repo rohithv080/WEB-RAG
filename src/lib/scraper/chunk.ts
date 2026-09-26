@@ -35,7 +35,7 @@ function isBoilerplateParagraph(text: string): boolean {
       return true;
     }
   }
-  
+
   return false;
 }
 
@@ -46,12 +46,12 @@ function filterBoilerplateFromHtml(html: string): { filteredHtml: string; remove
   const dom = new JSDOM(`<body>${html}</body>`);
   const body = dom.window.document.body;
   let removedCount = 0;
-  
+
   const processNode = (node: Node) => {
     if (node.nodeType === dom.window.Node.ELEMENT_NODE) {
       const el = node as Element;
       const tag = el.tagName.toLowerCase();
-      
+
       if (tag === "p" || tag === "li" || tag === "div") {
         const text = (el.textContent || "").replace(/\s+/g, " ").trim();
         if (text && isBoilerplateParagraph(text)) {
@@ -60,7 +60,7 @@ function filterBoilerplateFromHtml(html: string): { filteredHtml: string; remove
           return;
         }
       }
-      
+
       // Process children
       const children = Array.from(el.childNodes);
       for (const child of children) {
@@ -68,7 +68,7 @@ function filterBoilerplateFromHtml(html: string): { filteredHtml: string; remove
       }
     }
   };
-  
+
   processNode(body);
   return { filteredHtml: body.innerHTML, removedCount };
 }
@@ -94,7 +94,7 @@ function chunkMarkdown(markdown: string): TextChunk[] {
     const headingMatch = section.match(/^(#{1,3})\s+(.+)/);
     if (headingMatch) {
       currentHeading = headingMatch[2].trim();
-      // Remove heading line from content to avoid duplication, 
+      // Remove heading line from content to avoid duplication,
       // or keep it to provide context. Let's keep it.
     }
 
@@ -106,7 +106,7 @@ function chunkMarkdown(markdown: string): TextChunk[] {
       const text = buffer.trim();
       if (!text) return;
       const isBoilerplate = isBoilerplateParagraph(text);
-      
+
       // If a single block somehow exceeds max, hard split it
       for (const piece of splitWithOverlap(text, MAX_CHARS, OVERLAP)) {
         chunks.push({ content: piece, heading: currentHeading, order: order++, isBoilerplate });
@@ -121,17 +121,15 @@ function chunkMarkdown(markdown: string): TextChunk[] {
       if (buffer.length + cleaned.length + 2 > MAX_CHARS) {
         if (buffer) flush();
       }
-      
+
       buffer += (buffer ? "\n\n" : "") + cleaned;
     }
-    
+
     if (buffer) flush();
   }
 
   return chunks;
 }
-
-
 
 function splitWithOverlap(text: string, maxChars: number, overlap: number): string[] {
   if (text.length <= maxChars) return [text];
@@ -143,7 +141,11 @@ function splitWithOverlap(text: string, maxChars: number, overlap: number): stri
     let end = Math.min(start + maxChars, text.length);
     if (end < text.length) {
       const slice = text.slice(start, end);
-      const lastBreak = Math.max(slice.lastIndexOf(". "), slice.lastIndexOf(" "), slice.lastIndexOf("\n"));
+      const lastBreak = Math.max(
+        slice.lastIndexOf(". "),
+        slice.lastIndexOf(" "),
+        slice.lastIndexOf("\n")
+      );
       if (lastBreak > maxChars * 0.4) {
         end = start + lastBreak + 1;
       }

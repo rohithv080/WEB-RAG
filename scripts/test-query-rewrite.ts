@@ -7,42 +7,54 @@ async function runTestSuite() {
       name: "Greeting history (should NOT rewrite)",
       history: [
         { role: "user" as const, content: "hello" },
-        { role: "assistant" as const, content: "Hello! How can I help you today?" }
+        { role: "assistant" as const, content: "Hello! How can I help you today?" },
       ],
-      query: "erode to tirunelveli"
+      query: "erode to tirunelveli",
     },
     {
       name: "Pronoun resolution ('it')",
       history: [
         { role: "user" as const, content: "What is Docker?" },
-        { role: "assistant" as const, content: "Docker is an open-source platform for containerization." }
+        {
+          role: "assistant" as const,
+          content: "Docker is an open-source platform for containerization.",
+        },
       ],
-      query: "How do I install it on Ubuntu?"
+      query: "How do I install it on Ubuntu?",
     },
     {
       name: "Possessive pronoun ('her')",
       history: [
         { role: "user" as const, content: "Who is Daji in Honor of Kings?" },
-        { role: "assistant" as const, content: "Daji is a burst mage in Honor of Kings known for heart stun." }
+        {
+          role: "assistant" as const,
+          content: "Daji is a burst mage in Honor of Kings known for heart stun.",
+        },
       ],
-      query: "What are her best counters?"
+      query: "What are her best counters?",
     },
     {
       name: "Topic switch (already standalone)",
       history: [
         { role: "user" as const, content: "Tell me about Redis caching." },
-        { role: "assistant" as const, content: "Redis is an in-memory data store used as a cache." }
+        {
+          role: "assistant" as const,
+          content: "Redis is an in-memory data store used as a cache.",
+        },
       ],
-      query: "What is the capital of Japan?"
+      query: "What is the capital of Japan?",
     },
     {
       name: "Implicit entity context",
       history: [
         { role: "user" as const, content: "I am configuring Nginx for my website." },
-        { role: "assistant" as const, content: "Nginx handles reverse proxying and HTTP requests." }
+        {
+          role: "assistant" as const,
+          content: "Nginx handles reverse proxying and HTTP requests.",
+        },
       ],
-      query: "How do I enable gzip compression?"
-    }
+      query: "How do I enable gzip compression?",
+    },
   ];
 
   console.log("=== RUNNING MULTI-TURN QUERY REWRITING TEST SUITE ===");

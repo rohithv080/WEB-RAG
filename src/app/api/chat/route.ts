@@ -105,7 +105,10 @@ export async function POST(req: NextRequest) {
         where: { id: sessionId, siteId },
       });
       if (!session) {
-        return NextResponse.json({ error: "Session not found" }, { status: 404, headers: corsHeaders });
+        return NextResponse.json(
+          { error: "Session not found" },
+          { status: 404, headers: corsHeaders }
+        );
       }
     } else {
       const session = await prisma.chatSession.create({ data: { siteId } });
@@ -119,15 +122,14 @@ export async function POST(req: NextRequest) {
       take: 6,
       select: { role: true, content: true },
     });
-    const history: ChatHistoryItem[] = recentDbMessages
-      .reverse()
-      .map((m) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      }));
+    const history: ChatHistoryItem[] = recentDbMessages.reverse().map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content,
+    }));
 
     // Fast-path: detect greetings/chitchat — skip expensive search pipeline
-    const GREETING_PATTERNS = /^(hi|hey|hello|yo|sup|hola|howdy|good\s*(morning|afternoon|evening|night)|what'?s?\s*up|how\s*are\s*you|thanks?|thank\s*you|bye|goodbye|see\s*ya|ok|okay|cool|nice|great|awesome|got\s*it)[\s!?.]*$/i;
+    const GREETING_PATTERNS =
+      /^(hi|hey|hello|yo|sup|hola|howdy|good\s*(morning|afternoon|evening|night)|what'?s?\s*up|how\s*are\s*you|thanks?|thank\s*you|bye|goodbye|see\s*ya|ok|okay|cool|nice|great|awesome|got\s*it)[\s!?.]*$/i;
     const isGreeting = GREETING_PATTERNS.test(question);
 
     let context = "";
@@ -146,12 +148,13 @@ export async function POST(req: NextRequest) {
 
       // 3. Decoupled search: vector & reranker use standaloneQuery, BM25 uses expandedQuery
       const chunks = await searchChunks(siteId, standaloneQuery, 6, 12000, expandedQuery);
-      
+
       // Pre-generation confidence evaluation: avoid double-inference delay
       const fallbackThreshold = Number(process.env.RERANKER_FALLBACK_THRESHOLD || 0.28);
       const topScore = chunks.length > 0 ? Math.max(...chunks.map((c) => c.score)) : 0;
       const isFallbackAllowed = (site as any).enableWebSearch !== false;
-      const needsWebFallback = isFallbackAllowed && (chunks.length === 0 || topScore < fallbackThreshold);
+      const needsWebFallback =
+        isFallbackAllowed && (chunks.length === 0 || topScore < fallbackThreshold);
 
       if (needsWebFallback) {
         console.log(
@@ -208,7 +211,10 @@ export async function POST(req: NextRequest) {
       );
     } catch (err) {
       if (err instanceof GroqBusyError) {
-        return NextResponse.json({ error: GROQ_BUSY_MESSAGE }, { status: 429, headers: corsHeaders });
+        return NextResponse.json(
+          { error: GROQ_BUSY_MESSAGE },
+          { status: 429, headers: corsHeaders }
+        );
       }
       const message = err instanceof Error ? err.message : "Groq request failed";
       const friendly = /rate limit|413|request too large|tokens per minute/i.test(message)

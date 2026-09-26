@@ -23,8 +23,7 @@ const MAX_WAIT_BUDGET_MS = 45_000;
 const MAX_RETRY_AFTER_RATIO = 0.6; // Cap Retry-After to 60% of remaining budget
 
 export const NO_ANSWER_PHRASE = "I couldn't find that in the source.";
-export const GROQ_BUSY_MESSAGE =
-  "High demand right now, please try again in a moment";
+export const GROQ_BUSY_MESSAGE = "High demand right now, please try again in a moment";
 
 const BASE_SYSTEM_PROMPT = `You are an expert AI assistant grounded entirely in a specific knowledge base.
 
@@ -139,11 +138,7 @@ export function getRetryAfterMs(err: unknown): number | null {
   const headers = (err as { headers?: Record<string, string | null | undefined> }).headers;
   if (!headers) return null;
 
-  const raw =
-    headers["retry-after"] ??
-    headers["Retry-After"] ??
-    headers["RETRY-AFTER"] ??
-    null;
+  const raw = headers["retry-after"] ?? headers["Retry-After"] ?? headers["RETRY-AFTER"] ?? null;
   if (raw == null || raw === "") return null;
 
   const asSeconds = Number(raw);
@@ -262,7 +257,9 @@ export async function createChatStreamWithRetry(args: CreateArgs): Promise<{
 
       const remainingBudget = MAX_WAIT_BUDGET_MS - waitedMs;
       if (remainingBudget <= 0) {
-        console.warn(`[groq] wait budget exhausted (waited=${waitedMs}ms, cap=${MAX_WAIT_BUDGET_MS}ms)`);
+        console.warn(
+          `[groq] wait budget exhausted (waited=${waitedMs}ms, cap=${MAX_WAIT_BUDGET_MS}ms)`
+        );
         throw new GroqBusyError({
           hitBudgetCap: true,
           usedRetryAfter,
@@ -315,8 +312,15 @@ export async function createChatStreamWithRetry(args: CreateArgs): Promise<{
       const waitEnd = Date.now();
       const actualWaitMs = waitEnd - waitStart;
       waitedMs += actualWaitMs;
-      waitTimeline.push({ attempt: attempt + 1, before: waitStart, after: waitEnd, sleepMs: actualWaitMs });
-      console.warn(`[groq] wait timeline: attempt ${attempt + 1} waited ${actualWaitMs}ms (total ${waitedMs}ms)`);
+      waitTimeline.push({
+        attempt: attempt + 1,
+        before: waitStart,
+        after: waitEnd,
+        sleepMs: actualWaitMs,
+      });
+      console.warn(
+        `[groq] wait timeline: attempt ${attempt + 1} waited ${actualWaitMs}ms (total ${waitedMs}ms)`
+      );
 
       if (budgetCapImminent) {
         // One last try after spending the rest of the budget; if it 429s, fail friendly.
@@ -552,10 +556,10 @@ Output: how to make chocolate cake from scratch`;
  */
 export async function expandQuery(query: string): Promise<string> {
   const wordCount = query.trim().split(/\s+/).length;
-  
+
   // Don't expand queries that are already specific enough
   if (wordCount > 6) return query;
-  
+
   try {
     const client = getGroqClient();
     const completion = await client.chat.completions.create({
@@ -573,7 +577,7 @@ export async function expandQuery(query: string): Promise<string> {
     const raw = completion.choices[0]?.message?.content ?? "";
     const result = raw.trim().replace(/^["']|["']$/g, "");
     if (!result) return query;
-    
+
     console.log(`[query expand] "${query}" → "${result}"`);
     return result;
   } catch (err) {
@@ -605,4 +609,3 @@ export async function transcribeAudio(
 
   return transcription.text.trim();
 }
-

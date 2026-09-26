@@ -10,7 +10,7 @@ async function main() {
 
   // Fetch all chunks
   const chunks = await prisma.chunk.findMany({
-    select: { id: true, content: true }
+    select: { id: true, content: true },
   });
 
   console.log(`Found ${chunks.length} chunks to re-embed.`);
@@ -36,12 +36,14 @@ async function main() {
     } catch (err) {
       console.error(`Error on chunk ${chunk.id}:`, err);
     }
-    
+
     // Add a small delay to avoid hitting rate limits on the Jina API
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
 
-  console.log(`Migration complete! Successfully re-embedded ${successCount}/${chunks.length} chunks.`);
+  console.log(
+    `Migration complete! Successfully re-embedded ${successCount}/${chunks.length} chunks.`
+  );
 }
 
 main()

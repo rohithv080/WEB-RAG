@@ -18,8 +18,7 @@ export async function getAuthUser(): Promise<AuthContext> {
     }
 
     const user = await currentUser();
-    const userEmails =
-      user?.emailAddresses?.map((e) => e.emailAddress.toLowerCase()) || [];
+    const userEmails = user?.emailAddresses?.map((e) => e.emailAddress.toLowerCase()) || [];
 
     const configuredAdmins = (process.env.ADMIN_EMAIL || "rohithjune05@gmail.com")
       .split(",")

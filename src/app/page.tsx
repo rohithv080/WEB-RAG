@@ -149,11 +149,16 @@ function AppInner() {
         setSites(data.sites ?? []);
         if (data.isAdmin !== undefined) setIsAdmin(Boolean(data.isAdmin));
       }
-    } catch { /* ignore */ }
-    finally { setSitesLoading(false); }
+    } catch {
+      /* ignore */
+    } finally {
+      setSitesLoading(false);
+    }
   }, [adminScope, setSites, setIsAdmin, setSitesLoading]);
 
-  useEffect(() => { loadSites(); }, [loadSites]);
+  useEffect(() => {
+    loadSites();
+  }, [loadSites]);
 
   useEffect(() => {
     if (!selectedSite) return;
@@ -234,7 +239,7 @@ function AppInner() {
         // Client-driven chunked batching for large documents (PDF/Docs > 25 chunks)
         // Completely eliminates Vercel 15s serverless timeout traps
         if (!data.done && Array.isArray(data.pendingChunks) && data.pendingChunks.length > 0) {
-          const total = data.totalChunks || (data.processedChunks + data.pendingChunks.length);
+          const total = data.totalChunks || data.processedChunks + data.pendingChunks.length;
           let processed = data.processedChunks || 25;
           const CHUNK_BATCH_SIZE = 25;
 
@@ -280,7 +285,10 @@ function AppInner() {
 
         await loadSites();
         setShowModal(false);
-        addToast(`Bot "${data.siteName}" created (${data.totalChunks || data.chunkCount} chunks)!`, "success");
+        addToast(
+          `Bot "${data.siteName}" created (${data.totalChunks || data.chunkCount} chunks)!`,
+          "success"
+        );
 
         const fresh = await fetch("/api/sites").then((r) => r.json());
         const newSite = (fresh.sites as SiteSummary[]).find((s) => s.id === data.siteId);
@@ -295,7 +303,10 @@ function AppInner() {
     }
 
     const url = modalUrl.trim();
-    if (!url) { setModalError("URL is required."); return; }
+    if (!url) {
+      setModalError("URL is required.");
+      return;
+    }
 
     setModalLoading(true);
     setModalProgress(null);
@@ -349,8 +360,8 @@ function AppInner() {
           body: JSON.stringify({
             urls: batchUrls,
             siteId: createdSiteId || undefined,
-            name: !createdSiteId ? (modalName.trim() || undefined) : undefined,
-            description: !createdSiteId ? (modalDesc.trim() || undefined) : undefined,
+            name: !createdSiteId ? modalName.trim() || undefined : undefined,
+            description: !createdSiteId ? modalDesc.trim() || undefined : undefined,
             autoSync: !createdSiteId ? modalAutoSync : undefined,
           }),
         });
@@ -379,7 +390,10 @@ function AppInner() {
 
       await loadSites();
       setShowModal(false);
-      addToast(`Bot "${lastSiteName || modalName || "Web Bot"}" created (${totalPages} pages indexed)!`, "success");
+      addToast(
+        `Bot "${lastSiteName || modalName || "Web Bot"}" created (${totalPages} pages indexed)!`,
+        "success"
+      );
 
       const fresh = await fetch("/api/sites").then((r) => r.json());
       const newSite = (fresh.sites as SiteSummary[]).find((s) => s.id === createdSiteId);
@@ -449,7 +463,8 @@ function AppInner() {
                 <div className="hero-headings">
                   <h1 className="hero-title">Knowledge Bases</h1>
                   <p className="hero-sub">
-                    Manage indexed documents, web crawls, and deploy autonomous knowledge assistants.
+                    Manage indexed documents, web crawls, and deploy autonomous knowledge
+                    assistants.
                   </p>
                 </div>
 
@@ -483,7 +498,16 @@ function AppInner() {
                     <Show when="signed-in">
                       <SignOutButton>
                         <button className="hero-logout-btn" title="Sign out / Log out">
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                             <polyline points="16 17 21 12 16 7" />
                             <line x1="21" y1="12" x2="9" y2="12" />
@@ -679,17 +703,26 @@ function AppInner() {
                 >
                   {sidebarCollapsed ? "▶" : "◀"}
                 </button>
-                <button className="back-btn" onClick={goHome} title="Return to Knowledge Bases grid">
+                <button
+                  className="back-btn"
+                  onClick={goHome}
+                  title="Return to Knowledge Bases grid"
+                >
                   ← Back
                 </button>
                 <div className="chat-breadcrumb-wrap">
-                  <span className="breadcrumb-root" onClick={goHome}>Bots</span>
+                  <span className="breadcrumb-root" onClick={goHome}>
+                    Bots
+                  </span>
                   <span className="breadcrumb-sep">/</span>
                   <div className="chat-site-text">
                     <span className="chat-site-name">{selectedSite.name}</span>
                     <span className="chat-site-status">
                       <span className="live-pulse-dot" />
-                      <span>{selectedSite.pages.length} Pages · {selectedSite.totalChunks.toLocaleString()} Chunks</span>
+                      <span>
+                        {selectedSite.pages.length} Pages ·{" "}
+                        {selectedSite.totalChunks.toLocaleString()} Chunks
+                      </span>
                     </span>
                   </div>
                 </div>
@@ -710,7 +743,10 @@ function AppInner() {
                         });
                         const data = await res.json();
                         if (!res.ok) throw new Error(data.error || "Sync failed");
-                        addToast(data.message || `Sync completed! ${data.addedPages} new pages added.`, "success");
+                        addToast(
+                          data.message || `Sync completed! ${data.addedPages} new pages added.`,
+                          "success"
+                        );
                         await loadSites();
                       } catch (err: any) {
                         addToast(err.message || "Failed to sync site", "error");
@@ -839,7 +875,9 @@ function AppInner() {
           <div className="modal glass" onClick={(e) => e.stopPropagation()}>
             <header className="modal-header">
               <h2 className="modal-title">Add new bot</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>✕</button>
+              <button className="modal-close" onClick={() => setShowModal(false)}>
+                ✕
+              </button>
             </header>
 
             {/* Mode Switcher */}
@@ -958,7 +996,12 @@ function AppInner() {
                       {[
                         { count: 1, label: "1 Page", tag: "⚡ Single", desc: "Instant (~2s)" },
                         { count: 5, label: "5 Pages", tag: "🚀 Quick", desc: "Fast & safe (~10s)" },
-                        { count: 15, label: "15 Pages", tag: "⭐ Best", desc: "Recommended (~25s)" },
+                        {
+                          count: 15,
+                          label: "15 Pages",
+                          tag: "⭐ Best",
+                          desc: "Recommended (~25s)",
+                        },
                         { count: 30, label: "30 Pages", tag: "📚 Deep", desc: "Thorough (~50s)" },
                         { count: 100, label: "100 Pages", tag: "🌐 Full", desc: "Complete (2-3m)" },
                       ].map((opt) => (
@@ -982,7 +1025,10 @@ function AppInner() {
                   <div className="modal-sync-toggle">
                     <div className="modal-sync-info">
                       <span className="modal-sync-title">🌅 Daily Auto-Sync (Cron)</span>
-                      <span className="modal-sync-sub">Automatically scan for newly published articles & updates daily at 06:30 AM IST</span>
+                      <span className="modal-sync-sub">
+                        Automatically scan for newly published articles & updates daily at 06:30 AM
+                        IST
+                      </span>
                     </div>
                     <label className="toggle-switch">
                       <input
@@ -997,14 +1043,17 @@ function AppInner() {
                 </>
               )}
 
-              {modalProgress && (
-                <CrawlProgressBar progress={modalProgress} />
-              )}
+              {modalProgress && <CrawlProgressBar progress={modalProgress} />}
 
               {modalError && <p className="modal-error">{modalError}</p>}
 
               <div className="modal-actions">
-                <button type="button" className="modal-cancel" onClick={() => setShowModal(false)} disabled={modalLoading}>
+                <button
+                  type="button"
+                  className="modal-cancel"
+                  onClick={() => setShowModal(false)}
+                  disabled={modalLoading}
+                >
                   Cancel
                 </button>
                 <button
@@ -1016,11 +1065,11 @@ function AppInner() {
                     ? modalMode === "file"
                       ? "Uploading & Indexing…"
                       : modalProgress
-                      ? `Scraping ${modalProgress.current}/${modalProgress.total}…`
-                      : "Indexing…"
+                        ? `Scraping ${modalProgress.current}/${modalProgress.total}…`
+                        : "Indexing…"
                     : modalMode === "file"
-                    ? "Upload & Create Bot"
-                    : "Scrape & add"}
+                      ? "Upload & Create Bot"
+                      : "Scrape & add"}
                 </button>
               </div>
             </form>
@@ -1029,11 +1078,7 @@ function AppInner() {
       )}
 
       {/* ── EMBED WIDGET MODAL ─────────────────────────────────────── */}
-      <EmbedModal
-        site={embedSite}
-        isOpen={showEmbedModal}
-        onClose={closeEmbed}
-      />
+      <EmbedModal site={embedSite} isOpen={showEmbedModal} onClose={closeEmbed} />
 
       {/* ── BOT SETTINGS MODAL ───────────────────────────────────── */}
       <BotSettingsModal
@@ -1044,11 +1089,7 @@ function AppInner() {
       />
 
       {/* ── BOT ANALYTICS MODAL ─────────────────────────────────── */}
-      <AnalyticsModal
-        site={analyticsSite}
-        isOpen={showAnalyticsModal}
-        onClose={closeAnalytics}
-      />
+      <AnalyticsModal site={analyticsSite} isOpen={showAnalyticsModal} onClose={closeAnalytics} />
 
       {/* ── GLOBAL COMMAND PALETTE (CMD + K) ───────────────────────── */}
       <CommandPalette
@@ -1083,7 +1124,10 @@ function AppInner() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Sync failed");
-            addToast(data.message || `Sync completed! ${data.addedPages} new pages added.`, "success");
+            addToast(
+              data.message || `Sync completed! ${data.addedPages} new pages added.`,
+              "success"
+            );
             await loadSites();
           } catch (err: any) {
             addToast(err.message || "Failed to sync site", "error");
@@ -1458,7 +1502,8 @@ function AppInner() {
           outline: none;
         }
 
-        .sort-select:hover, .sort-select:focus {
+        .sort-select:hover,
+        .sort-select:focus {
           border-color: rgba(255, 255, 255, 0.16);
           color: #f7f7f8;
         }
@@ -1893,7 +1938,8 @@ function AppInner() {
           font-weight: 400;
           opacity: 0.6;
         }
-        .field-input, .field-textarea {
+        .field-input,
+        .field-textarea {
           width: 100%;
           padding: 0.55rem 0.75rem;
           border: 1px solid var(--border);
@@ -1905,7 +1951,8 @@ function AppInner() {
           transition: all 0.12s ease;
           resize: vertical;
         }
-        .field-input:focus, .field-textarea:focus {
+        .field-input:focus,
+        .field-textarea:focus {
           border-color: var(--accent);
           box-shadow: 0 0 0 1px var(--accent);
         }
@@ -2228,8 +2275,24 @@ function AuthGate() {
   // While Clerk is loading, show nothing to avoid flash
   if (!isLoaded) {
     return (
-      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 32, height: 32, border: "3px solid rgba(255,255,255,0.1)", borderTopColor: "var(--accent)", borderRadius: "50%", animation: "lpSpin 0.8s linear infinite" }} />
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            width: 32,
+            height: 32,
+            border: "3px solid rgba(255,255,255,0.1)",
+            borderTopColor: "var(--accent)",
+            borderRadius: "50%",
+            animation: "lpSpin 0.8s linear infinite",
+          }}
+        />
       </div>
     );
   }

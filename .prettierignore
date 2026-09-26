@@ -1,0 +1,8 @@
+node_modules
+.next
+.cache
+dist
+build
+package-lock.json
+.env*
+*.log

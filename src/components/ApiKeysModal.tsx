@@ -30,7 +30,9 @@ export function ApiKeysModal({ isOpen, onClose, sites, onToast }: Props) {
   const [keyName, setKeyName] = useState("");
   const [selectedSiteId, setSelectedSiteId] = useState<string>("");
   const [creating, setCreating] = useState(false);
-  const [newlyCreatedKey, setNewlyCreatedKey] = useState<{ rawKey: string; name: string } | null>(null);
+  const [newlyCreatedKey, setNewlyCreatedKey] = useState<{ rawKey: string; name: string } | null>(
+    null
+  );
 
   // Docs state
   const [docsSiteId, setDocsSiteId] = useState<string>(sites[0]?.id || "");
@@ -102,7 +104,11 @@ export function ApiKeysModal({ isOpen, onClose, sites, onToast }: Props) {
   }
 
   async function handleDeleteKey(id: string, name: string) {
-    if (!confirm(`Are you sure you want to revoke "${name}"? External apps using this key will be disconnected immediately.`)) {
+    if (
+      !confirm(
+        `Are you sure you want to revoke "${name}"? External apps using this key will be disconnected immediately.`
+      )
+    ) {
       return;
     }
 
@@ -121,7 +127,9 @@ export function ApiKeysModal({ isOpen, onClose, sites, onToast }: Props) {
 
   const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
   const targetBot = sites.find((s) => s.id === docsSiteId) || sites[0];
-  const botIdentifier = targetBot?.name ? targetBot.name.toLowerCase().replace(/\s+/g, "-") : (docsSiteId || "your-bot-id");
+  const botIdentifier = targetBot?.name
+    ? targetBot.name.toLowerCase().replace(/\s+/g, "-")
+    : docsSiteId || "your-bot-id";
 
   const pythonSnippet = `from openai import OpenAI
 
@@ -140,7 +148,7 @@ stream = client.chat.completions.create(
     stream=True,
 )
 
-print(f"🤖 Response from ${targetBot?.name || 'Bot'}:\\n")
+print(f"🤖 Response from ${targetBot?.name || "Bot"}:\\n")
 for chunk in stream:
     token = chunk.choices[0].delta.content or ""
     print(token, end="", flush=True)
@@ -209,7 +217,9 @@ askKnowledgeBot().catch(console.error);`;
             <h2 className="modal-title">Developer API Keys</h2>
             <span className="endpoint-badge">/v1/chat/completions</span>
           </div>
-          <button className="modal-close" onClick={onClose}>✕</button>
+          <button className="modal-close" onClick={onClose}>
+            ✕
+          </button>
         </header>
 
         {/* Tab switchers */}
@@ -240,7 +250,9 @@ askKnowledgeBot().catch(console.error);`;
                   <span className="alert-icon">⚠️</span>
                   <div className="alert-text">
                     <strong>Save your API Key for &quot;{newlyCreatedKey.name}&quot;</strong>
-                    <p>Copy this key now. For your security, you will not be able to see it again.</p>
+                    <p>
+                      Copy this key now. For your security, you will not be able to see it again.
+                    </p>
                   </div>
                 </div>
                 <div className="secret-copy-box">
@@ -259,7 +271,8 @@ askKnowledgeBot().catch(console.error);`;
             {/* Top actions */}
             <div className="keys-action-bar">
               <span className="keys-hint">
-                Keys authenticate programmatic requests to your bots via OpenAI SDKs, LangChain, or cURL.
+                Keys authenticate programmatic requests to your bots via OpenAI SDKs, LangChain, or
+                cURL.
               </span>
               {!showCreateForm && (
                 <button
@@ -316,7 +329,11 @@ askKnowledgeBot().catch(console.error);`;
                   >
                     Cancel
                   </button>
-                  <button type="submit" className="submit-key-btn" disabled={creating || !keyName.trim()}>
+                  <button
+                    type="submit"
+                    className="submit-key-btn"
+                    disabled={creating || !keyName.trim()}
+                  >
                     {creating ? "Generating…" : "Generate API Key"}
                   </button>
                 </div>
@@ -332,7 +349,10 @@ askKnowledgeBot().catch(console.error);`;
               <div className="keys-empty">
                 <div className="empty-key-icon">🔑</div>
                 <h4>No API keys generated yet</h4>
-                <p>Generate your first key to connect your knowledge bots to custom applications, scripts, or agent frameworks.</p>
+                <p>
+                  Generate your first key to connect your knowledge bots to custom applications,
+                  scripts, or agent frameworks.
+                </p>
                 {!showCreateForm && (
                   <button
                     type="button"
@@ -451,7 +471,11 @@ askKnowledgeBot().catch(console.error);`;
             <div className="snippet-container">
               <div className="snippet-header">
                 <span className="snippet-lang-tag">
-                  {docsLang === "python" ? "Python 3.8+" : docsLang === "curl" ? "cURL" : "TypeScript / ES6"}
+                  {docsLang === "python"
+                    ? "Python 3.8+"
+                    : docsLang === "curl"
+                      ? "cURL"
+                      : "TypeScript / ES6"}
                 </span>
                 <button type="button" className="copy-snippet-btn" onClick={handleCopySnippet}>
                   {copiedCode ? "✓ Copied" : "Copy Code"}
@@ -465,7 +489,10 @@ askKnowledgeBot().catch(console.error);`;
             <div className="docs-callout">
               <span className="callout-icon">💡</span>
               <div className="callout-text">
-                <strong>Standard OpenAI API Compatibility:</strong> Your bots can be plugged into any tool that supports custom OpenAI endpoints (Cursor, Continue.dev, LangChain, LlamaIndex, OpenWebUI). Point the base URL to <code>{origin}/v1</code> and use your bot ID as the model name.
+                <strong>Standard OpenAI API Compatibility:</strong> Your bots can be plugged into
+                any tool that supports custom OpenAI endpoints (Cursor, Continue.dev, LangChain,
+                LlamaIndex, OpenWebUI). Point the base URL to <code>{origin}/v1</code> and use your
+                bot ID as the model name.
               </div>
             </div>
           </div>

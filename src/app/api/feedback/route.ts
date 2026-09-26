@@ -45,10 +45,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json(
-      { success: true, message: updated },
-      { headers: corsHeaders }
-    );
+    return NextResponse.json({ success: true, message: updated }, { headers: corsHeaders });
   } catch (err) {
     console.error("[feedback error]", err);
     return NextResponse.json(

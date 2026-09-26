@@ -132,7 +132,10 @@ async function bm25Search(
       }));
     }
   } catch (err) {
-    console.warn(`[search] websearch_to_tsquery failed for "${trimmed}", falling back to plainto_tsquery:`, err);
+    console.warn(
+      `[search] websearch_to_tsquery failed for "${trimmed}", falling back to plainto_tsquery:`,
+      err
+    );
   }
 
   // Fallback: plainto_tsquery (resilient to conversational punctuation and query syntax)
@@ -254,33 +257,32 @@ export async function searchChunks(
 
   const [vectorResults, bm25Results] = await Promise.all([vectorPromise, bm25Promise]);
 
-  console.log(
-    `[search] vector=${vectorResults.length} hits, bm25=${bm25Results.length} hits`
-  );
+  console.log(`[search] vector=${vectorResults.length} hits, bm25=${bm25Results.length} hits`);
 
   // Fuse results — if no vector results (e.g., serverless BM25-only mode), use BM25 alone
   const candidates =
     vectorResults.length > 0 && bm25Results.length > 0
       ? reciprocalRankFusion(vectorResults, bm25Results, 30)
       : vectorResults.length > 0
-      ? vectorResults.sort((a, b) => b.score - a.score).slice(0, 30)
-      : bm25Results.sort((a, b) => b.score - a.score).slice(0, 30);
+        ? vectorResults.sort((a, b) => b.score - a.score).slice(0, 30)
+        : bm25Results.sort((a, b) => b.score - a.score).slice(0, 30);
 
   if (candidates.length === 0) return [];
 
   // Filter out noise, image badges, and boilerplate before reranking
   const cleanCandidates = candidates.filter((c) => {
     if (c.isBoilerplate) return false;
-    const stripped = c.content.replace(/!\[.*?\]\(.*?\)/g, "").replace(/\[.*?\]\(.*?\)/g, "").trim();
+    const stripped = c.content
+      .replace(/!\[.*?\]\(.*?\)/g, "")
+      .replace(/\[.*?\]\(.*?\)/g, "")
+      .trim();
     return stripped.length >= 35;
   });
 
   const pool = cleanCandidates.length > 0 ? cleanCandidates : candidates;
 
   // Prepare documents with section heading for cross-encoder context
-  const documents = pool.map((c) =>
-    c.heading ? `${c.heading}\n\n${c.content}` : c.content
-  );
+  const documents = pool.map((c) => (c.heading ? `${c.heading}\n\n${c.content}` : c.content));
 
   // Rerank candidates with Jina Cross-Encoder
   const rerankResults = await rerankDocuments(question, documents, topK);
@@ -291,7 +293,9 @@ export async function searchChunks(
 
   // If even the top chunk does not meet the minimum threshold, no relevant context exists
   if (validResults.length === 0) {
-    console.log(`[search] No chunks met relevance threshold (${MIN_RELEVANCE_SCORE}). Best was: ${rerankResults[0]?.score ?? 0}`);
+    console.log(
+      `[search] No chunks met relevance threshold (${MIN_RELEVANCE_SCORE}). Best was: ${rerankResults[0]?.score ?? 0}`
+    );
     return [];
   }
 
@@ -411,7 +415,10 @@ export async function expandChunkWindows(
     });
 
     // Map: pageId -> (order -> ChunkRow)
-    const chunkLookup = new Map<string, Map<number, { id: string; content: string; heading: string | null }>>();
+    const chunkLookup = new Map<
+      string,
+      Map<number, { id: string; content: string; heading: string | null }>
+    >();
     for (const row of neighborRows) {
       let pageMap = chunkLookup.get(row.pageId);
       if (!pageMap) {
@@ -552,7 +559,7 @@ export function formatContext(chunks: RetrievedChunk[], maxChars = 12000): strin
 
   return selected
     .map((c, i) => {
-      const headingText = c.heading ? ` heading="${c.heading.replace(/"/g, '&quot;')}"` : "";
+      const headingText = c.heading ? ` heading="${c.heading.replace(/"/g, "&quot;")}"` : "";
       const text = c.expandedContent || c.content;
       return `<document id="${i + 1}"${headingText}>\n${text}\n</document>`;
     })
@@ -598,4 +605,3 @@ export function buildWebCitations(results: WebSearchResultItem[]) {
     isWeb: true,
   }));
 }
-

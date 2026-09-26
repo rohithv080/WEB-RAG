@@ -80,7 +80,9 @@ export function RightInspectorDrawer({
 
   // Embed Customizer State
   const [embedColor, setEmbedColor] = useState("#7c7cff");
-  const [embedPosition, setEmbedPosition] = useState<"bottom-right" | "bottom-left">("bottom-right");
+  const [embedPosition, setEmbedPosition] = useState<"bottom-right" | "bottom-left">(
+    "bottom-right"
+  );
   const [embedTitle, setEmbedTitle] = useState("");
   const [embedGreeting, setEmbedGreeting] = useState("");
   const [copiedEmbed, setCopiedEmbed] = useState(false);
@@ -236,7 +238,8 @@ export function RightInspectorDrawer({
   }
 
   // Generate Embed Snippet
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://rohith-rag.vercel.app";
+  const origin =
+    typeof window !== "undefined" ? window.location.origin : "https://rohith-rag.vercel.app";
   const embedSnippet = `<script
   src="${origin}/widget.js"
   data-bot-id="${site.id}"
@@ -326,8 +329,8 @@ export function RightInspectorDrawer({
       {/* Tab Content Container */}
       <div className="drawer-content">
         {/* ── TAB 1: PAGES & DOCUMENTS ──────────────────────────────── */}
-        {activeTab === "pages" && (
-          inspectingPageId ? (
+        {activeTab === "pages" &&
+          (inspectingPageId ? (
             <ChunkExplorerView
               pageId={inspectingPageId}
               onBack={() => setInspectingPageId(null)}
@@ -368,7 +371,9 @@ export function RightInspectorDrawer({
                       <span className="upload-primary">
                         {uploadingDoc ? "Extracting & Indexing Document..." : "Upload Document"}
                       </span>
-                      <span className="upload-sub">Supports PDF, Word (.docx), TXT, Markdown, CSV, JSON</span>
+                      <span className="upload-sub">
+                        Supports PDF, Word (.docx), TXT, Markdown, CSV, JSON
+                      </span>
                     </div>
                   </button>
                 </div>
@@ -387,7 +392,8 @@ export function RightInspectorDrawer({
                       domain = p.url.slice(0, 30);
                     }
                     const isDocument = p.url.startsWith("doc://");
-                    const displayTitle = p.title || (isDocument ? p.url.replace("doc://", "") : domain);
+                    const displayTitle =
+                      p.title || (isDocument ? p.url.replace("doc://", "") : domain);
 
                     return (
                       <div
@@ -396,13 +402,9 @@ export function RightInspectorDrawer({
                         onClick={() => setInspectingPageId(p.id)}
                         title="Click to inspect all pgvector chunks"
                       >
-                        <div className="page-card-icon">
-                          {isDocument ? "📄" : "🌐"}
-                        </div>
+                        <div className="page-card-icon">{isDocument ? "📄" : "🌐"}</div>
                         <div className="page-card-info">
-                          <span className="page-card-title">
-                            {displayTitle}
-                          </span>
+                          <span className="page-card-title">{displayTitle}</span>
                           <div className="page-card-meta">
                             <span className="meta-chunk-count">{p.chunkCount} chunks</span>
                             <span className="meta-dot">•</span>
@@ -438,8 +440,7 @@ export function RightInspectorDrawer({
                 </div>
               </div>
             </div>
-          )
-        )}
+          ))}
 
         {/* ── TAB 2: ANALYTICS ───────────────────────────────────────── */}
         {activeTab === "analytics" && (
@@ -494,12 +495,16 @@ export function RightInspectorDrawer({
                   <label className="section-label">Content Gaps & Missing Knowledge</label>
                   <div className="gaps-list">
                     {analytics.contentGaps.length === 0 ? (
-                      <div className="empty-subtext">No content gaps detected. Knowledge base is strong!</div>
+                      <div className="empty-subtext">
+                        No content gaps detected. Knowledge base is strong!
+                      </div>
                     ) : (
                       analytics.contentGaps.slice(0, 4).map((g, idx) => (
                         <div key={idx} className="gap-card">
                           <span className="gap-q">❓ "{g.question}"</span>
-                          <span className="gap-time">{new Date(g.createdAt).toLocaleDateString()}</span>
+                          <span className="gap-time">
+                            {new Date(g.createdAt).toLocaleDateString()}
+                          </span>
                         </div>
                       ))
                     )}
@@ -565,7 +570,9 @@ export function RightInspectorDrawer({
             </div>
 
             <div className="form-group">
-              <label className="field-label">Suggested Starter Prompts ({starterQuestions.length}/6)</label>
+              <label className="field-label">
+                Suggested Starter Prompts ({starterQuestions.length}/6)
+              </label>
               <div className="starter-chips-wrap">
                 {starterQuestions.map((q, idx) => (
                   <span key={idx} className="starter-chip">
@@ -625,7 +632,8 @@ export function RightInspectorDrawer({
             <div className="panel-section">
               <label className="section-label">1-Line Script Installation</label>
               <p className="section-desc">
-                Paste this single script tag right before the closing <code>&lt;/body&gt;</code> tag on any website.
+                Paste this single script tag right before the closing <code>&lt;/body&gt;</code> tag
+                on any website.
               </p>
               <div className="embed-code-box">
                 <pre className="embed-code-pre">
@@ -814,8 +822,12 @@ export function RightInspectorDrawer({
           animation: slideInRight 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @keyframes slideInRight {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(0); }
+          0% {
+            transform: translateX(100%);
+          }
+          100% {
+            transform: translateX(0);
+          }
         }
 
         .drawer-header {
@@ -1078,8 +1090,12 @@ export function RightInspectorDrawer({
           animation: spin 1s linear infinite;
         }
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
 
         /* Analytics Tab */
@@ -1112,7 +1128,8 @@ export function RightInspectorDrawer({
           margin-top: 2px;
         }
 
-        .top-sources-list, .gaps-list {
+        .top-sources-list,
+        .gaps-list {
           display: flex;
           flex-direction: column;
           gap: 6px;
@@ -1178,7 +1195,8 @@ export function RightInspectorDrawer({
           font-weight: 600;
           color: #a1a1aa;
         }
-        .field-input, .field-textarea {
+        .field-input,
+        .field-textarea {
           width: 100%;
           background: rgba(0, 0, 0, 0.3);
           border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1188,7 +1206,8 @@ export function RightInspectorDrawer({
           font-size: 0.8rem;
           font-family: inherit;
         }
-        .field-input:focus, .field-textarea:focus {
+        .field-input:focus,
+        .field-textarea:focus {
           outline: none;
           border-color: #7c7cff;
         }
@@ -1440,7 +1459,9 @@ export function RightInspectorDrawer({
           animation: histSpin 0.8s linear infinite;
         }
         @keyframes histSpin {
-          to { transform: rotate(360deg); }
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .sessions-empty-state {

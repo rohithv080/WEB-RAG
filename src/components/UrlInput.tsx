@@ -24,13 +24,7 @@ type Props = {
   compact?: boolean;
 };
 
-export function UrlInput({
-  siteId,
-  onScraped,
-  onUnauthorized,
-  disabled,
-  compact,
-}: Props) {
+export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact }: Props) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [crawlLimit, setCrawlLimit] = useState<number>(1);
@@ -62,7 +56,7 @@ export function UrlInput({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ url: trimmed, maxPages: crawlLimit }),
         });
-        
+
         if (!crawlRes.ok) throw new Error("Failed to discover URLs");
         const { urls } = await crawlRes.json();
         if (urls && urls.length > 0) urlsToScrape = urls;
@@ -156,11 +150,7 @@ export function UrlInput({
             className="add-page-input"
             autoComplete="off"
           />
-          <button
-            type="submit"
-            disabled={disabled || loading}
-            className="add-page-btn"
-          >
+          <button type="submit" disabled={disabled || loading} className="add-page-btn">
             {loading ? "…" : "Add"}
           </button>
         </div>
@@ -237,15 +227,17 @@ export function UrlInput({
           disabled={loading || disabled}
           required
         />
-        <button
-          type="submit"
-          className="url-btn"
-          disabled={loading || disabled}
-        >
-          {loading ? (crawlProgress ? `Scraping ${crawlProgress.current}/${crawlProgress.total}` : "Scraping...") : compact ? "Add" : "Create"}
+        <button type="submit" className="url-btn" disabled={loading || disabled}>
+          {loading
+            ? crawlProgress
+              ? `Scraping ${crawlProgress.current}/${crawlProgress.total}`
+              : "Scraping..."
+            : compact
+              ? "Add"
+              : "Create"}
         </button>
       </div>
-      
+
       {!compact && (
         <div className="crawl-options-wrapper">
           <div className="crawl-options-header">
@@ -386,7 +378,9 @@ export function UrlInput({
           background: var(--accent);
           color: #fff;
           font-weight: 600;
-          transition: opacity 0.15s ease, transform 0.1s ease;
+          transition:
+            opacity 0.15s ease,
+            transform 0.1s ease;
         }
         .url-btn:hover:not(:disabled) {
           opacity: 0.85;

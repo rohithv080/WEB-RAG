@@ -98,12 +98,26 @@ function TypingIndicator() {
           background: #818cf8;
           animation: bounce 1.4s ease-in-out infinite both;
         }
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        .typing-dot:nth-child(3) { animation-delay: 0s; }
+        .typing-dot:nth-child(1) {
+          animation-delay: -0.32s;
+        }
+        .typing-dot:nth-child(2) {
+          animation-delay: -0.16s;
+        }
+        .typing-dot:nth-child(3) {
+          animation-delay: 0s;
+        }
         @keyframes bounce {
-          0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
-          40% { transform: scale(1.15); opacity: 1; }
+          0%,
+          80%,
+          100% {
+            transform: scale(0.6);
+            opacity: 0.4;
+          }
+          40% {
+            transform: scale(1.15);
+            opacity: 1;
+          }
         }
         .typing-label {
           color: #94a3b8;
@@ -112,21 +126,20 @@ function TypingIndicator() {
           animation: pulse-typing-text 2s ease-in-out infinite;
         }
         @keyframes pulse-typing-text {
-          0%, 100% { opacity: 0.55; }
-          50% { opacity: 0.95; }
+          0%,
+          100% {
+            opacity: 0.55;
+          }
+          50% {
+            opacity: 0.95;
+          }
         }
       `}</style>
     </div>
   );
 }
 
-export function ChatWindow({
-  siteId,
-  sessionId,
-  onSessionId,
-  siteTitle,
-  starterQuestions,
-}: Props) {
+export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQuestions }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
@@ -150,7 +163,8 @@ export function ChatWindow({
   function handleScroll() {
     const container = messagesContainerRef.current;
     if (!container) return;
-    const distanceFromBottom = container.scrollHeight - container.scrollTop - container.clientHeight;
+    const distanceFromBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight;
     setIsUserScrolledUp(distanceFromBottom > 80);
   }
 
@@ -165,7 +179,9 @@ export function ChatWindow({
         window.speechSynthesis.cancel();
       }
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch {}
+        try {
+          recognitionRef.current.stop();
+        } catch {}
       }
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -217,7 +233,9 @@ export function ChatWindow({
       const v = voices.find((v) => v.lang.startsWith("fr"));
       if (v) utterance.voice = v;
     } else {
-      const v = voices.find((v) => v.lang.startsWith("en") && (v.name.includes("Google") || v.name.includes("Natural")));
+      const v = voices.find(
+        (v) => v.lang.startsWith("en") && (v.name.includes("Google") || v.name.includes("Natural"))
+      );
       if (v) utterance.voice = v;
     }
 
@@ -236,7 +254,9 @@ export function ChatWindow({
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert("Speech recognition is not supported in this browser. Please use Google Chrome, Edge, or Safari.");
+      alert(
+        "Speech recognition is not supported in this browser. Please use Google Chrome, Edge, or Safari."
+      );
       return;
     }
 
@@ -320,8 +340,8 @@ export function ChatWindow({
         const msgList = Array.isArray(data.messages)
           ? data.messages
           : Array.isArray(data.session?.messages)
-          ? data.session.messages
-          : [];
+            ? data.session.messages
+            : [];
 
         if (msgList.length > 0) {
           const loaded: ChatMessage[] = msgList.map((m: any) => ({
@@ -371,7 +391,9 @@ export function ChatWindow({
         setSpeakingMsgId(null);
       }
       if (recognitionRef.current) {
-        try { recognitionRef.current.stop(); } catch {}
+        try {
+          recognitionRef.current.stop();
+        } catch {}
         setIsListening(false);
       }
       setInput("");
@@ -445,11 +467,7 @@ export function ChatWindow({
       content: question.trim(),
     };
     const assistantId = `a-${Date.now()}`;
-    setMessages((prev) => [
-      ...prev,
-      userMsg,
-      { id: assistantId, role: "assistant", content: "" },
-    ]);
+    setMessages((prev) => [...prev, userMsg, { id: assistantId, role: "assistant", content: "" }]);
 
     // 0ms instant scroll to anchored response
     setIsUserScrolledUp(false);
@@ -533,7 +551,10 @@ export function ChatWindow({
                         ...m,
                         dbId: msgId || m.dbId,
                         latencyMs: latency || m.latencyMs,
-                        isWebFallback: payload.isWebFallback !== undefined ? Boolean(payload.isWebFallback) : m.isWebFallback,
+                        isWebFallback:
+                          payload.isWebFallback !== undefined
+                            ? Boolean(payload.isWebFallback)
+                            : m.isWebFallback,
                       }
                     : m
                 )
@@ -545,9 +566,7 @@ export function ChatWindow({
         }
 
         if (citations) {
-          setMessages((prev) =>
-            prev.map((m) => (m.id === assistantId ? { ...m, citations } : m))
-          );
+          setMessages((prev) => prev.map((m) => (m.id === assistantId ? { ...m, citations } : m)));
         }
       } catch (err: any) {
         if (err.name === "AbortError") {
@@ -572,7 +591,8 @@ export function ChatWindow({
               m.id === assistantId
                 ? {
                     ...m,
-                    content: m.content || `⚠️ ${err.message || "Something went wrong. Please try again."}`,
+                    content:
+                      m.content || `⚠️ ${err.message || "Something went wrong. Please try again."}`,
                   }
                 : m
             )
@@ -590,9 +610,7 @@ export function ChatWindow({
     const target = messages.find((m) => m.id === msgId);
     if (!target) return;
     const newRating = target.rating === rating ? null : rating;
-    setMessages((prev) =>
-      prev.map((m) => (m.id === msgId ? { ...m, rating: newRating } : m))
-    );
+    setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, rating: newRating } : m)));
 
     if (target.dbId) {
       try {
@@ -726,7 +744,9 @@ export function ChatWindow({
                             type="button"
                             className={`speak-pill ${speakingMsgId === m.id ? "active-speaking" : ""}`}
                             onClick={() => toggleSpeak(m.id, m.content)}
-                            title={speakingMsgId === m.id ? "Stop reading aloud" : "Read aloud (Voice)"}
+                            title={
+                              speakingMsgId === m.id ? "Stop reading aloud" : "Read aloud (Voice)"
+                            }
                           >
                             {speakingMsgId === m.id ? (
                               <>
@@ -769,23 +789,36 @@ export function ChatWindow({
 
                         <div className="perf-pills-group">
                           {m.latencyMs && (
-                            <span className="perf-chip" title="Serverless RAG retrieval + generation latency">
-                              ⚡ {m.latencyMs < 1000 ? `${m.latencyMs}ms` : `${(m.latencyMs / 1000).toFixed(1)}s`}
+                            <span
+                              className="perf-chip"
+                              title="Serverless RAG retrieval + generation latency"
+                            >
+                              ⚡{" "}
+                              {m.latencyMs < 1000
+                                ? `${m.latencyMs}ms`
+                                : `${(m.latencyMs / 1000).toFixed(1)}s`}
                             </span>
                           )}
                           {m.citations &&
                             m.citations.length > 0 &&
-                            !m.content.includes("I couldn't find that in the source.") && (
-                              m.isWebFallback ? (
-                                <span className="perf-chip web-chip" title="Grounded in real-time live web search results">
-                                  🌐 {m.citations.length} web {m.citations.length === 1 ? "source" : "sources"}
-                                </span>
-                              ) : (
-                                <span className="perf-chip verified-chip" title="Verified against indexed document chunks">
-                                  🛡️ {m.citations.length} {m.citations.length === 1 ? "source" : "sources"}
-                                </span>
-                              )
-                            )}
+                            !m.content.includes("I couldn't find that in the source.") &&
+                            (m.isWebFallback ? (
+                              <span
+                                className="perf-chip web-chip"
+                                title="Grounded in real-time live web search results"
+                              >
+                                🌐 {m.citations.length} web{" "}
+                                {m.citations.length === 1 ? "source" : "sources"}
+                              </span>
+                            ) : (
+                              <span
+                                className="perf-chip verified-chip"
+                                title="Verified against indexed document chunks"
+                              >
+                                🛡️ {m.citations.length}{" "}
+                                {m.citations.length === 1 ? "source" : "sources"}
+                              </span>
+                            ))}
                         </div>
                       </div>
                     )}
@@ -856,8 +889,8 @@ export function ChatWindow({
               isListening
                 ? "🎙️ Listening... speak your question now"
                 : ready
-                ? `Ask ${siteTitle ? `about ${siteTitle}` : "a question"}…`
-                : "Index a page first"
+                  ? `Ask ${siteTitle ? `about ${siteTitle}` : "a question"}…`
+                  : "Index a page first"
             }
             disabled={!ready || streaming}
             className={`dock-textarea ${isListening ? "is-listening" : ""}`}
@@ -950,7 +983,8 @@ export function ChatWindow({
           flex-direction: column;
           height: 100%;
           overflow: hidden;
-          background: radial-gradient(circle at 50% 0%, rgba(30, 34, 48, 0.3) 0%, transparent 65%), #090a0f;
+          background:
+            radial-gradient(circle at 50% 0%, rgba(30, 34, 48, 0.3) 0%, transparent 65%), #090a0f;
         }
 
         .chat-messages {
@@ -997,10 +1031,16 @@ export function ChatWindow({
           line-height: 1.55;
           word-break: break-word;
           white-space: pre-wrap;
-          background: linear-gradient(135deg, rgba(99, 102, 241, 0.25) 0%, rgba(79, 70, 229, 0.35) 100%);
+          background: linear-gradient(
+            135deg,
+            rgba(99, 102, 241, 0.25) 0%,
+            rgba(79, 70, 229, 0.35) 100%
+          );
           border: 1px solid rgba(129, 140, 248, 0.35);
           color: #f8fafc;
-          box-shadow: 0 4px 18px rgba(0, 0, 0, 0.25), 0 0 14px rgba(99, 102, 241, 0.12);
+          box-shadow:
+            0 4px 18px rgba(0, 0, 0, 0.25),
+            0 0 14px rgba(99, 102, 241, 0.12);
         }
 
         .msg-assistant {
@@ -1093,8 +1133,15 @@ export function ChatWindow({
         }
 
         @keyframes web-pulse {
-          0%, 100% { opacity: 0.4; transform: scale(0.85); }
-          50% { opacity: 1; transform: scale(1.2); }
+          0%,
+          100% {
+            opacity: 0.4;
+            transform: scale(0.85);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.2);
+          }
         }
 
         .perf-chip.web-chip {
@@ -1219,12 +1266,22 @@ export function ChatWindow({
           border-radius: 1px;
           animation: waveScale 0.6s ease-in-out infinite alternate;
         }
-        .sw-bar:nth-child(2) { animation-delay: 0.2s; height: 12px; }
-        .sw-bar:nth-child(3) { animation-delay: 0.4s; height: 6px; }
+        .sw-bar:nth-child(2) {
+          animation-delay: 0.2s;
+          height: 12px;
+        }
+        .sw-bar:nth-child(3) {
+          animation-delay: 0.4s;
+          height: 6px;
+        }
 
         @keyframes waveScale {
-          0% { transform: scaleY(0.4); }
-          100% { transform: scaleY(1.2); }
+          0% {
+            transform: scaleY(0.4);
+          }
+          100% {
+            transform: scaleY(1.2);
+          }
         }
 
         .feedback-toast {
@@ -1332,16 +1389,23 @@ export function ChatWindow({
           border: 1px solid rgba(255, 255, 255, 0.1);
           backdrop-filter: blur(24px);
           border-radius: 20px;
-          box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.04);
+          box-shadow:
+            0 20px 48px rgba(0, 0, 0, 0.65),
+            0 0 0 1px rgba(255, 255, 255, 0.04);
           padding: 0.75rem 0.95rem 0.65rem 1rem;
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
-          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+          transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
         }
         .chat-dock-form:focus-within {
           border-color: rgba(99, 102, 241, 0.55);
-          box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(99, 102, 241, 0.3), 0 0 20px rgba(99, 102, 241, 0.15);
+          box-shadow:
+            0 20px 50px rgba(0, 0, 0, 0.7),
+            0 0 0 1px rgba(99, 102, 241, 0.3),
+            0 0 20px rgba(99, 102, 241, 0.15);
         }
 
         .dock-textarea {
@@ -1432,7 +1496,8 @@ export function ChatWindow({
           animation: micPulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
         @keyframes micPulse {
-          0%, 100% {
+          0%,
+          100% {
             transform: scale(1);
             box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
           }
@@ -1571,7 +1636,9 @@ export function ChatWindow({
           animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
-          to { transform: rotate(360deg); }
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         .chat-error {
@@ -1583,8 +1650,14 @@ export function ChatWindow({
         }
 
         @keyframes bounceIn {
-          0% { opacity: 0; transform: translateX(-50%) translateY(10px); }
-          100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+          0% {
+            opacity: 0;
+            transform: translateX(-50%) translateY(10px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
         }
 
         @keyframes fadeUp {

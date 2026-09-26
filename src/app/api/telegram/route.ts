@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { expandQuery, getAnswer, condenseQuery, transcribeAudio, type ChatHistoryItem } from "@/lib/groq";
+import {
+  expandQuery,
+  getAnswer,
+  condenseQuery,
+  transcribeAudio,
+  type ChatHistoryItem,
+} from "@/lib/groq";
 import { searchChunks, formatContext } from "@/lib/retrieval/search";
 import { syncTelegramBotCommands } from "@/lib/telegram";
 
@@ -9,10 +15,7 @@ export const maxDuration = 60;
 
 function formatMarkdownToTelegramHTML(text: string): string {
   // 1. Escape HTML special characters in the raw input so raw text or LLM brackets don't break Telegram HTML
-  let out = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  let out = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   // 2. Preformatted code blocks ```lang ... ``` or ``` ... ```
   out = out.replace(/```(?:[a-zA-Z0-9_-]+)?\n?([\s\S]*?)```/g, "<pre><code>$1</code></pre>");
@@ -40,10 +43,10 @@ async function sendTelegramMessage(chatId: number, text: string) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return;
   const TELEGRAM_API = `https://api.telegram.org/bot${token}`;
-  
+
   const safeText = text.slice(0, 4000) + (text.length > 4000 ? "\n\n...(truncated)" : "");
   const htmlText = formatMarkdownToTelegramHTML(safeText);
-  
+
   try {
     const res = await fetch(`${TELEGRAM_API}/sendMessage`, {
       method: "POST",
@@ -56,7 +59,10 @@ async function sendTelegramMessage(chatId: number, text: string) {
       }),
     });
     if (!res.ok) {
-      console.warn("[telegram] HTML sendMessage failed, falling back to plain text:", await res.text());
+      console.warn(
+        "[telegram] HTML sendMessage failed, falling back to plain text:",
+        await res.text()
+      );
       // Fail-safe delivery: send as raw text without HTML parse_mode so user is never ghosted
       await fetch(`${TELEGRAM_API}/sendMessage`, {
         method: "POST",
@@ -83,7 +89,10 @@ async function sendTypingAction(chatId: number) {
   }).catch(() => {});
 }
 
-async function generateTTSAudio(text: string, languageCode?: string | null): Promise<Buffer | null> {
+async function generateTTSAudio(
+  text: string,
+  languageCode?: string | null
+): Promise<Buffer | null> {
   try {
     const cleanSpeechText = text
       .replace(/<thinking>[\s\S]*?<\/thinking>/gi, "")
@@ -143,14 +152,24 @@ async function sendTelegramVoice(chatId: number, audioBuffer: Buffer) {
 async function syncCommands(chatId: number) {
   const sites = await prisma.site.findMany();
   const ok = await syncTelegramBotCommands();
-  
+
   if (ok) {
-    const list = sites.slice(0, 15).map(s => {
-      let cmd = (s.name || s.id).toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32);
-      if (!cmd) cmd = `site_${s.id.slice(-8)}`.toLowerCase();
-      return `• **${s.name}**: \`/${cmd}\``;
-    }).join("\n");
-    await sendTelegramMessage(chatId, `✅ **Commands Synced! (${sites.length} bots available)**\n\n${list}\n\nType \`/\`, or tap \`/sites\` to choose a bot!`);
+    const list = sites
+      .slice(0, 15)
+      .map((s) => {
+        let cmd = (s.name || s.id)
+          .toLowerCase()
+          .replace(/\s+/g, "_")
+          .replace(/[^a-z0-9_]/g, "")
+          .slice(0, 32);
+        if (!cmd) cmd = `site_${s.id.slice(-8)}`.toLowerCase();
+        return `• **${s.name}**: \`/${cmd}\``;
+      })
+      .join("\n");
+    await sendTelegramMessage(
+      chatId,
+      `✅ **Commands Synced! (${sites.length} bots available)**\n\n${list}\n\nType \`/\`, or tap \`/sites\` to choose a bot!`
+    );
     await sendSiteMenu(chatId);
   } else {
     await sendTelegramMessage(chatId, "❌ Failed to sync commands.");
@@ -169,7 +188,10 @@ async function sendSiteMenu(chatId: number) {
     const row = [];
     row.push({ text: `🤖 ${sites[i].name || "Bot"}`, callback_data: `site_${sites[i].id}` });
     if (sites[i + 1]) {
-      row.push({ text: `🤖 ${sites[i + 1].name || "Bot"}`, callback_data: `site_${sites[i + 1].id}` });
+      row.push({
+        text: `🤖 ${sites[i + 1].name || "Bot"}`,
+        callback_data: `site_${sites[i + 1].id}`,
+      });
     }
     keyboard.push(row);
   }
@@ -189,7 +211,7 @@ async function sendSiteMenu(chatId: number) {
 async function sendLanguageMenu(chatId: number) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return;
-  
+
   await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -201,16 +223,16 @@ async function sendLanguageMenu(chatId: number) {
           [
             { text: "🌐 Auto", callback_data: "lang_auto" },
             { text: "🇬🇧 EN", callback_data: "lang_en" },
-            { text: "🇪🇸 ES", callback_data: "lang_es" }
+            { text: "🇪🇸 ES", callback_data: "lang_es" },
           ],
           [
             { text: "🇫🇷 FR", callback_data: "lang_fr" },
             { text: "🇮🇳 HI", callback_data: "lang_hi" },
-            { text: "🇮🇳 TA", callback_data: "lang_ta" }
-          ]
-        ]
-      }
-    })
+            { text: "🇮🇳 TA", callback_data: "lang_ta" },
+          ],
+        ],
+      },
+    }),
   });
 }
 
@@ -227,7 +249,7 @@ export async function GET(req: NextRequest) {
         "1. Open Telegram and search for @BotFather.",
         "2. Send /newbot to create a new bot and copy your Bot API Token.",
         "3. Add TELEGRAM_BOT_TOKEN to your .env file and Vercel project environment variables.",
-        "4. Visit this endpoint with ?setup=1 to automatically link Telegram to this app."
+        "4. Visit this endpoint with ?setup=1 to automatically link Telegram to this app.",
       ],
       webhookUrl,
     });
@@ -301,16 +323,16 @@ export async function POST(req: NextRequest) {
         else if (langCode === "fr") langName = "French";
         else if (langCode === "hi") langName = "Hindi";
         else if (langCode === "ta") langName = "Tamil";
-        
+
         const dbLang = langCode === "auto" ? null : langName;
 
         await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "language") VALUES (${chatId}, ${dbLang}) ON CONFLICT ("chatId") DO UPDATE SET "language" = ${dbLang};`;
-        
+
         // Immediately acknowledge so the button stops loading
         await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ callback_query_id: callbackId })
+          body: JSON.stringify({ callback_query_id: callbackId }),
         }).catch(console.error);
 
         // Edit the message text seamlessly
@@ -321,8 +343,8 @@ export async function POST(req: NextRequest) {
             body: JSON.stringify({
               chat_id: chatId,
               message_id: messageId,
-              text: `✅ Language updated to ${langName}`
-            })
+              text: `✅ Language updated to ${langName}`,
+            }),
           }).catch(console.error);
         }
       }
@@ -331,11 +353,14 @@ export async function POST(req: NextRequest) {
         const selectedSiteId = data.replace("site_", "");
         if (selectedSiteId === "all") {
           await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, NULL, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = NULL, "sessionId" = NULL;`;
-          
+
           await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ callback_query_id: callbackId, text: "🌍 Searching ALL websites" })
+            body: JSON.stringify({
+              callback_query_id: callbackId,
+              text: "🌍 Searching ALL websites",
+            }),
           }).catch(console.error);
 
           if (messageId) {
@@ -346,19 +371,22 @@ export async function POST(req: NextRequest) {
                 chat_id: chatId,
                 message_id: messageId,
                 text: "🌍 <b>Now searching ALL websites.</b>\n\nWhat would you like to know?",
-                parse_mode: "HTML"
-              })
+                parse_mode: "HTML",
+              }),
             }).catch(console.error);
           }
         } else {
           const site = await prisma.site.findUnique({ where: { id: selectedSiteId } });
           if (site) {
             await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, ${site.id}, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = ${site.id}, "sessionId" = NULL;`;
-            
+
             await fetch(`https://api.telegram.org/bot${token}/answerCallbackQuery`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ callback_query_id: callbackId, text: `Locked onto ${site.name}` })
+              body: JSON.stringify({
+                callback_query_id: callbackId,
+                text: `Locked onto ${site.name}`,
+              }),
             }).catch(console.error);
 
             if (messageId) {
@@ -369,8 +397,8 @@ export async function POST(req: NextRequest) {
                   chat_id: chatId,
                   message_id: messageId,
                   text: `🎯 <b>Locked onto: ${site.name}</b>\nAnswers will now come ONLY from this website.\n\nWhat would you like to know?`,
-                  parse_mode: "HTML"
-                })
+                  parse_mode: "HTML",
+                }),
               }).catch(console.error);
             }
           }
@@ -387,7 +415,9 @@ export async function POST(req: NextRequest) {
     sendTypingAction(chatId);
 
     // State lookup (site, language, session)
-    const state = await prisma.$queryRaw<any[]>`SELECT "siteId", "language", "sessionId" FROM "TelegramState" WHERE "chatId" = ${chatId} LIMIT 1`;
+    const state = await prisma.$queryRaw<
+      any[]
+    >`SELECT "siteId", "language", "sessionId" FROM "TelegramState" WHERE "chatId" = ${chatId} LIMIT 1`;
     let siteId = state.length > 0 ? state[0].siteId : null;
     let sessionId = state.length > 0 ? state[0].sessionId : null;
     const userLanguage = state.length > 0 ? state[0].language : null;
@@ -403,7 +433,9 @@ export async function POST(req: NextRequest) {
       isVoiceQuery = true;
       const voiceObj = message.voice || message.audio;
       try {
-        const fileRes = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${voiceObj.file_id}`);
+        const fileRes = await fetch(
+          `https://api.telegram.org/bot${token}/getFile?file_id=${voiceObj.file_id}`
+        );
         const fileData = await fileRes.json();
         if (fileData.ok && fileData.result?.file_path) {
           const downloadUrl = `https://api.telegram.org/file/bot${token}/${fileData.result.file_path}`;
@@ -416,7 +448,10 @@ export async function POST(req: NextRequest) {
             text = transcribed.trim();
             await sendTelegramMessage(chatId, `🎙️ *"${text}"*`);
           } else {
-            await sendTelegramMessage(chatId, "⚠️ Could not understand the voice message clearly. Please try speaking again or type your question.");
+            await sendTelegramMessage(
+              chatId,
+              "⚠️ Could not understand the voice message clearly. Please try speaking again or type your question."
+            );
             return NextResponse.json({ ok: true });
           }
         }
@@ -461,7 +496,10 @@ export async function POST(req: NextRequest) {
 
     if (text === "/clear" || text === "/new" || text === "/reset") {
       await prisma.$executeRaw`UPDATE "TelegramState" SET "sessionId" = NULL WHERE "chatId" = ${chatId};`;
-      await sendTelegramMessage(chatId, "🧹 **Conversation cleared!** Started a fresh session. What would you like to know?");
+      await sendTelegramMessage(
+        chatId,
+        "🧹 **Conversation cleared!** Started a fresh session. What would you like to know?"
+      );
       return NextResponse.json({ ok: true });
     }
 
@@ -488,7 +526,10 @@ export async function POST(req: NextRequest) {
       await syncCommands(chatId);
       if (text === "/start") {
         await prisma.$executeRaw`UPDATE "TelegramState" SET "sessionId" = NULL WHERE "chatId" = ${chatId};`;
-        await sendTelegramMessage(chatId, "Welcome! Tap /sites or select a bot above to begin, or just ask me anything!");
+        await sendTelegramMessage(
+          chatId,
+          "Welcome! Tap /sites or select a bot above to begin, or just ask me anything!"
+        );
         await sendLanguageMenu(chatId); // Show language menu on start
       }
       return NextResponse.json({ ok: true });
@@ -496,7 +537,10 @@ export async function POST(req: NextRequest) {
 
     if (text === "/all") {
       await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, NULL, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = NULL, "sessionId" = NULL;`;
-      await sendTelegramMessage(chatId, "🌍 **Now searching ALL websites.**\nWhat would you like to know?");
+      await sendTelegramMessage(
+        chatId,
+        "🌍 **Now searching ALL websites.**\nWhat would you like to know?"
+      );
       return NextResponse.json({ ok: true });
     }
 
@@ -504,17 +548,27 @@ export async function POST(req: NextRequest) {
       const rawCmd = text.split(" ")[0].slice(1).toLowerCase();
       const commandName = rawCmd.split("@")[0];
       const sites = await prisma.site.findMany();
-      const matchedSite = sites.find(s => {
+      const matchedSite = sites.find((s) => {
         const name = (s.name || s.id).toLowerCase();
-        const cmdWithUnderscore = name.replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '').slice(0, 32);
-        const cmdWithoutUnderscore = name.replace(/[^a-z0-9]/g, '').slice(0, 32);
+        const cmdWithUnderscore = name
+          .replace(/\s+/g, "_")
+          .replace(/[^a-z0-9_]/g, "")
+          .slice(0, 32);
+        const cmdWithoutUnderscore = name.replace(/[^a-z0-9]/g, "").slice(0, 32);
         const fallbackCmd = `site_${s.id.slice(-8)}`.toLowerCase();
-        return commandName === cmdWithUnderscore || commandName === cmdWithoutUnderscore || commandName === fallbackCmd;
+        return (
+          commandName === cmdWithUnderscore ||
+          commandName === cmdWithoutUnderscore ||
+          commandName === fallbackCmd
+        );
       });
-      
+
       if (matchedSite) {
         await prisma.$executeRaw`INSERT INTO "TelegramState" ("chatId", "siteId", "sessionId") VALUES (${chatId}, ${matchedSite.id}, NULL) ON CONFLICT ("chatId") DO UPDATE SET "siteId" = ${matchedSite.id}, "sessionId" = NULL;`;
-        await sendTelegramMessage(chatId, `🎯 **Locked onto: ${matchedSite.name}**\nAnswers will now come ONLY from this website.\n\nWhat would you like to know?`);
+        await sendTelegramMessage(
+          chatId,
+          `🎯 **Locked onto: ${matchedSite.name}**\nAnswers will now come ONLY from this website.\n\nWhat would you like to know?`
+        );
         return NextResponse.json({ ok: true });
       }
     }
@@ -555,15 +609,14 @@ export async function POST(req: NextRequest) {
         take: 6,
         select: { role: true, content: true },
       });
-      history = recentDbMessages
-        .reverse()
-        .map((m) => ({
-          role: m.role as "user" | "assistant",
-          content: m.content,
-        }));
+      history = recentDbMessages.reverse().map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      }));
     }
-    
-    const GREETING_PATTERNS = /^(hi|hey|hello|yo|sup|hola|howdy|good\s*(morning|afternoon|evening|night)|what'?s?\s*up|how\s*are\s*you|thanks?|thank\s*you|bye|goodbye|see\s*ya|ok|okay|cool|nice|great|awesome|got\s*it)[\s!?.]*$/i;
+
+    const GREETING_PATTERNS =
+      /^(hi|hey|hello|yo|sup|hola|howdy|good\s*(morning|afternoon|evening|night)|what'?s?\s*up|how\s*are\s*you|thanks?|thank\s*you|bye|goodbye|see\s*ya|ok|okay|cool|nice|great|awesome|got\s*it)[\s!?.]*$/i;
     let context = "";
     let sourcesFooter = "";
 
@@ -575,9 +628,12 @@ export async function POST(req: NextRequest) {
 
       // Decoupled search: vector & reranker use standaloneQuery, BM25 uses expandedQuery
       const chunks = await searchChunks(siteId, standaloneQuery, 6, 12000, expandedQuery);
-      
+
       if (chunks.length === 0) {
-        await sendTelegramMessage(chatId, `${siteNamePrefix}I don't have any verified information on that in the indexed pages.`);
+        await sendTelegramMessage(
+          chatId,
+          `${siteNamePrefix}I don't have any verified information on that in the indexed pages.`
+        );
         return NextResponse.json({ ok: true });
       }
       context = formatContext(chunks);
@@ -594,9 +650,7 @@ export async function POST(req: NextRequest) {
               const u = new URL(c.pageUrl);
               const segments = u.pathname.split("/").filter(Boolean);
               const last = segments.pop() || "";
-              label = last
-                ? last.replace(/[-_]/g, " ")
-                : u.hostname.replace(/^www\./, "");
+              label = last ? last.replace(/[-_]/g, " ") : u.hostname.replace(/^www\./, "");
             } catch {
               label = c.pageUrl.slice(0, 32);
             }
@@ -612,7 +666,7 @@ export async function POST(req: NextRequest) {
         sourcesFooter = `\n\n📖 **Sources:**\n${sourceLinks.join("\n")}`;
       }
     }
-    
+
     // Save user question to session
     if (sessionId) {
       await prisma.message.create({
@@ -652,7 +706,7 @@ export async function POST(req: NextRequest) {
         console.warn("[telegram] Failed to generate/send voice reply:", voiceErr);
       }
     }
-    
+
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     console.error("[telegram] Webhook Error:", error);

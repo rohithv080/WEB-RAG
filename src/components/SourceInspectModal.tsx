@@ -77,8 +77,7 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
   };
 
   const relevancePct = Math.min(100, Math.max(1, Math.round(citation.score * 100)));
-  const scoreTier =
-    relevancePct >= 80 ? "high" : relevancePct >= 60 ? "medium" : "fallback";
+  const scoreTier = relevancePct >= 80 ? "high" : relevancePct >= 60 ? "medium" : "fallback";
 
   // Highlight query keywords in the snippet
   const highlightedSnippet = useMemo(() => {
@@ -130,7 +129,11 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
                 <strong>{relevancePct}%</strong> Match Score
               </span>
               <span className={`score-badge ${scoreTier}`}>
-                {scoreTier === "high" ? "High Relevance" : scoreTier === "medium" ? "Strong Match" : "Semantic Candidate"}
+                {scoreTier === "high"
+                  ? "High Relevance"
+                  : scoreTier === "medium"
+                    ? "Strong Match"
+                    : "Semantic Candidate"}
               </span>
             </div>
             <div className="score-progress-track">
@@ -158,9 +161,7 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
             )}
           </div>
 
-          <div className="chunk-text">
-            {highlightedSnippet}
-          </div>
+          <div className="chunk-text">{highlightedSnippet}</div>
 
           {/* Adjacent Surrounding Context Section */}
           <div className="adjacent-context-box">
@@ -169,7 +170,11 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
               className="adjacent-toggle-btn"
               onClick={() => setShowAdjacentContext((v) => !v)}
             >
-              <span>{showAdjacentContext ? "▾ Hide Surrounding Context" : "▸ Show Surrounding Document Context"}</span>
+              <span>
+                {showAdjacentContext
+                  ? "▾ Hide Surrounding Context"
+                  : "▸ Show Surrounding Document Context"}
+              </span>
               <span className="adjacent-subtext">(Preceding & succeeding chunks in document)</span>
             </button>
 
@@ -182,7 +187,9 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
                     {adjacentContext.prev && (
                       <div className="adjacent-chunk-item">
                         <div className="adj-header">
-                          <span className="adj-tag">← Preceding Context (Chunk #{adjacentContext.prev.order + 1})</span>
+                          <span className="adj-tag">
+                            ← Preceding Context (Chunk #{adjacentContext.prev.order + 1})
+                          </span>
                           {adjacentContext.prev.heading && (
                             <span className="adj-heading">§ {adjacentContext.prev.heading}</span>
                           )}
@@ -198,7 +205,9 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
                     {adjacentContext.next && (
                       <div className="adjacent-chunk-item">
                         <div className="adj-header">
-                          <span className="adj-tag">Succeeding Context (Chunk #{adjacentContext.next.order + 1}) →</span>
+                          <span className="adj-tag">
+                            Succeeding Context (Chunk #{adjacentContext.next.order + 1}) →
+                          </span>
                           {adjacentContext.next.heading && (
                             <span className="adj-heading">§ {adjacentContext.next.heading}</span>
                           )}
@@ -255,7 +264,9 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           background: #0d0e15;
           border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 14px;
-          box-shadow: 0 24px 56px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.06);
+          box-shadow:
+            0 24px 56px rgba(0, 0, 0, 0.7),
+            0 0 0 1px rgba(255, 255, 255, 0.06);
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -407,9 +418,15 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           border-radius: 2px;
           transition: width 0.3s ease;
         }
-        .score-progress-fill.high { background: #10b981; }
-        .score-progress-fill.medium { background: #6366f1; }
-        .score-progress-fill.fallback { background: #f59e0b; }
+        .score-progress-fill.high {
+          background: #10b981;
+        }
+        .score-progress-fill.medium {
+          background: #6366f1;
+        }
+        .score-progress-fill.fallback {
+          background: #f59e0b;
+        }
 
         .engine-meta-col {
           display: flex;
@@ -604,13 +621,23 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         }
 
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
 
         @keyframes scaleUp {
-          from { transform: scale(0.96); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
+          from {
+            transform: scale(0.96);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
         }
       `}</style>
     </div>

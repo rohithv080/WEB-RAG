@@ -110,7 +110,9 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="embed-title">Chatbot Title</label>
+              <label className="form-label" htmlFor="embed-title">
+                Chatbot Title
+              </label>
               <input
                 id="embed-title"
                 type="text"
@@ -122,7 +124,9 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
             </div>
 
             <div className="form-group">
-              <label className="form-label" htmlFor="embed-greeting">Greeting Message</label>
+              <label className="form-label" htmlFor="embed-greeting">
+                Greeting Message
+              </label>
               <input
                 id="embed-greeting"
                 type="text"
@@ -238,8 +242,12 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         }
 
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
 
         .modal-card {
@@ -348,7 +356,9 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           border-radius: 50%;
           border: 2px solid transparent;
           cursor: pointer;
-          transition: transform 0.15s ease, border-color 0.15s ease;
+          transition:
+            transform 0.15s ease,
+            border-color 0.15s ease;
         }
         .color-swatch:hover {
           transform: scale(1.15);
@@ -471,7 +481,9 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           font-size: 0.78rem;
           cursor: pointer;
           box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
-          transition: transform 0.15s ease, background 0.15s ease;
+          transition:
+            transform 0.15s ease,
+            background 0.15s ease;
         }
         .copy-code-btn:hover {
           transform: scale(1.05);

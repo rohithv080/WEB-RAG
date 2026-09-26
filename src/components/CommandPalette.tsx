@@ -236,7 +236,17 @@ export function CommandPalette({
     }
 
     return items;
-  }, [sites, selectedSite, onOpenDrawer, onDeployBot, onSyncSite, onToggleSidebar, onHome, onSelectSite, onOpenApiKeys]);
+  }, [
+    sites,
+    selectedSite,
+    onOpenDrawer,
+    onDeployBot,
+    onSyncSite,
+    onToggleSidebar,
+    onHome,
+    onSelectSite,
+    onOpenApiKeys,
+  ]);
 
   // Filter items based on query
   const filteredItems = useMemo(() => {
@@ -350,7 +360,9 @@ export function CommandPalette({
                           )}
                         </div>
                         {item.badge && (
-                          <span className={`palette-item-badge ${item.badge === "Active" ? "active" : ""}`}>
+                          <span
+                            className={`palette-item-badge ${item.badge === "Active" ? "active" : ""}`}
+                          >
                             {item.badge}
                           </span>
                         )}
@@ -400,7 +412,9 @@ export function CommandPalette({
           background: #0d0e15;
           border: 1px solid rgba(255, 255, 255, 0.12);
           border-radius: 12px;
-          box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(124, 124, 255, 0.15);
+          box-shadow:
+            0 24px 64px rgba(0, 0, 0, 0.8),
+            0 0 0 1px rgba(124, 124, 255, 0.15);
           overflow: hidden;
           display: flex;
           flex-direction: column;
@@ -601,13 +615,23 @@ export function CommandPalette({
         }
 
         @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
 
         @keyframes scaleUp {
-          from { transform: scale(0.97); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
+          from {
+            transform: scale(0.97);
+            opacity: 0;
+          }
+          to {
+            transform: scale(1);
+            opacity: 1;
+          }
         }
       `}</style>
     </div>

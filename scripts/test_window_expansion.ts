@@ -1,4 +1,10 @@
-import { stitchText, expandChunkWindows, formatContext, buildCitations, type RetrievedChunk } from "../src/lib/retrieval/search";
+import {
+  stitchText,
+  expandChunkWindows,
+  formatContext,
+  buildCitations,
+  type RetrievedChunk,
+} from "../src/lib/retrieval/search";
 import { prisma } from "../src/lib/db";
 
 async function runTests() {
@@ -21,15 +27,21 @@ async function runTests() {
   // Test 1: stitchText with overlapping seam (200-char scraper overlap simulation)
   // -------------------------------------------------------------------------
   console.log("Test 1: Seam deduplication in stitchText");
-  const part1 = "Modern RAG architectures utilize hybrid search combining dense vector embeddings with sparse BM25 full-text search. Cross-encoder reranking ensures high relevance.";
-  const overlapPart = "sparse BM25 full-text search. Cross-encoder reranking ensures high relevance.";
+  const part1 =
+    "Modern RAG architectures utilize hybrid search combining dense vector embeddings with sparse BM25 full-text search. Cross-encoder reranking ensures high relevance.";
+  const overlapPart =
+    "sparse BM25 full-text search. Cross-encoder reranking ensures high relevance.";
   const part2 = `${overlapPart} Finally, small-to-big context window expansion stitches contiguous chunks for the LLM.`;
 
   const stitched1 = stitchText(part1, part2);
-  const expectedCombined = "Modern RAG architectures utilize hybrid search combining dense vector embeddings with sparse BM25 full-text search. Cross-encoder reranking ensures high relevance. Finally, small-to-big context window expansion stitches contiguous chunks for the LLM.";
+  const expectedCombined =
+    "Modern RAG architectures utilize hybrid search combining dense vector embeddings with sparse BM25 full-text search. Cross-encoder reranking ensures high relevance. Finally, small-to-big context window expansion stitches contiguous chunks for the LLM.";
 
   assert(stitched1 === expectedCombined, "Duplicate seam cleanly removed without stutter");
-  assert(!stitched1.includes("Cross-encoder reranking ensures high relevance. Cross-encoder"), "No repeated phrases in stitched output");
+  assert(
+    !stitched1.includes("Cross-encoder reranking ensures high relevance. Cross-encoder"),
+    "No repeated phrases in stitched output"
+  );
 
   // -------------------------------------------------------------------------
   // Test 2: stitchText with distinct non-overlapping paragraphs
@@ -62,7 +74,8 @@ async function runTests() {
       score: 0.94,
       isBoilerplate: false,
       content: "This is the primary matching seed snippet that matched the user's query.",
-      expandedContent: "Predecessor paragraph.\n\nThis is the primary matching seed snippet that matched the user's query.\n\nSuccessor paragraph with additional context.",
+      expandedContent:
+        "Predecessor paragraph.\n\nThis is the primary matching seed snippet that matched the user's query.\n\nSuccessor paragraph with additional context.",
     },
     {
       id: "chunk-2",
@@ -78,14 +91,26 @@ async function runTests() {
   ];
 
   const formatted = formatContext(mockChunks);
-  assert(formatted.includes('<document id="1" heading="Overview">'), "Document 1 has correct id and heading");
-  assert(formatted.includes("Predecessor paragraph."), "LLM receives expanded context with predecessor");
-  assert(formatted.includes("Successor paragraph with additional context."), "LLM receives expanded context with successor");
+  assert(
+    formatted.includes('<document id="1" heading="Overview">'),
+    "Document 1 has correct id and heading"
+  );
+  assert(
+    formatted.includes("Predecessor paragraph."),
+    "LLM receives expanded context with predecessor"
+  );
+  assert(
+    formatted.includes("Successor paragraph with additional context."),
+    "LLM receives expanded context with successor"
+  );
 
   const citations = buildCitations(mockChunks);
   assert(citations.length === 2, "2 citations built");
   assert(citations[0].index === 1, "Citation 1 index matches Document 1");
-  assert(citations[0].snippet.startsWith("This is the primary matching seed snippet"), "Citation 1 snippet is grounded to seed chunk, not bloated");
+  assert(
+    citations[0].snippet.startsWith("This is the primary matching seed snippet"),
+    "Citation 1 snippet is grounded to seed chunk, not bloated"
+  );
 
   // -------------------------------------------------------------------------
   // Test 5: Real Database Retrieval Test with expandChunkWindows
@@ -114,8 +139,12 @@ async function runTests() {
       const pageId = pageWithMultiple.id;
       const chunks = pageWithMultiple.chunks;
 
-      console.log(`  Found real page ${pageId} (${pageWithMultiple.url}) with ${chunks.length} chunks to test window expansion:`);
-      chunks.forEach((c) => console.log(`    Order ${c.order}: "${c.content.slice(0, 60).replace(/\n/g, ' ')}..."`));
+      console.log(
+        `  Found real page ${pageId} (${pageWithMultiple.url}) with ${chunks.length} chunks to test window expansion:`
+      );
+      chunks.forEach((c) =>
+        console.log(`    Order ${c.order}: "${c.content.slice(0, 60).replace(/\n/g, " ")}..."`)
+      );
 
       // Use the 2nd chunk (order 1) as seed
       const seedIndex = 1;
@@ -138,8 +167,12 @@ async function runTests() {
         `Expanded content (${expanded[0].expandedContent?.length} chars) is >= seed chunk (${seedChunk.content.length} chars)`
       );
 
-      console.log(`  [INFO] Expanded passage length: ${expanded[0].expandedContent?.length} characters (original seed was ${seedChunk.content.length})`);
-      console.log(`  [INFO] Expanded preview: "${expanded[0].expandedContent?.slice(0, 150).replace(/\n/g, ' ')}..."`);
+      console.log(
+        `  [INFO] Expanded passage length: ${expanded[0].expandedContent?.length} characters (original seed was ${seedChunk.content.length})`
+      );
+      console.log(
+        `  [INFO] Expanded preview: "${expanded[0].expandedContent?.slice(0, 150).replace(/\n/g, " ")}..."`
+      );
     } else {
       console.log("  [SKIP] No pages with >= 2 chunks found in DB.");
     }

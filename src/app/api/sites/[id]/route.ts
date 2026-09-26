@@ -3,10 +3,7 @@ import { prisma } from "@/lib/db";
 import { syncTelegramBotCommands } from "@/lib/telegram";
 import { getAuthUser } from "@/lib/auth";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     if (!id) {
@@ -33,10 +30,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     if (!id) {
@@ -56,15 +50,28 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { name, description, systemPrompt, starterQuestions, tone, isPublic, autoSync, syncFrequency, sourceUrl, enableWebSearch } = body;
+    const {
+      name,
+      description,
+      systemPrompt,
+      starterQuestions,
+      tone,
+      isPublic,
+      autoSync,
+      syncFrequency,
+      sourceUrl,
+      enableWebSearch,
+    } = body;
 
     const dataToUpdate: any = {};
     if (typeof name === "string") dataToUpdate.name = name.trim();
     if (description !== undefined) {
-      dataToUpdate.description = typeof description === "string" ? description.trim() || null : null;
+      dataToUpdate.description =
+        typeof description === "string" ? description.trim() || null : null;
     }
     if (systemPrompt !== undefined) {
-      dataToUpdate.systemPrompt = typeof systemPrompt === "string" ? systemPrompt.trim() || null : null;
+      dataToUpdate.systemPrompt =
+        typeof systemPrompt === "string" ? systemPrompt.trim() || null : null;
     }
     if (starterQuestions !== undefined) {
       if (Array.isArray(starterQuestions)) {
@@ -84,7 +91,10 @@ export async function PATCH(
     if (typeof autoSync === "boolean") {
       dataToUpdate.autoSync = autoSync;
     }
-    if (typeof syncFrequency === "string" && ["daily", "weekly", "hourly"].includes(syncFrequency)) {
+    if (
+      typeof syncFrequency === "string" &&
+      ["daily", "weekly", "hourly"].includes(syncFrequency)
+    ) {
       dataToUpdate.syncFrequency = syncFrequency;
     }
     if (sourceUrl !== undefined) {
@@ -106,10 +116,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     if (!id) {
@@ -133,15 +140,13 @@ export async function DELETE(
       where: { id },
     });
 
-    syncTelegramBotCommands().catch((e) => console.error("[delete site] Telegram auto-sync failed:", e));
+    syncTelegramBotCommands().catch((e) =>
+      console.error("[delete site] Telegram auto-sync failed:", e)
+    );
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error("[delete site] Error:", error);
-    return NextResponse.json(
-      { error: "Failed to delete site" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to delete site" }, { status: 500 });
   }
 }
-

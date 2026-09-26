@@ -29,7 +29,6 @@ export type SiteSummary = {
   pages: PageSummary[];
 };
 
-
 function initials(name: string): string {
   return name
     .trim()
@@ -72,7 +71,14 @@ export type BotCardProps = {
   onAnalytics?: (site: SiteSummary) => void;
 };
 
-export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalytics }: BotCardProps) {
+export function BotCard({
+  site,
+  onClick,
+  onDelete,
+  onEmbed,
+  onSettings,
+  onAnalytics,
+}: BotCardProps) {
   const abbr = initials(site.name) || "?";
   const favicon = getFavicon(site.pages);
   const updated = relativeTime(site.lastScrapedAt);
@@ -101,7 +107,10 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
             </span>
           )}
           {site.autoSync && (
-            <span className="badge badge-sync" title={`Auto-sync scheduled (${site.syncFrequency || "daily"})`}>
+            <span
+              className="badge badge-sync"
+              title={`Auto-sync scheduled (${site.syncFrequency || "daily"})`}
+            >
               ⚡ Sync
             </span>
           )}
@@ -118,9 +127,7 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
           <span className="badge badge-metric">
             {site.pages.length} {site.pages.length === 1 ? "page" : "pages"}
           </span>
-          <span className="badge badge-metric">
-            {site.totalChunks.toLocaleString()} chunks
-          </span>
+          <span className="badge badge-metric">{site.totalChunks.toLocaleString()} chunks</span>
         </div>
       </div>
 
@@ -128,7 +135,10 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
       <div className="bot-body">
         <h3 className="bot-name">{site.name}</h3>
         <p className="bot-desc">
-          {site.description || (site.pages[0]?.title ? `Knowledge from ${site.pages[0].title}` : "Indexed knowledge base ready for chat.")}
+          {site.description ||
+            (site.pages[0]?.title
+              ? `Knowledge from ${site.pages[0].title}`
+              : "Indexed knowledge base ready for chat.")}
         </p>
       </div>
 
@@ -148,7 +158,14 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
               }}
               title="Delete bot"
             >
-              <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2}>
+              <svg
+                viewBox="0 0 24 24"
+                width={13}
+                height={13}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <polyline points="3 6 5 6 21 6" />
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
               </svg>
@@ -164,7 +181,14 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
               }}
               title="Configure persona, tone & prompts"
             >
-              <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2}>
+              <svg
+                viewBox="0 0 24 24"
+                width={13}
+                height={13}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <circle cx="12" cy="12" r="3" />
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
               </svg>
@@ -180,7 +204,14 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
               }}
               title="View bot analytics, query logs & metrics"
             >
-              <svg viewBox="0 0 24 24" width={13} height={13} fill="none" stroke="currentColor" strokeWidth={2}>
+              <svg
+                viewBox="0 0 24 24"
+                width={13}
+                height={13}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
                 <line x1="18" y1="20" x2="18" y2="10" />
                 <line x1="12" y1="20" x2="12" y2="4" />
                 <line x1="6" y1="20" x2="6" y2="14" />
@@ -245,7 +276,12 @@ export function BotCard({ site, onClick, onDelete, onEmbed, onSettings, onAnalyt
           left: 0;
           right: 0;
           height: 1px;
-          background: linear-gradient(90deg, transparent 0%, rgba(99, 102, 241, 0.5) 50%, transparent 100%);
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            rgba(99, 102, 241, 0.5) 50%,
+            transparent 100%
+          );
           opacity: 0;
           transition: opacity 0.25s ease;
           pointer-events: none;

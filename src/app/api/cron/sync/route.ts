@@ -8,7 +8,7 @@ export const maxDuration = 15; // Vercel Hobby limit
 /**
  * Automated Cron Sync Endpoint
  * Triggered by Vercel Cron according to `vercel.json` (e.g. daily at 6:30 AM IST).
- * 
+ *
  * Safety & Security Guards:
  * 1. Cron Secret Auth: Verified via `Authorization: Bearer ${CRON_SECRET}` or `x-admin-secret`.
  * 2. Hard Deadline Guard: Caps execution at 8.5 seconds to guarantee zero 504 timeouts on Vercel Hobby.
@@ -54,7 +54,9 @@ export async function GET(req: NextRequest) {
     // 3. Process sites sequentially until safety deadline
     for (const site of sitesToSync) {
       if (Date.now() - startTime > DEADLINE_MS) {
-        console.log(`[cron sync] Approaching Vercel safety deadline (${DEADLINE_MS}ms). Exiting cleanly.`);
+        console.log(
+          `[cron sync] Approaching Vercel safety deadline (${DEADLINE_MS}ms). Exiting cleanly.`
+        );
         break;
       }
 
