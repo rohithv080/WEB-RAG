@@ -1,59 +1,61 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Web RAG — Production Modern Design System
+   Web RAG — Minimalist Enterprise Design System
+   Architecture: High-density, institutional-grade, clean typographic hierarchy
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Linear-Inspired Monochrome Palette ────────────────────────────── */
-  --bg: #0a0a0b;
-  --bg-subtle: #111113;
-  --bg-elevated: #161619;
-  --bg-card: #121215;
-  --bg-card-hover: #18181c;
-  --bg-input: #0f0f12;
-  --bg-sidebar: #0c0c0e;
-  --surface: #111113;
+  /* ── Neutral Slate / Zinc Precision Palette ────────────────────────── */
+  --bg: #09090b;
+  --bg-subtle: #0f0f12;
+  --bg-elevated: #141418;
+  --bg-card: #111114;
+  --bg-card-hover: #16161b;
+  --bg-input: #0c0c0f;
+  --bg-sidebar: #0b0b0e;
+  --surface: #0f0f12;
 
-  --border: rgba(255, 255, 255, 0.07);
+  --border: rgba(255, 255, 255, 0.08);
   --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-active: rgba(255, 255, 255, 0.16);
-  --border-glow: rgba(124, 124, 255, 0.35);
+  --border-active: rgba(255, 255, 255, 0.18);
+  --border-focus: #3b82f6;
 
-  --text: #f7f7f8;
-  --text-muted: #8a8f98;
-  --text-dim: #525866;
+  --text: #f4f4f5;
+  --text-muted: #a1a1aa;
+  --text-dim: #71717a;
 
-  --accent: #7c7cff;
-  --accent-dim: #6366f1;
-  --accent-soft: rgba(124, 124, 255, 0.1);
-  --accent-glow: rgba(124, 124, 255, 0.22);
-  --accent-gradient: linear-gradient(135deg, #7c7cff 0%, #a78bfa 100%);
+  /* ── Precision Accent (High-Trust Enterprise Blue) ─────────────────── */
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --accent-dim: #3b82f6;
+  --accent-soft: rgba(37, 99, 235, 0.08);
+  --accent-glow: rgba(37, 99, 235, 0.16);
 
   --brand-purple: #818cf8;
-  --brand-emerald: #34d399;
-  --brand-amber: #fbbf24;
+  --brand-emerald: #10b981;
+  --brand-amber: #f59e0b;
 
-  --danger: #f87171;
-  --danger-soft: rgba(248, 113, 113, 0.1);
-  --success: #34d399;
-  --success-soft: rgba(52, 211, 153, 0.1);
-  --warning: #fbbf24;
-  --warning-soft: rgba(251, 191, 36, 0.1);
+  --danger: #ef4444;
+  --danger-soft: rgba(239, 68, 68, 0.08);
+  --success: #10b981;
+  --success-soft: rgba(16, 185, 129, 0.08);
+  --warning: #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.08);
 
   --radius-sm: 4px;
-  --radius: 8px;
+  --radius: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
   --radius-xl: 12px;
 
-  /* ── Precision Surface Tokens ────────────────────────────────────────── */
-  --glass-bg: rgba(18, 18, 22, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.07);
-  --glass-blur: 16px;
-  --glass-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+  /* ── Hairline Surface Tokens ───────────────────────────────────────── */
+  --glass-bg: rgba(15, 15, 18, 0.88);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: 12px;
+  --glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   --card-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
-  /* ── Layout ──────────────────────────────────────────────────────────── */
-  --sidebar-width: 260px;
+  /* ── Layout Dimensions ─────────────────────────────────────────────── */
+  --sidebar-width: 256px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -77,6 +79,8 @@ body {
     BlinkMacSystemFont,
     "Segoe UI",
     Roboto,
+    "Helvetica Neue",
+    Arial,
     sans-serif;
   font-size: 14px;
   line-height: 1.5;
@@ -90,7 +94,7 @@ a {
   transition: color 0.15s ease;
 }
 a:hover {
-  color: var(--accent);
+  color: var(--accent-dim);
 }
 
 button,
@@ -104,25 +108,7 @@ button {
 }
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Ambient Background — Ultra-Subtle Top Glow
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background-image: radial-gradient(
-    ellipse 70% 35% at 50% -10%,
-    rgba(124, 124, 255, 0.04),
-    transparent 70%
-  );
-  background-size: 100% 100%;
+  opacity: 0.45;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -145,7 +131,7 @@ body::before {
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0.03) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.07) 50%,
     rgba(255, 255, 255, 0.03) 75%
   );
   background-size: 200% 100%;
@@ -163,7 +149,7 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Toast Notifications
+   Toast Notifications (Clean, Minimalist Pill)
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .toast-container {
@@ -179,59 +165,58 @@ body::before {
 
 .toast {
   pointer-events: auto;
-  padding: 0.75rem 1.1rem;
+  padding: 0.65rem 1rem;
   border-radius: var(--radius);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 500;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.5),
-    var(--card-highlight);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   animation:
-    toastIn 0.3s cubic-bezier(0.16, 1, 0.3, 1),
-    toastOut 0.3s ease 3.7s forwards;
-  max-width: 380px;
+    toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    toastOut 0.25s ease 3.7s forwards;
+  max-width: 360px;
 }
 
 .toast-success {
-  background: rgba(16, 185, 129, 0.15);
   color: #34d399;
-  border-color: rgba(16, 185, 129, 0.3);
+  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.08);
 }
 
 .toast-error {
-  background: rgba(239, 68, 68, 0.15);
   color: #f87171;
-  border-color: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.25);
+  background: rgba(239, 68, 68, 0.08);
 }
 
 .toast-info {
-  background: rgba(124, 124, 255, 0.15);
-  color: #7c7cff;
-  border-color: rgba(124, 124, 255, 0.3);
+  color: #60a5fa;
+  border-color: rgba(59, 130, 246, 0.25);
+  background: rgba(59, 130, 246, 0.08);
 }
 
 @keyframes toastIn {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.95);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 @keyframes toastOut {
   from {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
   to {
     opacity: 0;
-    transform: translateY(12px) scale(0.95);
+    transform: translateY(8px);
   }
 }
 
@@ -251,7 +236,7 @@ body::before {
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -262,23 +247,11 @@ body::before {
 @keyframes scaleIn {
   from {
     opacity: 0;
-    transform: scale(0.96);
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
     transform: scale(1);
-  }
-}
-
-@keyframes pulseGlow {
-  0%,
-  100% {
-    opacity: 1;
-    filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
-  }
-  50% {
-    opacity: 0.7;
-    filter: drop-shadow(0 0 2px rgba(56, 189, 248, 0.2));
   }
 }
 
@@ -289,20 +262,20 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Scrollbar
+   Clean Minimalist Scrollbar
    ═══════════════════════════════════════════════════════════════════════════ */
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 99px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.2);
 }

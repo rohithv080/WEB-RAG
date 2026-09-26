@@ -41,7 +41,7 @@ function initials(name: string): string {
 function relativeTime(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diff / 60_000);
-  if (mins < 1) return "just now";
+  if (mins < 1) return "Just now";
   if (mins < 60) return `${mins}m ago`;
   const hrs = Math.floor(mins / 60);
   if (hrs < 24) return `${hrs}h ago`;
@@ -79,115 +79,123 @@ export function BotCard({
   onSettings,
   onAnalytics,
 }: BotCardProps) {
-  const abbr = initials(site.name) || "?";
+  const abbr = initials(site.name) || "KB";
   const favicon = getFavicon(site.pages);
   const updated = relativeTime(site.lastScrapedAt);
 
   return (
     <article className="bot-card" onClick={onClick}>
-      {/* Header section */}
-      <div className="bot-card-header">
-        <div className="bot-avatar">
-          {favicon ? (
-            <img src={favicon} alt="" width={16} height={16} className="avatar-img" />
-          ) : (
-            <span className="avatar-text">{abbr}</span>
-          )}
+      {/* Top row: Avatar + Title + Status Pill */}
+      <div className="card-header">
+        <div className="card-avatar-group">
+          <div className="card-avatar">
+            {favicon ? (
+              <img src={favicon} alt="" width={16} height={16} className="avatar-img" />
+            ) : (
+              <span className="avatar-abbr">{abbr}</span>
+            )}
+          </div>
+          <div className="card-title-box">
+            <h3 className="card-title">{site.name}</h3>
+            <span className="card-meta-line">
+              {site.pages.length} {site.pages.length === 1 ? "source" : "sources"} &middot;{" "}
+              {site.totalChunks.toLocaleString()} chunks
+            </span>
+          </div>
         </div>
 
-        <div className="bot-badges">
+        {/* Minimal status indicator */}
+        <div className="card-badge-row">
           {site.isPublic === false && (
-            <span className="badge badge-private" title="Private bot">
+            <span className="status-chip chip-private" title="Private workspace">
               Private
             </span>
           )}
           {site.enableWebSearch !== false && (
-            <span className="badge badge-web" title="Live Web Search Fallback Enabled">
-              🌐 Web
+            <span className="status-chip chip-web" title="Web search fallback enabled">
+              Web Grounded
             </span>
           )}
           {site.autoSync && (
-            <span
-              className="badge badge-sync"
-              title={`Auto-sync scheduled (${site.syncFrequency || "daily"})`}
-            >
-              ⚡ Sync
+            <span className="status-chip chip-sync" title="Auto-sync active">
+              Auto-Sync
             </span>
           )}
-          {site.systemPrompt && (
-            <span className="badge badge-custom" title="Custom AI Persona Active">
-              Custom
-            </span>
-          )}
-          {site.tone && site.tone !== "balanced" && (
-            <span className="badge badge-tone" title={`Tone: ${site.tone}`}>
-              {site.tone === "concise" ? "Concise" : "Detailed"}
-            </span>
-          )}
-          <span className="badge badge-metric">
-            {site.pages.length} {site.pages.length === 1 ? "page" : "pages"}
-          </span>
-          <span className="badge badge-metric">{site.totalChunks.toLocaleString()} chunks</span>
         </div>
       </div>
 
-      {/* Body */}
-      <div className="bot-body">
-        <h3 className="bot-name">{site.name}</h3>
-        <p className="bot-desc">
-          {site.description ||
-            (site.pages[0]?.title
-              ? `Knowledge from ${site.pages[0].title}`
-              : "Indexed knowledge base ready for chat.")}
-        </p>
-      </div>
+      {/* Description */}
+      <p className="card-desc">
+        {site.description ||
+          (site.pages[0]?.title
+            ? `Indexed knowledge from ${site.pages[0].title}.`
+            : "Autonomous knowledge base ready for retrieval and citations.")}
+      </p>
 
-      {/* Footer */}
-      <div className="bot-card-footer">
-        <span className="status-text" title={`Last indexed ${updated}`}>
-          {updated}
+      {/* Footer bar */}
+      <div className="card-footer">
+        <span className="card-timestamp" title={`Last indexed: ${site.lastScrapedAt}`}>
+          Updated {updated}
         </span>
 
-        <div className="bot-card-actions">
-          {onDelete && (
+        <div className="card-actions" onClick={(e) => e.stopPropagation()}>
+          {onAnalytics && (
             <button
-              className="action-btn delete-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(site.id);
-              }}
-              title="Delete bot"
+              type="button"
+              className="action-icon-btn"
+              onClick={() => onAnalytics(site)}
+              title="Query Analytics & Logs"
             >
               <svg
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
-                width={13}
-                height={13}
                 fill="none"
                 stroke="currentColor"
-                strokeWidth={2}
+                strokeWidth="2"
               >
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            </button>
+          )}
+
+          {onEmbed && (
+            <button
+              type="button"
+              className="action-icon-btn"
+              onClick={() => onEmbed(site)}
+              title="Get Embed Widget"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <polyline points="16 18 22 12 16 6" />
+                <polyline points="8 6 2 12 8 18" />
               </svg>
             </button>
           )}
 
           {onSettings && (
             <button
-              className="action-btn settings-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onSettings(site);
-              }}
-              title="Configure persona, tone & prompts"
+              type="button"
+              className="action-icon-btn"
+              onClick={() => onSettings(site)}
+              title="Bot Settings & Persona"
             >
               <svg
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
-                width={13}
-                height={13}
                 fill="none"
                 stroke="currentColor"
-                strokeWidth={2}
+                strokeWidth="2"
               >
                 <circle cx="12" cy="12" r="3" />
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
@@ -195,115 +203,84 @@ export function BotCard({
             </button>
           )}
 
-          {onAnalytics && (
+          {onDelete && (
             <button
-              className="action-btn analytics-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAnalytics(site);
-              }}
-              title="View bot analytics, query logs & metrics"
+              type="button"
+              className="action-icon-btn action-danger"
+              onClick={() => onDelete(site.id)}
+              title="Delete Bot"
             >
               <svg
+                width="13"
+                height="13"
                 viewBox="0 0 24 24"
-                width={13}
-                height={13}
                 fill="none"
                 stroke="currentColor"
-                strokeWidth={2}
+                strokeWidth="2"
               >
-                <line x1="18" y1="20" x2="18" y2="10" />
-                <line x1="12" y1="20" x2="12" y2="4" />
-                <line x1="6" y1="20" x2="6" y2="14" />
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
               </svg>
-              <span>Logs</span>
             </button>
           )}
 
-          {onEmbed && (
-            <button
-              className="action-btn embed-btn"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEmbed(site);
-              }}
-              title="Get website embed snippet"
+          <button type="button" className="action-chat-btn" onClick={onClick}>
+            <span>Open</span>
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
             >
-              <span>&lt;/&gt;</span>
-              <span>Embed</span>
-            </button>
-          )}
-
-          <button
-            className="action-btn chat-btn"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClick();
-            }}
-          >
-            <span>Chat</span>
-            <span className="arrow-icon">→</span>
+              <line x1="5" y1="12" x2="19" y2="12" />
+              <polyline points="12 5 19 12 12 19" />
+            </svg>
           </button>
         </div>
       </div>
 
       <style jsx>{`
         .bot-card {
-          position: relative;
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
-          padding: 1.15rem 1.25rem 1rem;
-          background: var(--bg-card);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-lg);
+          padding: 1.2rem 1.25rem 1.1rem;
+          background: #0d0d10;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 8px;
           cursor: pointer;
-          overflow: hidden;
-          transition: all 0.15s ease;
+          transition:
+            border-color 0.15s ease,
+            background 0.15s ease;
         }
 
         .bot-card:hover {
-          background: var(--bg-card-hover);
-          border-color: rgba(255, 255, 255, 0.14);
-          transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-        }
-
-        .bot-card::before {
-          content: "";
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(99, 102, 241, 0.5) 50%,
-            transparent 100%
-          );
-          opacity: 0;
-          transition: opacity 0.25s ease;
-          pointer-events: none;
-        }
-
-        .bot-card:hover::before {
-          opacity: 1;
+          background: #111115;
+          border-color: rgba(255, 255, 255, 0.18);
         }
 
         /* ── Header ─────────────────────────────────────────────── */
-        .bot-card-header {
+        .card-header {
           display: flex;
-          align-items: center;
+          align-items: flex-start;
           justify-content: space-between;
-          gap: 0.65rem;
+          gap: 0.75rem;
         }
 
-        .bot-avatar {
+        .card-avatar-group {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          min-width: 0;
+        }
+
+        .card-avatar {
           width: 32px;
           height: 32px;
           border-radius: 6px;
-          background: rgba(255, 255, 255, 0.04);
+          background: #16161c;
           border: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           align-items: center;
@@ -315,196 +292,147 @@ export function BotCard({
           border-radius: 4px;
         }
 
-        .avatar-text {
-          color: var(--text);
-          font-size: 0.78rem;
+        .avatar-abbr {
+          color: #f4f4f5;
+          font-size: 0.76rem;
           font-weight: 600;
           letter-spacing: -0.01em;
         }
 
-        .bot-badges {
-          display: flex;
-          gap: 0.3rem;
-          flex-wrap: wrap;
-          justify-content: flex-end;
-          align-items: center;
+        .card-title-box {
+          min-width: 0;
         }
 
-        .badge {
+        .card-title {
+          margin: 0;
+          font-size: 0.94rem;
+          font-weight: 600;
+          color: #fafafa;
+          letter-spacing: -0.015em;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .card-meta-line {
+          font-size: 0.74rem;
+          color: #71717a;
+        }
+
+        .card-badge-row {
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          flex-shrink: 0;
+        }
+
+        .status-chip {
           padding: 0.15rem 0.45rem;
           border-radius: 4px;
           font-size: 0.68rem;
           font-weight: 500;
-          white-space: nowrap;
-          border: 1px solid var(--border);
-          background: rgba(255, 255, 255, 0.03);
-          color: var(--text-muted);
-        }
-
-        .badge-metric {
-          font-family: var(--font-mono);
-          color: var(--text-dim);
-          font-size: 0.65rem;
-        }
-
-        .badge-custom {
-          background: rgba(124, 124, 255, 0.08);
-          border-color: rgba(124, 124, 255, 0.2);
-          color: #a78bfa;
-        }
-
-        .badge-sync {
-          background: rgba(16, 185, 129, 0.1);
-          border-color: rgba(16, 185, 129, 0.3);
-          color: #34d399;
-        }
-
-        .badge-web {
-          background: rgba(6, 182, 212, 0.1);
-          border-color: rgba(6, 182, 212, 0.3);
-          color: #22d3ee;
-        }
-
-        .badge-tone {
+          border: 1px solid rgba(255, 255, 255, 0.08);
           background: rgba(255, 255, 255, 0.04);
-          border-color: var(--border);
-          color: var(--text-muted);
+          color: #a1a1aa;
         }
 
-        .badge-private {
-          background: rgba(248, 113, 113, 0.08);
-          border-color: rgba(248, 113, 113, 0.2);
+        .chip-web {
+          color: #60a5fa;
+          background: rgba(37, 99, 235, 0.08);
+          border-color: rgba(37, 99, 235, 0.2);
+        }
+
+        .chip-sync {
+          color: #34d399;
+          background: rgba(16, 185, 129, 0.08);
+          border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .chip-private {
           color: #f87171;
+          background: rgba(239, 68, 68, 0.08);
+          border-color: rgba(239, 68, 68, 0.2);
         }
 
-        /* ── Body ───────────────────────────────────────────────── */
-        .bot-body {
-          flex: 1;
-        }
-
-        .bot-name {
-          margin: 0 0 0.3rem;
-          font-size: 0.95rem;
-          font-weight: 600;
-          color: #f7f7f8;
-          letter-spacing: -0.015em;
-          line-height: 1.35;
-        }
-
-        .bot-desc {
+        /* ── Description ────────────────────────────────────────── */
+        .card-desc {
           margin: 0;
-          font-size: 0.78rem;
-          color: var(--text-muted);
-          line-height: 1.45;
+          font-size: 0.82rem;
+          color: #a1a1aa;
+          line-height: 1.5;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
+          min-height: 2.45rem;
         }
 
         /* ── Footer ─────────────────────────────────────────────── */
-        .bot-card-footer {
+        .card-footer {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding-top: 0.65rem;
-          border-top: 1px solid var(--border-subtle);
-          margin-top: auto;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          gap: 0.5rem;
         }
 
-        .status-text {
-          font-size: 0.68rem;
-          font-family: var(--font-mono);
-          color: var(--text-dim);
+        .card-timestamp {
+          font-size: 0.74rem;
+          color: #71717a;
         }
 
-        .bot-card-actions {
+        .card-actions {
           display: flex;
           align-items: center;
           gap: 0.35rem;
         }
 
-        .action-btn {
-          border-radius: 6px;
-          transition: all 0.12s ease;
-          display: inline-flex;
+        .action-icon-btn {
+          width: 28px;
+          height: 28px;
+          border-radius: 5px;
+          border: 1px solid rgba(255, 255, 255, 0.07);
+          background: rgba(255, 255, 255, 0.02);
+          color: #a1a1aa;
+          display: flex;
           align-items: center;
           justify-content: center;
-          gap: 4px;
-          font-size: 0.74rem;
-          font-weight: 500;
           cursor: pointer;
+          transition: all 0.12s ease;
         }
 
-        .delete-btn {
-          background: transparent;
-          border: 1px solid transparent;
-          color: var(--text-dim);
-          padding: 4px 6px;
-          opacity: 0;
-        }
-        .bot-card:hover .delete-btn {
-          opacity: 0.7;
-        }
-        .delete-btn:hover {
-          opacity: 1 !important;
-          color: #f87171;
-          background: rgba(248, 113, 113, 0.08);
-          border-color: rgba(248, 113, 113, 0.2);
-        }
-
-        .settings-btn {
-          background: transparent;
-          border: 1px solid var(--border);
-          color: var(--text-muted);
-          padding: 4px 6px;
-        }
-        .settings-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.06);
-          border-color: rgba(255, 255, 255, 0.16);
-        }
-
-        .analytics-btn {
-          background: transparent;
-          border: 1px solid var(--border);
-          color: var(--text-muted);
-          padding: 4px 8px;
-        }
-        .analytics-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.06);
-          border-color: rgba(255, 255, 255, 0.16);
-        }
-
-        .embed-btn {
-          background: transparent;
-          border: 1px solid var(--border);
-          color: var(--text-muted);
-          padding: 4px 8px;
-        }
-        .embed-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.06);
-          border-color: rgba(255, 255, 255, 0.16);
-        }
-
-        .chat-btn {
-          background: var(--accent);
-          border: 1px solid transparent;
+        .action-icon-btn:hover {
           color: #ffffff;
-          padding: 4px 10px;
-        }
-        .chat-btn:hover {
-          background: #6e6eff;
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.16);
         }
 
-        .arrow-icon {
-          font-size: 0.8rem;
-          transition: transform 0.12s ease;
+        .action-danger:hover {
+          color: #f87171;
+          background: rgba(239, 68, 68, 0.1);
+          border-color: rgba(239, 68, 68, 0.25);
         }
-        .chat-btn:hover .arrow-icon {
-          transform: translateX(2px);
+
+        .action-chat-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.3rem 0.65rem;
+          border-radius: 5px;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          background: #f4f4f5;
+          color: #09090b;
+          font-size: 0.76rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.12s ease;
+          margin-left: 0.25rem;
+        }
+
+        .action-chat-btn:hover {
+          background: #ffffff;
+          box-shadow: 0 2px 8px rgba(255, 255, 255, 0.12);
         }
       `}</style>
     </article>

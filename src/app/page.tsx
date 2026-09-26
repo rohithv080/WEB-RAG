@@ -610,7 +610,20 @@ function AppInner() {
                         onClick={() => setFilterTag("web")}
                         title="Show only bots with Live Web Search fallback enabled"
                       >
-                        🌐 Web Search
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          style={{ marginRight: 5, verticalAlign: "middle" }}
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="2" y1="12" x2="22" y2="12" />
+                          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                        </svg>
+                        Web Grounded
                       </button>
                       <button
                         type="button"
@@ -618,7 +631,20 @@ function AppInner() {
                         onClick={() => setFilterTag("sync")}
                         title="Show only bots with automated sitemap sync"
                       >
-                        ⚡ Auto-Sync
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          style={{ marginRight: 5, verticalAlign: "middle" }}
+                        >
+                          <polyline points="23 4 23 10 17 10" />
+                          <polyline points="1 20 1 14 7 14" />
+                          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                        </svg>
+                        Auto-Sync
                       </button>
                       <button
                         type="button"
@@ -626,7 +652,19 @@ function AppInner() {
                         onClick={() => setFilterTag("private")}
                         title="Show only private bots"
                       >
-                        🔒 Private
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          style={{ marginRight: 5, verticalAlign: "middle" }}
+                        >
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        Private
                       </button>
                     </div>
 
@@ -647,7 +685,19 @@ function AppInner() {
 
                 {filteredSites.length === 0 ? (
                   <div className="empty-search-results">
-                    <div className="empty-search-icon">🔍</div>
+                    <div className="empty-search-icon">
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                      >
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      </svg>
+                    </div>
                     <h3 className="empty-search-title">No matching knowledge bots</h3>
                     <p className="empty-search-sub">
                       No bots match {searchQuery ? `"${searchQuery}"` : "the selected filter"}.
@@ -1254,19 +1304,20 @@ function AppInner() {
           display: inline-flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.42rem 0.8rem;
+          padding: 0.42rem 0.85rem;
           border-radius: 6px;
-          background: var(--accent);
-          border: 1px solid transparent;
-          color: #ffffff;
+          background: #f4f4f5;
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: #09090b;
           font-size: 0.78rem;
-          font-weight: 500;
+          font-weight: 600;
           cursor: pointer;
           transition: all 0.12s ease;
         }
 
         .hero-create-btn:hover {
-          background: #6e6eff;
+          background: #ffffff;
+          box-shadow: 0 2px 8px rgba(255, 255, 255, 0.12);
         }
 
         .hero-btn-icon {
@@ -1323,18 +1374,18 @@ function AppInner() {
         }
 
         .hero-signup-btn {
-          padding: 0.42rem 0.8rem;
+          padding: 0.42rem 0.85rem;
           border-radius: 6px;
-          background: var(--accent);
+          background: #2563eb;
           border: 1px solid transparent;
           color: #ffffff;
           font-size: 0.78rem;
-          font-weight: 500;
+          font-weight: 600;
           cursor: pointer;
           transition: all 0.12s ease;
         }
         .hero-signup-btn:hover {
-          background: #6e6eff;
+          background: #1d4ed8;
         }
 
         .hero-stats-strip {
@@ -1428,9 +1479,9 @@ function AppInner() {
 
         .filter-search-input:focus {
           outline: none;
-          background: rgba(255, 255, 255, 0.07);
-          border-color: rgba(124, 124, 255, 0.4);
-          box-shadow: 0 0 12px rgba(124, 124, 255, 0.15);
+          background: rgba(255, 255, 255, 0.06);
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 1px #3b82f6;
         }
 
         .search-clear-btn {
@@ -1480,9 +1531,9 @@ function AppInner() {
         }
 
         .filter-pill.active {
-          background: rgba(124, 124, 255, 0.12);
-          border-color: rgba(124, 124, 255, 0.3);
-          color: #a5b4fc;
+          background: rgba(255, 255, 255, 0.09);
+          border-color: rgba(255, 255, 255, 0.18);
+          color: #ffffff;
         }
 
         .sort-selector-wrap {
