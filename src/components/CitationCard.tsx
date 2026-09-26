@@ -167,56 +167,52 @@ export function CitationCard({ citation, query }: Props) {
           display: inline-flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.28rem 0.55rem;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.03);
-          color: #94a3b8;
+          padding: 0.25rem 0.55rem;
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-sm);
+          background: var(--bg-surface);
+          color: var(--text-secondary);
           font-size: 0.74rem;
           cursor: pointer;
-          transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: all 0.15s ease;
           text-align: left;
           user-select: none;
         }
         .cite-chip-web {
-          border-color: rgba(6, 182, 212, 0.25);
-          background: rgba(6, 182, 212, 0.04);
+          border-color: rgba(6, 182, 212, 0.3);
+          background: rgba(6, 182, 212, 0.06);
         }
         .cite-chip-web:hover {
-          border-color: rgba(6, 182, 212, 0.5);
-          background: rgba(6, 182, 212, 0.1);
-          box-shadow:
-            0 4px 12px rgba(0, 0, 0, 0.3),
-            0 0 10px rgba(6, 182, 212, 0.2);
+          border-color: rgba(6, 182, 212, 0.6);
+          background: rgba(6, 182, 212, 0.12);
+          box-shadow: 0 2px 8px rgba(6, 182, 212, 0.2);
         }
         .cite-chip-web .cite-idx {
-          color: #22d3ee;
+          color: #06b6d4;
         }
         .cite-web-tag {
           background: rgba(6, 182, 212, 0.12) !important;
           border-color: rgba(6, 182, 212, 0.3) !important;
-          color: #22d3ee !important;
+          color: #06b6d4 !important;
         }
         .cite-chip:hover {
-          border-color: rgba(99, 102, 241, 0.4);
-          color: #f1f5f9;
-          background: rgba(99, 102, 241, 0.08);
+          border-color: var(--accent);
+          color: var(--text-primary);
+          background: var(--accent-subtle);
           transform: translateY(-1px);
-          box-shadow:
-            0 4px 12px rgba(0, 0, 0, 0.3),
-            0 0 10px rgba(99, 102, 241, 0.15);
+          box-shadow: 0 2px 8px var(--accent-dim);
         }
         .cite-idx {
           font-family: var(--font-mono, monospace);
-          color: #818cf8;
+          color: var(--accent);
           font-weight: 700;
           font-size: 0.72rem;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.01em;
         }
         .cite-favicon {
           border-radius: 3px;
           flex-shrink: 0;
-          opacity: 0.85;
+          opacity: 0.9;
         }
         .cite-label {
           white-space: nowrap;
@@ -224,18 +220,18 @@ export function CitationCard({ citation, query }: Props) {
           text-overflow: ellipsis;
           max-width: 140px;
           font-weight: 500;
-          color: #cbd5e1;
+          color: var(--text-primary);
         }
         .cite-chip:hover .cite-label {
-          color: #ffffff;
+          color: var(--text-primary);
         }
         .cite-arrow {
           font-size: 0.65rem;
-          color: #64748b;
+          color: var(--text-muted);
           transition: transform 0.15s ease;
         }
         .cite-chip:hover .cite-arrow {
-          color: #818cf8;
+          color: var(--accent);
           transform: translate(1px, -1px);
         }
 
@@ -244,19 +240,17 @@ export function CitationCard({ citation, query }: Props) {
           position: absolute;
           bottom: calc(100% + 8px);
           left: 0;
-          width: 290px;
-          padding: 0.75rem 0.85rem;
-          background: #11131a;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 12px;
-          box-shadow:
-            0 16px 36px rgba(0, 0, 0, 0.65),
-            0 0 0 1px rgba(99, 102, 241, 0.2);
-          backdrop-filter: blur(16px);
+          width: 300px;
+          padding: 0.85rem 0.95rem;
+          background: var(--bg-card);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
+          box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-subtle);
+          backdrop-filter: blur(12px);
           z-index: 100;
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
+          gap: 0.5rem;
           cursor: pointer;
           animation: popoverFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
         }
@@ -271,7 +265,7 @@ export function CitationCard({ citation, query }: Props) {
           display: flex;
           align-items: center;
           gap: 5px;
-          color: #94a3b8;
+          color: var(--text-muted);
         }
         .cite-popover-favicon {
           border-radius: 2px;
@@ -285,10 +279,10 @@ export function CitationCard({ citation, query }: Props) {
           display: inline-flex;
           align-items: center;
           padding: 1px 6px;
-          border-radius: 999px;
-          background: rgba(52, 211, 153, 0.12);
-          border: 1px solid rgba(52, 211, 153, 0.25);
-          color: #34d399;
+          border-radius: 4px;
+          background: rgba(16, 185, 129, 0.1);
+          border: 1px solid rgba(16, 185, 129, 0.25);
+          color: #10b981;
           font-size: 0.65rem;
           font-weight: 600;
           font-family: var(--font-mono, monospace);
@@ -298,7 +292,7 @@ export function CitationCard({ citation, query }: Props) {
           margin: 0;
           font-size: 0.82rem;
           font-weight: 600;
-          color: #f8fafc;
+          color: var(--text-primary);
           line-height: 1.35;
           white-space: nowrap;
           overflow: hidden;
@@ -308,17 +302,17 @@ export function CitationCard({ citation, query }: Props) {
         .cite-popover-snippet {
           margin: 0;
           font-size: 0.74rem;
-          line-height: 1.45;
-          color: #94a3b8;
+          line-height: 1.5;
+          color: var(--text-secondary);
           font-style: italic;
           display: -webkit-box;
           -webkit-line-clamp: 3;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          background: rgba(255, 255, 255, 0.02);
-          padding: 0.35rem 0.5rem;
-          border-radius: 6px;
-          border-left: 2px solid #6366f1;
+          background: var(--bg-surface);
+          padding: 0.4rem 0.6rem;
+          border-radius: var(--radius-sm);
+          border-left: 2px solid var(--accent);
         }
 
         .cite-popover-footer {
@@ -326,18 +320,19 @@ export function CitationCard({ citation, query }: Props) {
           align-items: center;
           justify-content: space-between;
           font-size: 0.65rem;
-          color: #64748b;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          color: var(--text-muted);
+          border-top: 1px solid var(--border-subtle);
           padding-top: 0.4rem;
           margin-top: 0.1rem;
         }
         .cite-popover-key {
           font-family: var(--font-mono, monospace);
           font-size: 0.62rem;
-          padding: 1px 4px;
-          background: rgba(255, 255, 255, 0.06);
+          padding: 1px 5px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
           border-radius: 3px;
-          color: #cbd5e1;
+          color: var(--text-secondary);
         }
 
         @keyframes popoverFadeIn {

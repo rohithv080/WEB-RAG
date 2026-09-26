@@ -502,9 +502,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
 
           .modal {
-            background: #161b22;
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 16px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xl);
             width: 100%;
             max-width: 600px;
             max-height: 90vh;
@@ -520,7 +520,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             align-items: center;
             justify-content: space-between;
             padding: 1.25rem 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid var(--border);
             background: rgba(255, 255, 255, 0.02);
           }
 
@@ -601,10 +601,10 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           .badge-hint {
             font-size: 0.68rem;
             padding: 2px 6px;
-            background: rgba(56, 189, 248, 0.15);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            color: #38bdf8;
-            border-radius: 4px;
+            background: var(--accent-soft);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            color: var(--accent-dim);
+            border-radius: var(--radius-sm);
             font-weight: 600;
           }
 
@@ -640,8 +640,8 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
           .field-input:focus,
           .field-textarea:focus {
-            border-color: #38bdf8;
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-soft);
             background: rgba(255, 255, 255, 0.08);
           }
 
@@ -670,9 +670,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             border-color: rgba(255, 255, 255, 0.2);
           }
           .tone-card.active {
-            background: rgba(56, 189, 248, 0.15);
-            border-color: #38bdf8;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.15);
           }
 
           .tone-title {
@@ -695,10 +695,10 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
 
           .btn-add-q {
-            background: rgba(56, 189, 248, 0.15);
-            color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            border-radius: 8px;
+            background: var(--accent-soft);
+            color: var(--accent-dim);
+            border: 1px solid rgba(37, 99, 235, 0.3);
+            border-radius: var(--radius);
             padding: 0 1rem;
             font-size: 0.85rem;
             font-weight: 600;
@@ -707,7 +707,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             transition: all 0.15s ease;
           }
           .btn-add-q:hover:not(:disabled) {
-            background: rgba(56, 189, 248, 0.25);
+            background: var(--accent-glow);
             color: #fff;
           }
           .btn-add-q:disabled {
@@ -814,12 +814,12 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             background: rgba(255, 255, 255, 0.08);
           }
           .freq-btn.active {
-            background: rgba(56, 189, 248, 0.12);
-            border-color: #38bdf8;
-            color: #38bdf8;
+            background: var(--accent-soft);
+            border-color: var(--accent);
+            color: var(--accent-dim);
           }
           .freq-btn.active small {
-            color: rgba(56, 189, 248, 0.8);
+            color: rgba(37, 99, 235, 0.8);
           }
           .sync-trigger-box {
             display: flex;
@@ -846,10 +846,10 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             align-items: center;
             gap: 6px;
             padding: 0.45rem 0.85rem;
-            background: rgba(124, 124, 255, 0.15);
-            border: 1px solid rgba(124, 124, 255, 0.35);
-            color: #a78bfa;
-            border-radius: 6px;
+            background: var(--accent-subtle);
+            border: 1px solid var(--accent-dim);
+            color: var(--accent);
+            border-radius: var(--radius-sm);
             font-size: 0.78rem;
             font-weight: 600;
             cursor: pointer;
@@ -857,9 +857,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             transition: all 0.15s ease;
           }
           .btn-sync-now:hover:not(:disabled) {
-            background: rgba(124, 124, 255, 0.25);
+            background: var(--accent);
             color: #fff;
-            border-color: #a78bfa;
+            border-color: var(--accent);
           }
           .btn-sync-now:disabled {
             opacity: 0.5;
@@ -869,7 +869,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             width: 12px;
             height: 12px;
             border: 2px solid rgba(255, 255, 255, 0.2);
-            border-top-color: #a78bfa;
+            border-top-color: var(--accent);
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
             display: inline-block;
@@ -942,7 +942,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             border-radius: 50%;
           }
           input:checked + .toggle-slider {
-            background-color: #38bdf8;
+            background-color: var(--accent);
           }
           input:checked + .toggle-slider:before {
             transform: translateX(20px);
@@ -963,7 +963,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             justify-content: flex-end;
             gap: 0.75rem;
             padding: 1rem 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid var(--border);
             background: rgba(255, 255, 255, 0.02);
           }
 
@@ -984,18 +984,18 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
 
           .btn-primary {
-            background: #38bdf8;
+            background: var(--accent);
             border: none;
-            color: #0d1117;
+            color: #fff;
             padding: 0.5rem 1.25rem;
-            border-radius: 8px;
+            border-radius: var(--radius);
             font-size: 0.85rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.15s ease;
           }
           .btn-primary:hover:not(:disabled) {
-            opacity: 0.9;
+            background: var(--accent-hover);
             transform: translateY(-1px);
           }
           .btn-primary:disabled {

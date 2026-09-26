@@ -396,8 +396,8 @@ export function CommandPalette({
         .palette-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.75);
-          backdrop-filter: blur(10px);
+          background: rgba(10, 15, 29, 0.72);
+          backdrop-filter: blur(8px);
           display: flex;
           align-items: flex-start;
           justify-content: center;
@@ -409,12 +409,10 @@ export function CommandPalette({
         .palette-dialog {
           width: 100%;
           max-width: 620px;
-          background: #0d0e15;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 12px;
-          box-shadow:
-            0 24px 64px rgba(0, 0, 0, 0.8),
-            0 0 0 1px rgba(124, 124, 255, 0.15);
+          background: var(--bg-card);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-subtle);
           overflow: hidden;
           display: flex;
           flex-direction: column;
@@ -427,14 +425,14 @@ export function CommandPalette({
           align-items: center;
           gap: 10px;
           padding: 14px 16px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(255, 255, 255, 0.02);
+          border-bottom: 1px solid var(--border-subtle);
+          background: var(--bg-subtle);
         }
 
         .palette-search-icon {
           width: 18px;
           height: 18px;
-          color: #8a8f98;
+          color: var(--text-muted);
           flex-shrink: 0;
         }
 
@@ -443,23 +441,23 @@ export function CommandPalette({
           background: transparent;
           border: none;
           outline: none;
-          color: #f4f4f5;
+          color: var(--text-primary);
           font-size: 0.95rem;
           font-family: inherit;
         }
 
         .palette-input::placeholder {
-          color: #71717a;
+          color: var(--text-muted);
         }
 
         .palette-kbd {
-          font-family: ui-monospace, monospace;
+          font-family: var(--font-mono, monospace);
           font-size: 0.68rem;
-          color: #71717a;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: var(--text-muted);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
           padding: 2px 5px;
-          border-radius: 4px;
+          border-radius: var(--radius-sm);
         }
 
         /* Results List */
@@ -469,13 +467,13 @@ export function CommandPalette({
           padding: 8px;
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 4px;
         }
 
         .palette-empty {
           padding: 36px 16px;
           text-align: center;
-          color: #71717a;
+          color: var(--text-muted);
           font-size: 0.84rem;
         }
 
@@ -488,10 +486,10 @@ export function CommandPalette({
         .palette-group-header {
           padding: 6px 10px 4px;
           font-size: 0.68rem;
-          font-weight: 600;
-          letter-spacing: 0.04em;
+          font-weight: 700;
+          letter-spacing: 0.05em;
           text-transform: uppercase;
-          color: #71717a;
+          color: var(--text-muted);
         }
 
         .palette-item {
@@ -499,32 +497,34 @@ export function CommandPalette({
           align-items: center;
           gap: 10px;
           padding: 8px 10px;
-          border-radius: 6px;
+          border-radius: var(--radius-md);
           cursor: pointer;
-          transition: all 0.1s ease;
+          transition: all 0.12s ease;
           border: 1px solid transparent;
         }
 
         .palette-item.selected {
-          background: rgba(124, 124, 255, 0.12);
-          border-color: rgba(124, 124, 255, 0.25);
+          background: var(--accent-subtle);
+          border-color: var(--accent-dim);
         }
 
         .palette-item-icon {
-          width: 24px;
-          height: 24px;
-          border-radius: 5px;
-          background: rgba(255, 255, 255, 0.05);
+          width: 26px;
+          height: 26px;
+          border-radius: var(--radius-sm);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-subtle);
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 0.82rem;
-          color: #c7d2fe;
+          color: var(--accent);
           flex-shrink: 0;
         }
 
         .palette-item.selected .palette-item-icon {
-          background: rgba(124, 124, 255, 0.25);
+          background: var(--accent);
+          border-color: var(--accent);
           color: #ffffff;
         }
 
@@ -539,20 +539,20 @@ export function CommandPalette({
         .palette-item-title {
           font-size: 0.84rem;
           font-weight: 500;
-          color: #f4f4f5;
+          color: var(--text-primary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
         .palette-item.selected .palette-item-title {
-          color: #ffffff;
+          color: var(--text-primary);
           font-weight: 600;
         }
 
         .palette-item-sub {
           font-size: 0.7rem;
-          color: #8a8f98;
+          color: var(--text-muted);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -562,16 +562,17 @@ export function CommandPalette({
           font-size: 0.65rem;
           font-weight: 500;
           padding: 2px 6px;
-          border-radius: 4px;
-          background: rgba(255, 255, 255, 0.05);
-          color: #a1a1aa;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: var(--radius-sm);
+          background: var(--bg-surface);
+          color: var(--text-muted);
+          border: 1px solid var(--border-default);
         }
 
         .palette-item-badge.active {
-          background: rgba(16, 185, 129, 0.15);
-          border-color: rgba(16, 185, 129, 0.3);
-          color: #34d399;
+          background: rgba(16, 185, 129, 0.12);
+          border-color: rgba(16, 185, 129, 0.25);
+          color: #10b981;
+          font-weight: 600;
         }
 
         /* Footer */
@@ -580,10 +581,10 @@ export function CommandPalette({
           align-items: center;
           justify-content: space-between;
           padding: 8px 14px;
-          background: rgba(0, 0, 0, 0.4);
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-subtle);
+          border-top: 1px solid var(--border-subtle);
           font-size: 0.7rem;
-          color: #71717a;
+          color: var(--text-muted);
         }
 
         .footer-keys {
@@ -599,19 +600,19 @@ export function CommandPalette({
         }
 
         .kbd-pill {
-          font-family: ui-monospace, monospace;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          font-family: var(--font-mono, monospace);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
           border-radius: 3px;
           padding: 1px 4px;
           font-size: 0.65rem;
-          color: #a1a1aa;
+          color: var(--text-secondary);
         }
 
         .footer-branding {
           font-size: 0.68rem;
-          font-family: ui-monospace, monospace;
-          color: #52525b;
+          font-family: var(--font-mono, monospace);
+          color: var(--text-muted);
         }
 
         @keyframes fadeIn {

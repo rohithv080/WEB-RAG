@@ -246,19 +246,19 @@ export function BotCard({
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
-          padding: 1.2rem 1.25rem 1.1rem;
-          background: #0d0d10;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
+          padding: 1.25rem;
+          background: var(--bg-card);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
           cursor: pointer;
-          transition:
-            border-color 0.15s ease,
-            background 0.15s ease;
+          transition: all 0.15s ease;
+          box-shadow: var(--shadow-sm);
         }
 
         .bot-card:hover {
-          background: #111115;
-          border-color: rgba(255, 255, 255, 0.18);
+          background: var(--bg-card-hover);
+          border-color: var(--border-focus);
+          box-shadow: var(--shadow-md);
         }
 
         /* ── Header ─────────────────────────────────────────────── */
@@ -277,11 +277,11 @@ export function BotCard({
         }
 
         .card-avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 6px;
-          background: #16161c;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          width: 34px;
+          height: 34px;
+          border-radius: var(--radius-sm);
+          background: var(--accent-subtle);
+          border: 1px solid var(--accent-dim);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -293,9 +293,9 @@ export function BotCard({
         }
 
         .avatar-abbr {
-          color: #f4f4f5;
+          color: var(--accent);
           font-size: 0.76rem;
-          font-weight: 600;
+          font-weight: 700;
           letter-spacing: -0.01em;
         }
 
@@ -305,9 +305,9 @@ export function BotCard({
 
         .card-title {
           margin: 0;
-          font-size: 0.94rem;
+          font-size: 0.95rem;
           font-weight: 600;
-          color: #fafafa;
+          color: var(--text-primary);
           letter-spacing: -0.015em;
           white-space: nowrap;
           overflow: hidden;
@@ -316,7 +316,7 @@ export function BotCard({
 
         .card-meta-line {
           font-size: 0.74rem;
-          color: #71717a;
+          color: var(--text-muted);
         }
 
         .card-badge-row {
@@ -328,37 +328,37 @@ export function BotCard({
 
         .status-chip {
           padding: 0.15rem 0.45rem;
-          border-radius: 4px;
+          border-radius: var(--radius-sm);
           font-size: 0.68rem;
           font-weight: 500;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(255, 255, 255, 0.04);
-          color: #a1a1aa;
+          border: 1px solid var(--border-default);
+          background: var(--bg-surface);
+          color: var(--text-muted);
         }
 
         .chip-web {
-          color: #60a5fa;
-          background: rgba(37, 99, 235, 0.08);
-          border-color: rgba(37, 99, 235, 0.2);
+          color: #0284c7;
+          background: rgba(2, 132, 199, 0.08);
+          border-color: rgba(2, 132, 199, 0.25);
         }
 
         .chip-sync {
-          color: #34d399;
+          color: #10b981;
           background: rgba(16, 185, 129, 0.08);
-          border-color: rgba(16, 185, 129, 0.2);
+          border-color: rgba(16, 185, 129, 0.25);
         }
 
         .chip-private {
-          color: #f87171;
+          color: #ef4444;
           background: rgba(239, 68, 68, 0.08);
-          border-color: rgba(239, 68, 68, 0.2);
+          border-color: rgba(239, 68, 68, 0.25);
         }
 
         /* ── Description ────────────────────────────────────────── */
         .card-desc {
           margin: 0;
           font-size: 0.82rem;
-          color: #a1a1aa;
+          color: var(--text-secondary);
           line-height: 1.5;
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -372,14 +372,14 @@ export function BotCard({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 0.65rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          padding-top: 0.75rem;
+          border-top: 1px solid var(--border-subtle);
           gap: 0.5rem;
         }
 
         .card-timestamp {
-          font-size: 0.74rem;
-          color: #71717a;
+          font-size: 0.72rem;
+          color: var(--text-muted);
         }
 
         .card-actions {
@@ -391,10 +391,10 @@ export function BotCard({
         .action-icon-btn {
           width: 28px;
           height: 28px;
-          border-radius: 5px;
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          background: rgba(255, 255, 255, 0.02);
-          color: #a1a1aa;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-default);
+          background: var(--bg-surface);
+          color: var(--text-muted);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -403,13 +403,13 @@ export function BotCard({
         }
 
         .action-icon-btn:hover {
-          color: #ffffff;
-          background: rgba(255, 255, 255, 0.08);
-          border-color: rgba(255, 255, 255, 0.16);
+          color: var(--text-primary);
+          background: var(--bg-hover);
+          border-color: var(--border-focus);
         }
 
         .action-danger:hover {
-          color: #f87171;
+          color: #ef4444;
           background: rgba(239, 68, 68, 0.1);
           border-color: rgba(239, 68, 68, 0.25);
         }
@@ -418,21 +418,22 @@ export function BotCard({
           display: inline-flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.3rem 0.65rem;
-          border-radius: 5px;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          background: #f4f4f5;
-          color: #09090b;
+          padding: 0.35rem 0.75rem;
+          border-radius: var(--radius-sm);
+          border: 1px solid transparent;
+          background: var(--accent);
+          color: #ffffff;
           font-size: 0.76rem;
           font-weight: 600;
           cursor: pointer;
-          transition: all 0.12s ease;
+          transition: all 0.15s ease;
           margin-left: 0.25rem;
+          box-shadow: 0 1px 3px rgba(0, 102, 204, 0.25);
         }
 
         .action-chat-btn:hover {
-          background: #ffffff;
-          box-shadow: 0 2px 8px rgba(255, 255, 255, 0.12);
+          background: var(--accent-hover);
+          box-shadow: 0 2px 6px rgba(0, 102, 204, 0.35);
         }
       `}</style>
     </article>

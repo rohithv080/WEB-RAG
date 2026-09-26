@@ -506,9 +506,9 @@ askKnowledgeBot().catch(console.error);`;
           max-height: 85vh;
           display: flex;
           flex-direction: column;
-          background: #0f1017;
-          border: 1px solid rgba(124, 124, 255, 0.2);
-          border-radius: 12px;
+          background: var(--bg-elevated);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-xl);
           overflow: hidden;
           box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
         }
@@ -522,11 +522,11 @@ askKnowledgeBot().catch(console.error);`;
         .endpoint-badge {
           font-size: 0.72rem;
           font-family: monospace;
-          background: rgba(124, 124, 255, 0.12);
-          color: #c4b5fd;
+          background: var(--accent-soft);
+          color: #93c5fd;
           padding: 2px 8px;
-          border-radius: 4px;
-          border: 1px solid rgba(124, 124, 255, 0.25);
+          border-radius: var(--radius-sm);
+          border: 1px solid rgba(37, 99, 235, 0.25);
         }
 
         .keys-tab-nav {
@@ -555,7 +555,7 @@ askKnowledgeBot().catch(console.error);`;
 
         .tab-btn.active {
           color: #fff;
-          border-bottom-color: #7c7cff;
+          border-bottom-color: var(--accent);
         }
 
         .keys-tab-content,
@@ -647,10 +647,10 @@ askKnowledgeBot().catch(console.error);`;
 
         .create-key-btn {
           padding: 7px 14px;
-          background: #7c7cff;
+          background: var(--accent);
           color: #fff;
           border: none;
-          border-radius: 6px;
+          border-radius: var(--radius);
           font-size: 0.8rem;
           font-weight: 600;
           cursor: pointer;
@@ -659,7 +659,7 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .create-key-btn:hover {
-          background: #6a6aff;
+          background: var(--accent-hover);
         }
 
         /* Create Form */
@@ -708,7 +708,7 @@ askKnowledgeBot().catch(console.error);`;
 
         .field-input:focus,
         .field-select:focus {
-          border-color: #7c7cff;
+          border-color: var(--accent);
         }
 
         .form-btns-row {
@@ -729,9 +729,9 @@ askKnowledgeBot().catch(console.error);`;
 
         .submit-key-btn {
           padding: 5px 14px;
-          background: #7c7cff;
+          background: var(--accent);
           border: none;
-          border-radius: 6px;
+          border-radius: var(--radius);
           color: #fff;
           font-size: 0.76rem;
           font-weight: 600;
@@ -779,10 +779,10 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .scope-badge {
-          background: rgba(124, 124, 255, 0.1);
-          color: #c4b5fd;
+          background: var(--accent-soft);
+          color: #93c5fd;
           padding: 2px 6px;
-          border-radius: 4px;
+          border-radius: var(--radius-sm);
           font-size: 0.72rem;
         }
 
@@ -836,9 +836,9 @@ askKnowledgeBot().catch(console.error);`;
 
         .create-first-btn {
           padding: 7px 16px;
-          background: #7c7cff;
+          background: var(--accent);
           border: none;
-          border-radius: 6px;
+          border-radius: var(--radius);
           color: #fff;
           font-size: 0.8rem;
           font-weight: 500;
@@ -893,8 +893,8 @@ askKnowledgeBot().catch(console.error);`;
 
         .lang-pill.active {
           color: #fff;
-          background: rgba(124, 124, 255, 0.2);
-          border-color: rgba(124, 124, 255, 0.4);
+          background: var(--accent-soft);
+          border-color: rgba(37, 99, 235, 0.4);
         }
 
         .snippet-container {
@@ -949,9 +949,9 @@ askKnowledgeBot().catch(console.error);`;
           display: flex;
           align-items: flex-start;
           gap: 10px;
-          background: rgba(124, 124, 255, 0.06);
-          border: 1px solid rgba(124, 124, 255, 0.15);
-          border-radius: 8px;
+          background: var(--accent-soft);
+          border: 1px solid rgba(37, 99, 235, 0.15);
+          border-radius: var(--radius-md);
           padding: 10px 14px;
         }
 
@@ -969,7 +969,7 @@ askKnowledgeBot().catch(console.error);`;
           background: rgba(0, 0, 0, 0.4);
           padding: 1px 4px;
           border-radius: 4px;
-          color: #c4b5fd;
+          color: #93c5fd;
           font-family: monospace;
         }
       `}</style>

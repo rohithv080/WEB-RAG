@@ -1864,20 +1864,21 @@ function AppInner() {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          background: linear-gradient(135deg, #6366f1, #7c3aed);
-          border: 1px solid rgba(167, 139, 250, 0.35);
+          background: var(--accent);
+          border: 1px solid transparent;
           color: #ffffff;
           font-size: 0.74rem;
           font-weight: 600;
-          padding: 0.32rem 0.75rem;
-          border-radius: 7px;
+          padding: 0.35rem 0.8rem;
+          border-radius: var(--radius-sm);
           cursor: pointer;
           transition: all 0.15s ease;
-          box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+          box-shadow: 0 1px 3px rgba(0, 102, 204, 0.3);
         }
         .chat-new-thread-btn:hover {
+          background: var(--accent-hover);
           transform: translateY(-1px);
-          box-shadow: 0 4px 14px rgba(99, 102, 241, 0.45);
+          box-shadow: 0 3px 8px rgba(0, 102, 204, 0.4);
         }
         .nav-divider {
           width: 1px;
@@ -2047,7 +2048,7 @@ function AppInner() {
         }
         .crawl-pill.active {
           border-color: var(--accent);
-          background: rgba(124, 124, 255, 0.08);
+          background: var(--accent-subtle);
         }
         .pill-top {
           display: flex;
@@ -2108,7 +2109,7 @@ function AppInner() {
           transition: all 0.12s ease;
         }
         .modal-submit:hover:not(:disabled) {
-          background: #6e6eff;
+          background: var(--accent-hover);
         }
 
         /* ── File Upload & Mode Tabs ────────────────────────────────── */
@@ -2161,7 +2162,7 @@ function AppInner() {
         }
         .file-dropzone:hover {
           border-color: var(--accent);
-          background: rgba(124, 124, 255, 0.03);
+          background: var(--accent-subtle);
         }
         .dropzone-icon {
           font-size: 1.5rem;

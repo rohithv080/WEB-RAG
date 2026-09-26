@@ -248,7 +248,7 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         .modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.75);
+          background: rgba(10, 15, 29, 0.72);
           backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
@@ -260,13 +260,11 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
 
         .modal-card {
           width: 100%;
-          max-width: 640px;
-          background: #0d0e15;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 14px;
-          box-shadow:
-            0 24px 56px rgba(0, 0, 0, 0.7),
-            0 0 0 1px rgba(255, 255, 255, 0.06);
+          max-width: 660px;
+          background: var(--bg-card);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-lg);
+          box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-subtle);
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -278,8 +276,8 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           align-items: center;
           justify-content: space-between;
           padding: 1rem 1.25rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(255, 255, 255, 0.02);
+          border-bottom: 1px solid var(--border-subtle);
+          background: var(--bg-subtle);
         }
 
         .header-left {
@@ -290,14 +288,15 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         }
 
         .cite-badge {
-          font-family: ui-monospace, monospace;
-          font-size: 0.85rem;
+          font-family: var(--font-mono, ui-monospace, monospace);
+          font-size: 0.8rem;
           font-weight: 700;
-          color: #7c7cff;
-          background: rgba(124, 124, 255, 0.12);
-          padding: 0.2rem 0.5rem;
-          border-radius: 6px;
-          border: 1px solid rgba(124, 124, 255, 0.25);
+          color: var(--accent);
+          background: var(--accent-subtle);
+          padding: 0.2rem 0.55rem;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--accent-dim);
+          letter-spacing: 0.02em;
         }
 
         .site-icon {
@@ -306,15 +305,15 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
 
         .source-domain {
           margin: 0;
-          font-size: 0.92rem;
+          font-size: 0.9rem;
           font-weight: 600;
-          color: #f3f4f6;
+          color: var(--text-primary);
         }
 
         .source-heading {
           margin: 0;
           font-size: 0.75rem;
-          color: #9ca3af;
+          color: var(--text-muted);
           max-width: 360px;
           white-space: nowrap;
           overflow: hidden;
@@ -323,21 +322,22 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
 
         .close-btn {
           background: transparent;
-          border: none;
-          color: #9ca3af;
+          border: 1px solid transparent;
+          color: var(--text-muted);
           font-size: 1.1rem;
           cursor: pointer;
-          width: 30px;
-          height: 30px;
+          width: 32px;
+          height: 32px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 6px;
-          transition: all 0.12s ease;
+          border-radius: var(--radius-md);
+          transition: all 0.15s ease;
         }
         .close-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          color: #ffffff;
+          background: var(--bg-hover);
+          border-color: var(--border-subtle);
+          color: var(--text-primary);
         }
 
         /* Telemetry Bar */
@@ -346,8 +346,8 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           align-items: center;
           justify-content: space-between;
           padding: 0.75rem 1.25rem;
-          background: rgba(0, 0, 0, 0.35);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-surface);
+          border-bottom: 1px solid var(--border-subtle);
           gap: 12px;
         }
 
@@ -372,44 +372,48 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         }
         .score-dot.high {
           background: #10b981;
-          box-shadow: 0 0 8px #10b981;
+          box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
         }
         .score-dot.medium {
-          background: #6366f1;
-          box-shadow: 0 0 8px #6366f1;
+          background: var(--accent);
+          box-shadow: 0 0 6px var(--accent-dim);
         }
         .score-dot.fallback {
           background: #f59e0b;
-          box-shadow: 0 0 8px #f59e0b;
+          box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
         }
 
         .score-text {
-          color: #e4e4e7;
+          color: var(--text-secondary);
         }
         .score-badge {
           font-size: 0.65rem;
-          padding: 1px 5px;
+          padding: 1px 6px;
           border-radius: 4px;
-          font-weight: 500;
+          font-weight: 600;
+          font-family: var(--font-mono, monospace);
         }
         .score-badge.high {
-          background: rgba(16, 185, 129, 0.15);
+          background: rgba(16, 185, 129, 0.12);
           color: #34d399;
+          border: 1px solid rgba(16, 185, 129, 0.25);
         }
         .score-badge.medium {
-          background: rgba(99, 102, 241, 0.15);
-          color: #a5b4fc;
+          background: var(--accent-subtle);
+          color: var(--accent);
+          border: 1px solid var(--accent-dim);
         }
         .score-badge.fallback {
-          background: rgba(245, 158, 11, 0.15);
-          color: #fcd34d;
+          background: rgba(245, 158, 11, 0.12);
+          color: #fbbf24;
+          border: 1px solid rgba(245, 158, 11, 0.25);
         }
 
         .score-progress-track {
           width: 100%;
           max-width: 180px;
           height: 4px;
-          background: rgba(255, 255, 255, 0.08);
+          background: var(--border-subtle);
           border-radius: 2px;
           overflow: hidden;
         }
@@ -422,7 +426,7 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           background: #10b981;
         }
         .score-progress-fill.medium {
-          background: #6366f1;
+          background: var(--accent);
         }
         .score-progress-fill.fallback {
           background: #f59e0b;
@@ -436,26 +440,27 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         }
         .engine-pill {
           font-size: 0.68rem;
-          color: #a1a1aa;
-          background: rgba(255, 255, 255, 0.04);
-          padding: 2px 6px;
-          border-radius: 4px;
-          border: 1px solid rgba(255, 255, 255, 0.07);
+          color: var(--text-secondary);
+          background: var(--bg-card);
+          padding: 2px 7px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-default);
+          font-weight: 500;
         }
         .chunk-id-text {
           font-size: 0.65rem;
-          color: #71717a;
-          font-family: ui-monospace, monospace;
+          color: var(--text-muted);
+          font-family: var(--font-mono, ui-monospace, monospace);
         }
 
         /* Content Container */
         .content-container {
-          padding: 1rem 1.25rem;
-          max-height: 420px;
+          padding: 1.25rem;
+          max-height: 440px;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
-          gap: 0.75rem;
+          gap: 0.85rem;
         }
 
         .content-header-row {
@@ -464,42 +469,43 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           justify-content: space-between;
         }
         .content-label {
-          font-size: 0.7rem;
-          font-weight: 600;
+          font-size: 0.72rem;
+          font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          color: #8a8f98;
+          letter-spacing: 0.06em;
+          color: var(--text-muted);
         }
         .matched-terms-hint {
           font-size: 0.68rem;
           color: #fbbf24;
+          font-weight: 500;
         }
 
         .chunk-text {
           font-size: 0.85rem;
-          line-height: 1.6;
-          color: #e5e7eb;
+          line-height: 1.65;
+          color: var(--text-primary);
           white-space: pre-wrap;
           word-break: break-word;
-          background: #11121a;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
-          padding: 1rem;
-          font-family: ui-sans-serif, system-ui, sans-serif;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
+          padding: 1rem 1.15rem;
+          font-family: var(--font-sans);
         }
 
         :global(.kw-highlight) {
-          background: rgba(245, 158, 11, 0.25);
-          color: #fef08a;
-          padding: 1px 3px;
+          background: rgba(245, 158, 11, 0.22);
+          color: #fde047;
+          padding: 1px 4px;
           border-radius: 3px;
           font-weight: 600;
         }
 
         /* Adjacent Context */
         .adjacent-context-box {
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
-          padding-top: 0.5rem;
+          border-top: 1px solid var(--border-subtle);
+          padding-top: 0.65rem;
         }
         .adjacent-toggle-btn {
           display: flex;
@@ -507,30 +513,31 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           gap: 6px;
           background: transparent;
           border: none;
-          color: #a78bfa;
+          color: var(--accent);
           font-size: 0.76rem;
-          font-weight: 500;
+          font-weight: 600;
           cursor: pointer;
           padding: 4px 0;
+          transition: color 0.15s ease;
         }
         .adjacent-toggle-btn:hover {
-          color: #c4b5fd;
+          color: var(--accent-hover);
         }
         .adjacent-subtext {
-          color: #71717a;
+          color: var(--text-muted);
           font-size: 0.7rem;
           font-weight: 400;
         }
         .adjacent-content-panel {
           margin-top: 8px;
-          padding: 8px;
-          background: rgba(0, 0, 0, 0.25);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          border-radius: 6px;
+          padding: 10px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
         }
         .adjacent-loading {
           font-size: 0.74rem;
-          color: #8a8f98;
+          color: var(--text-muted);
           font-style: italic;
           padding: 6px;
         }
@@ -540,10 +547,12 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           gap: 8px;
         }
         .adjacent-chunk-item {
-          padding: 8px 10px;
-          background: rgba(255, 255, 255, 0.03);
-          border-left: 2px solid #7c7cff;
-          border-radius: 4px;
+          padding: 8px 12px;
+          background: var(--bg-card);
+          border-left: 2px solid var(--accent);
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-subtle);
+          border-left: 2px solid var(--accent);
         }
         .adj-header {
           display: flex;
@@ -554,23 +563,23 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         .adj-tag {
           font-size: 0.68rem;
           font-weight: 600;
-          color: #7c7cff;
+          color: var(--accent);
         }
         .adj-heading {
           font-size: 0.68rem;
-          color: #a1a1aa;
+          color: var(--text-secondary);
         }
         .adj-body {
           margin: 0;
           font-size: 0.76rem;
-          line-height: 1.45;
-          color: #9ca3af;
+          line-height: 1.5;
+          color: var(--text-secondary);
           white-space: pre-wrap;
           word-break: break-word;
         }
         .adj-boundary {
           font-size: 0.7rem;
-          color: #71717a;
+          color: var(--text-muted);
           font-style: italic;
           padding: 2px 4px;
         }
@@ -582,42 +591,46 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           justify-content: flex-end;
           gap: 0.75rem;
           padding: 0.85rem 1.25rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(255, 255, 255, 0.02);
+          border-top: 1px solid var(--border-subtle);
+          background: var(--bg-subtle);
         }
 
         .btn-secondary {
-          padding: 0.45rem 0.85rem;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 6px;
-          color: #d1d5db;
-          font-size: 0.8rem;
-          cursor: pointer;
-          transition: all 0.12s ease;
-        }
-        .btn-secondary:hover {
-          background: rgba(255, 255, 255, 0.1);
-          color: #ffffff;
-        }
-
-        .btn-primary {
-          padding: 0.45rem 0.95rem;
-          background: #7c7cff;
-          border: none;
-          border-radius: 6px;
-          color: #ffffff;
+          padding: 0.45rem 0.9rem;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
+          color: var(--text-secondary);
           font-size: 0.8rem;
           font-weight: 500;
           cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .btn-secondary:hover {
+          background: var(--bg-hover);
+          border-color: var(--border-focus);
+          color: var(--text-primary);
+        }
+
+        .btn-primary {
+          padding: 0.45rem 1rem;
+          background: var(--accent);
+          border: 1px solid transparent;
+          border-radius: var(--radius-md);
+          color: #ffffff;
+          font-size: 0.8rem;
+          font-weight: 600;
+          cursor: pointer;
           text-decoration: none;
-          transition: all 0.12s ease;
+          transition: all 0.15s ease;
           display: inline-flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.4rem;
+          box-shadow: 0 1px 3px rgba(0, 102, 204, 0.3);
         }
         .btn-primary:hover {
-          background: #6a6aff;
+          background: var(--accent-hover);
+          box-shadow: 0 2px 6px rgba(0, 102, 204, 0.45);
         }
 
         @keyframes fadeIn {
@@ -631,7 +644,7 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
 
         @keyframes scaleUp {
           from {
-            transform: scale(0.96);
+            transform: scale(0.97);
             opacity: 0;
           }
           to {

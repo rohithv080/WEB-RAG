@@ -95,7 +95,7 @@ function TypingIndicator() {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #818cf8;
+          background: var(--accent);
           animation: bounce 1.4s ease-in-out infinite both;
         }
         .typing-dot:nth-child(1) {
@@ -1026,21 +1026,15 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .msg-user-bubble {
           position: relative;
           padding: 0.75rem 1.15rem;
-          border-radius: 18px 18px 4px 18px;
+          border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-lg);
           font-size: 0.92rem;
           line-height: 1.55;
           word-break: break-word;
           white-space: pre-wrap;
-          background: linear-gradient(
-            135deg,
-            rgba(99, 102, 241, 0.25) 0%,
-            rgba(79, 70, 229, 0.35) 100%
-          );
-          border: 1px solid rgba(129, 140, 248, 0.35);
-          color: #f8fafc;
-          box-shadow:
-            0 4px 18px rgba(0, 0, 0, 0.25),
-            0 0 14px rgba(99, 102, 241, 0.12);
+          background: var(--accent);
+          border: 1px solid transparent;
+          color: #ffffff;
+          box-shadow: 0 2px 10px rgba(0, 102, 204, 0.25);
         }
 
         .msg-assistant {
@@ -1049,39 +1043,40 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .msg-assistant-card {
           position: relative;
           width: 100%;
-          background: rgba(18, 20, 29, 0.76);
+          background: var(--bg-card);
           backdrop-filter: blur(16px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 18px 18px 18px 4px;
-          padding: 1rem 1.25rem;
-          box-shadow: 0 10px 32px rgba(0, 0, 0, 0.45);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-sm);
+          padding: 1.15rem 1.35rem;
+          box-shadow: var(--shadow-sm);
           display: flex;
           flex-direction: column;
           gap: 0.65rem;
-          transition: border-color 0.2s ease;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
         .msg-assistant-card:hover {
-          border-color: rgba(255, 255, 255, 0.12);
+          border-color: var(--border-focus);
+          box-shadow: var(--shadow-md);
         }
 
         .assistant-header {
           display: flex;
           align-items: center;
           gap: 8px;
-          padding-bottom: 0.4rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          padding-bottom: 0.5rem;
+          border-bottom: 1px solid var(--border-subtle);
         }
         .assistant-avatar-badge {
-          width: 22px;
-          height: 22px;
-          border-radius: 6px;
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          width: 24px;
+          height: 24px;
+          border-radius: var(--radius-sm);
+          background: var(--accent);
           display: flex;
           align-items: center;
           justify-content: center;
           color: #fff;
           font-size: 0.72rem;
-          box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+          box-shadow: 0 1px 4px rgba(0, 102, 204, 0.3);
         }
         .avatar-icon {
           line-height: 1;
@@ -1095,17 +1090,18 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .assistant-name {
           font-size: 0.84rem;
           font-weight: 600;
-          color: #f1f5f9;
+          color: var(--text-primary);
           letter-spacing: -0.01em;
         }
         .assistant-model-pill {
           font-size: 0.68rem;
-          color: #818cf8;
-          background: rgba(99, 102, 241, 0.1);
-          border: 1px solid rgba(99, 102, 241, 0.2);
+          color: var(--accent);
+          background: var(--accent-subtle);
+          border: 1px solid var(--accent-dim);
           padding: 1px 6px;
-          border-radius: 4px;
-          font-weight: 500;
+          border-radius: var(--radius-sm);
+          font-weight: 600;
+          font-family: var(--font-mono, monospace);
         }
 
         .assistant-web-badge {
@@ -1113,22 +1109,21 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           align-items: center;
           gap: 5px;
           padding: 1px 8px;
-          background: rgba(16, 185, 129, 0.12);
-          border: 1px solid rgba(16, 185, 129, 0.32);
+          background: rgba(16, 185, 129, 0.1);
+          border: 1px solid rgba(16, 185, 129, 0.25);
           border-radius: 9999px;
-          color: #34d399;
+          color: #10b981;
           font-size: 0.68rem;
           font-weight: 600;
           letter-spacing: 0.02em;
-          box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
         }
 
         .web-pulse-dot {
           width: 5px;
           height: 5px;
           border-radius: 50%;
-          background: #34d399;
-          box-shadow: 0 0 5px #34d399;
+          background: #10b981;
+          box-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
           animation: web-pulse 1.8s ease-in-out infinite;
         }
 
@@ -1145,9 +1140,9 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         }
 
         .perf-chip.web-chip {
-          background: rgba(16, 185, 129, 0.1);
-          border-color: rgba(16, 185, 129, 0.25);
-          color: #6ee7b7;
+          background: rgba(16, 185, 129, 0.08);
+          border-color: rgba(16, 185, 129, 0.2);
+          color: #10b981;
         }
 
         .msg-search-chip {
@@ -1155,10 +1150,10 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           align-items: center;
           gap: 5px;
           font-size: 0.72rem;
-          color: #94a3b8;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 6px;
+          color: var(--text-secondary);
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-sm);
           padding: 2px 7px;
           font-family: var(--font-mono, monospace);
           width: fit-content;
@@ -1166,7 +1161,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .search-chip-icon {
           width: 11px;
           height: 11px;
-          color: #818cf8;
+          color: var(--accent);
           flex-shrink: 0;
         }
         .msg-search-chip strong {
@@ -1346,20 +1341,20 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           align-items: center;
           gap: 6px;
           padding: 6px 14px;
-          background: #18181c;
-          border: 1px solid rgba(124, 124, 255, 0.35);
+          background: var(--bg-card);
+          border: 1px solid var(--border-default);
           border-radius: 20px;
-          color: #f7f7f8;
+          color: var(--text-primary);
           font-size: 0.78rem;
           font-weight: 500;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+          box-shadow: var(--shadow-md);
           cursor: pointer;
           z-index: 10;
           transition: all 0.2s ease;
           animation: bounceIn 0.25s ease both;
         }
         .scroll-to-bottom-btn:hover {
-          background: #202026;
+          background: var(--bg-hover);
           border-color: var(--accent);
           transform: translateX(-50%) translateY(-2px);
         }
@@ -1377,7 +1372,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           display: flex;
           justify-content: center;
           padding: 0 1rem 1.25rem 1rem;
-          background: linear-gradient(to top, rgba(9, 10, 15, 0.96) 60%, rgba(9, 10, 15, 0) 100%);
+          background: linear-gradient(to top, var(--bg-surface) 60%, transparent 100%);
           pointer-events: none;
           z-index: 15;
         }
@@ -1385,13 +1380,13 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           width: 100%;
           max-width: 820px;
           pointer-events: auto;
-          background: rgba(18, 20, 29, 0.88);
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          background: var(--bg-card);
+          border: 1px solid var(--border-default);
           backdrop-filter: blur(24px);
-          border-radius: 20px;
+          border-radius: var(--radius-lg);
           box-shadow:
-            0 20px 48px rgba(0, 0, 0, 0.65),
-            0 0 0 1px rgba(255, 255, 255, 0.04);
+            var(--shadow-lg),
+            0 0 0 1px var(--border-subtle);
           padding: 0.75rem 0.95rem 0.65rem 1rem;
           display: flex;
           flex-direction: column;
@@ -1401,11 +1396,10 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
             box-shadow 0.2s ease;
         }
         .chat-dock-form:focus-within {
-          border-color: rgba(99, 102, 241, 0.55);
+          border-color: var(--accent);
           box-shadow:
-            0 20px 50px rgba(0, 0, 0, 0.7),
-            0 0 0 1px rgba(99, 102, 241, 0.3),
-            0 0 20px rgba(99, 102, 241, 0.15);
+            var(--shadow-lg),
+            0 0 0 1px var(--accent-dim);
         }
 
         .dock-textarea {
@@ -1540,7 +1534,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           height: 32px;
           border: none;
           border-radius: 50%;
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
+          background: var(--accent);
           color: #ffffff;
           font-size: 1.1rem;
           font-weight: 700;
@@ -1549,18 +1543,19 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           justify-content: center;
           cursor: pointer;
           transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+          box-shadow: 0 2px 8px rgba(0, 102, 204, 0.35);
         }
         .dock-send-btn:hover:not(:disabled) {
+          background: var(--accent-hover);
           transform: translateY(-1px) scale(1.04);
-          box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+          box-shadow: 0 4px 12px rgba(0, 102, 204, 0.5);
         }
         .dock-send-btn:disabled {
           opacity: 0.35;
           cursor: not-allowed;
-          background: rgba(255, 255, 255, 0.08);
+          background: var(--bg-hover);
           box-shadow: none;
-          color: #64748b;
+          color: var(--text-muted);
         }
         .send-arrow {
           line-height: 1;
@@ -1602,14 +1597,14 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .restoring-spinner {
           width: 28px;
           height: 28px;
-          border: 2.5px solid rgba(129, 140, 248, 0.2);
-          border-top-color: #818cf8;
+          border: 2.5px solid var(--accent-subtle);
+          border-top-color: var(--accent);
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }
         .restoring-text {
           font-size: 0.88rem;
-          color: #94a3b8;
+          color: var(--text-muted);
           font-weight: 500;
         }
 
@@ -1620,18 +1615,19 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           gap: 8px;
           padding: 6px 14px;
           margin: 0.75rem auto;
-          background: rgba(124, 124, 255, 0.08);
-          border: 1px solid rgba(124, 124, 255, 0.2);
+          background: var(--accent-subtle);
+          border: 1px solid var(--accent-dim);
           border-radius: 20px;
-          color: #a5b4fc;
+          color: var(--accent);
           font-size: 0.76rem;
+          font-weight: 600;
           width: fit-content;
         }
         .session-spinner {
           width: 12px;
           height: 12px;
-          border: 2px solid rgba(165, 180, 252, 0.3);
-          border-top-color: #a5b4fc;
+          border: 2px solid var(--accent-subtle);
+          border-top-color: var(--accent);
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }

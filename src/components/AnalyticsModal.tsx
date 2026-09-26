@@ -635,12 +635,12 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           width: 100%;
           max-width: 960px;
           max-height: 88vh;
-          background: #11151f;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 20px;
+          background: var(--bg-elevated);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-xl);
           box-shadow:
             0 24px 60px rgba(0, 0, 0, 0.6),
-            0 0 40px rgba(56, 189, 248, 0.1);
+            0 0 40px rgba(37, 99, 235, 0.08);
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -676,13 +676,13 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         .bot-avatar {
           width: 44px;
           height: 44px;
-          border-radius: 12px;
-          background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+          border-radius: var(--radius-md);
+          background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 1.3rem;
-          box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
         .title-row {
@@ -814,7 +814,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           width: 36px;
           height: 36px;
           border: 3px solid rgba(255, 255, 255, 0.1);
-          border-top-color: #38bdf8;
+          border-top-color: var(--accent);
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }
@@ -826,11 +826,11 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
 
         .retry-btn {
           padding: 0.5rem 1.25rem;
-          background: #38bdf8;
-          color: #0b101b;
+          background: var(--accent);
+          color: #fff;
           font-weight: 600;
           border: none;
-          border-radius: 8px;
+          border-radius: var(--radius);
           cursor: pointer;
         }
 
@@ -844,12 +844,12 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         .kpi-card {
           padding: 1.1rem 1.2rem;
           background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 14px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
           display: flex;
           flex-direction: column;
           gap: 0.35rem;
-          box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+          box-shadow: var(--card-highlight);
         }
 
         .kpi-label {
@@ -948,7 +948,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           transform: translateX(-50%);
           font-size: 0.65rem;
           font-weight: 700;
-          color: #38bdf8;
+          color: var(--accent-dim);
           opacity: 0;
           transition: opacity 0.15s ease;
           pointer-events: none;
@@ -990,8 +990,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .tab-btn.active {
-          color: #38bdf8;
-          background: rgba(56, 189, 248, 0.1);
+          color: var(--accent-dim);
+          background: var(--accent-soft);
         }
 
         .tab-pane {
@@ -1019,8 +1019,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           transition: border-color 0.15s ease;
         }
         .search-input:focus {
-          border-color: #38bdf8;
-          box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+          border-color: var(--accent);
+          box-shadow: 0 0 0 2px var(--accent-soft);
         }
 
         .clear-search {
@@ -1119,8 +1119,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .msg-user {
-          background: rgba(56, 189, 248, 0.08);
-          border: 1px solid rgba(56, 189, 248, 0.2);
+          background: var(--accent-soft);
+          border: 1px solid rgba(37, 99, 235, 0.2);
         }
 
         .msg-assistant {
@@ -1230,9 +1230,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           align-items: flex-start;
           gap: 0.75rem;
           padding: 0.9rem 1.1rem;
-          background: rgba(56, 189, 248, 0.06);
-          border: 1px solid rgba(56, 189, 248, 0.15);
-          border-radius: 12px;
+          background: var(--accent-soft);
+          border: 1px solid rgba(37, 99, 235, 0.15);
+          border-radius: var(--radius-lg);
           font-size: 0.82rem;
           color: #94a3b8;
           line-height: 1.45;
@@ -1346,7 +1346,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         .source-rank {
           font-size: 0.84rem;
           font-weight: 800;
-          color: #38bdf8;
+          color: var(--accent-dim);
           width: 28px;
         }
 
@@ -1363,15 +1363,15 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           text-decoration: none;
         }
         .source-url:hover {
-          color: #38bdf8;
+          color: var(--accent-dim);
           text-decoration: underline;
         }
 
         .source-count-badge {
           font-size: 0.74rem;
           font-weight: 700;
-          color: #38bdf8;
-          background: rgba(56, 189, 248, 0.1);
+          color: var(--accent-dim);
+          background: var(--accent-soft);
           padding: 0.25rem 0.65rem;
           border-radius: 20px;
           white-space: nowrap;

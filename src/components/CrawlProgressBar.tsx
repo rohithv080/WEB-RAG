@@ -57,15 +57,15 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
 
       <style jsx>{`
         .crawl-progress-card {
-          background: rgba(18, 18, 21, 0.95);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 10px;
+          background: var(--bg-card);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
           padding: 0.75rem 0.9rem;
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
           margin-top: 0.5rem;
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+          box-shadow: var(--shadow-sm);
           animation: fadeIn 0.2s ease-out;
         }
 
@@ -95,19 +95,19 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
         }
 
         .pulse-violet {
-          background: #7c7cff;
-          box-shadow: 0 0 8px rgba(124, 124, 255, 0.8);
+          background: var(--accent);
+          box-shadow: 0 0 8px var(--accent-dim);
           animation: pulseGlow 1.5s infinite;
         }
 
         .pulse-amber {
           background: #f59e0b;
-          box-shadow: 0 0 8px rgba(245, 158, 11, 0.8);
+          box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
           animation: pulseGlow 1.2s infinite;
         }
 
         .progress-status-label {
-          color: #e4e4e7;
+          color: var(--text-primary);
           font-weight: 500;
         }
 
@@ -115,13 +115,13 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
           font-family: var(--font-mono, monospace);
           font-size: 0.78rem;
           font-weight: 600;
-          color: #7c7cff;
+          color: var(--accent);
         }
 
         .progress-track {
           width: 100%;
           height: 6px;
-          background: rgba(255, 255, 255, 0.06);
+          background: var(--border-subtle);
           border-radius: 9999px;
           overflow: hidden;
           position: relative;
@@ -129,10 +129,10 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
 
         .progress-fill {
           height: 100%;
-          background: linear-gradient(90deg, #7c7cff 0%, #a78bfa 100%);
+          background: var(--accent);
           border-radius: 9999px;
           transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 0 10px rgba(124, 124, 255, 0.5);
+          box-shadow: 0 0 8px var(--accent-dim);
         }
 
         .fill-indeterminate {
@@ -145,7 +145,7 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
           align-items: center;
           gap: 0.35rem;
           font-size: 0.7rem;
-          color: #71717a;
+          color: var(--text-muted);
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
@@ -153,12 +153,12 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
 
         .url-prefix {
           flex-shrink: 0;
-          color: #a1a1aa;
+          color: var(--text-muted);
         }
 
         .url-code {
           font-family: var(--font-mono, monospace);
-          color: #d4d4d8;
+          color: var(--text-secondary);
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
@@ -166,7 +166,7 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
 
         .progress-footer-badge {
           font-size: 0.65rem;
-          color: #52525b;
+          color: var(--text-muted);
           display: flex;
           align-items: center;
           gap: 0.3rem;

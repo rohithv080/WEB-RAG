@@ -79,7 +79,7 @@ export function RightInspectorDrawer({
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   // Embed Customizer State
-  const [embedColor, setEmbedColor] = useState("#7c7cff");
+  const [embedColor, setEmbedColor] = useState("#0066cc");
   const [embedPosition, setEmbedPosition] = useState<"bottom-right" | "bottom-left">(
     "bottom-right"
   );
@@ -813,7 +813,7 @@ export function RightInspectorDrawer({
         .right-drawer {
           width: 380px;
           height: 100%;
-          background: #0f0f13;
+          background: var(--bg-subtle);
           border-left: 1px solid rgba(255, 255, 255, 0.08);
           display: flex;
           flex-direction: column;
@@ -855,10 +855,10 @@ export function RightInspectorDrawer({
         .drawer-badge {
           font-size: 0.68rem;
           padding: 2px 6px;
-          background: rgba(124, 124, 255, 0.1);
-          color: #a78bfa;
-          border: 1px solid rgba(124, 124, 255, 0.2);
-          border-radius: 4px;
+          background: var(--accent-soft);
+          color: var(--accent-dim);
+          border: 1px solid rgba(37, 99, 235, 0.2);
+          border-radius: var(--radius-sm);
           flex-shrink: 0;
         }
         .drawer-close-btn {
@@ -908,9 +908,9 @@ export function RightInspectorDrawer({
           background: rgba(255, 255, 255, 0.02);
         }
         .drawer-tab.active {
-          color: #7c7cff;
-          border-bottom-color: #7c7cff;
-          background: rgba(124, 124, 255, 0.05);
+          color: var(--accent-dim);
+          border-bottom-color: var(--accent);
+          background: var(--accent-soft);
         }
         .tab-count {
           font-size: 0.65rem;
@@ -972,8 +972,8 @@ export function RightInspectorDrawer({
           transition: all 0.15s ease;
         }
         .upload-dropzone-btn:hover {
-          background: rgba(124, 124, 255, 0.05);
-          border-color: rgba(124, 124, 255, 0.3);
+          background: var(--accent-soft);
+          border-color: rgba(37, 99, 235, 0.3);
         }
         .upload-icon {
           font-size: 1.1rem;
@@ -1032,7 +1032,7 @@ export function RightInspectorDrawer({
           text-overflow: ellipsis;
         }
         .page-card-title:hover {
-          color: #7c7cff;
+          color: var(--accent-dim);
         }
         .page-card-meta {
           display: flex;
@@ -1052,19 +1052,19 @@ export function RightInspectorDrawer({
           display: inline-flex;
           align-items: center;
           gap: 3px;
-          background: rgba(124, 124, 255, 0.1);
-          border: 1px solid rgba(124, 124, 255, 0.25);
-          color: #c7d2fe;
+          background: var(--accent-soft);
+          border: 1px solid rgba(37, 99, 235, 0.25);
+          color: #93c5fd;
           font-size: 0.68rem;
           font-weight: 500;
           padding: 2px 7px;
-          border-radius: 4px;
+          border-radius: var(--radius-sm);
           cursor: pointer;
           transition: all 0.15s ease;
         }
         .inspect-chunks-btn:hover {
-          background: rgba(124, 124, 255, 0.2);
-          border-color: #7c7cff;
+          background: var(--accent-glow);
+          border-color: var(--accent);
           color: #ffffff;
         }
         .re-scrape-btn {
@@ -1156,8 +1156,8 @@ export function RightInspectorDrawer({
           text-overflow: ellipsis;
         }
         .source-hits {
-          color: #a78bfa;
-          font-weight: 500;
+          color: var(--accent);
+          font-weight: 600;
           font-size: 0.7rem;
         }
         .gap-card {
@@ -1209,7 +1209,7 @@ export function RightInspectorDrawer({
         .field-input:focus,
         .field-textarea:focus {
           outline: none;
-          border-color: #7c7cff;
+          border-color: var(--accent);
         }
         .tone-pills {
           display: grid;
@@ -1227,8 +1227,8 @@ export function RightInspectorDrawer({
           transition: all 0.15s ease;
         }
         .tone-pill.active {
-          background: rgba(124, 124, 255, 0.15);
-          border-color: #7c7cff;
+          background: var(--accent-soft);
+          border-color: var(--accent);
           color: #fff;
           font-weight: 600;
         }
@@ -1295,24 +1295,24 @@ export function RightInspectorDrawer({
         .save-settings-btn {
           margin-top: 0.5rem;
           padding: 9px;
-          background: #7c7cff;
+          background: var(--accent);
           color: #fff;
           border: none;
-          border-radius: 6px;
+          border-radius: var(--radius);
           font-size: 0.82rem;
           font-weight: 600;
           cursor: pointer;
           transition: background 0.15s ease;
         }
         .save-settings-btn:hover:not(:disabled) {
-          background: #6a6aff;
+          background: var(--accent-hover);
         }
 
         /* Embed Tab */
         .embed-code-box {
           position: relative;
-          background: #09090c;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--bg);
+          border: 1px solid var(--border);
           border-radius: 6px;
           overflow: hidden;
         }
@@ -1425,10 +1425,10 @@ export function RightInspectorDrawer({
         }
         .new-chat-drawer-btn {
           padding: 6px 10px;
-          background: rgba(124, 124, 255, 0.15);
-          border: 1px solid rgba(124, 124, 255, 0.3);
-          border-radius: 6px;
-          color: #c4b5fd;
+          background: var(--accent-soft);
+          border: 1px solid rgba(37, 99, 235, 0.3);
+          border-radius: var(--radius);
+          color: #93c5fd;
           font-size: 0.74rem;
           font-weight: 500;
           cursor: pointer;
@@ -1436,9 +1436,9 @@ export function RightInspectorDrawer({
           transition: all 0.15s ease;
         }
         .new-chat-drawer-btn:hover {
-          background: rgba(124, 124, 255, 0.25);
+          background: var(--accent-glow);
           color: #fff;
-          border-color: rgba(124, 124, 255, 0.5);
+          border-color: rgba(37, 99, 235, 0.5);
         }
 
         .sessions-loading-state {
@@ -1453,8 +1453,8 @@ export function RightInspectorDrawer({
         .history-spinner {
           width: 14px;
           height: 14px;
-          border: 2px solid rgba(124, 124, 255, 0.2);
-          border-top-color: #7c7cff;
+          border: 2px solid rgba(37, 99, 235, 0.2);
+          border-top-color: var(--accent);
           border-radius: 50%;
           animation: histSpin 0.8s linear infinite;
         }
@@ -1490,9 +1490,9 @@ export function RightInspectorDrawer({
         }
         .empty-start-btn {
           padding: 6px 14px;
-          background: #7c7cff;
+          background: var(--accent);
           border: none;
-          border-radius: 6px;
+          border-radius: var(--radius);
           color: #fff;
           font-size: 0.76rem;
           font-weight: 500;
@@ -1519,9 +1519,9 @@ export function RightInspectorDrawer({
           transform: translateY(-1px);
         }
         .session-card.active-session {
-          background: rgba(124, 124, 255, 0.08);
-          border-color: rgba(124, 124, 255, 0.4);
-          box-shadow: 0 0 12px rgba(124, 124, 255, 0.1);
+          background: var(--accent-soft);
+          border-color: rgba(37, 99, 235, 0.4);
+          box-shadow: 0 0 12px rgba(37, 99, 235, 0.1);
         }
         .session-card-top {
           display: flex;
@@ -1542,10 +1542,10 @@ export function RightInspectorDrawer({
         .active-tag {
           font-size: 0.65rem;
           padding: 1px 5px;
-          background: rgba(124, 124, 255, 0.2);
-          border: 1px solid rgba(124, 124, 255, 0.4);
-          border-radius: 4px;
-          color: #c4b5fd;
+          background: var(--accent-soft);
+          border: 1px solid rgba(37, 99, 235, 0.4);
+          border-radius: var(--radius-sm);
+          color: #93c5fd;
           font-weight: 600;
         }
         .msg-count-tag {
@@ -1571,7 +1571,7 @@ export function RightInspectorDrawer({
         }
         .resume-hint {
           font-size: 0.7rem;
-          color: #7c7cff;
+          color: var(--accent-dim);
           opacity: 0.85;
         }
         .session-card:hover .resume-hint {

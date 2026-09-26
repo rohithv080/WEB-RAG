@@ -253,9 +253,9 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         .modal-card {
           width: 100%;
           max-width: 860px;
-          background: #11151f;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 20px;
+          background: var(--bg-elevated);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-xl);
           box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
           overflow: hidden;
           display: flex;
@@ -275,8 +275,8 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           display: inline-block;
           font-size: 0.72rem;
           font-weight: 700;
-          color: #38bdf8;
-          background: rgba(56, 189, 248, 0.12);
+          color: var(--accent-dim);
+          background: var(--accent-soft);
           padding: 2px 8px;
           border-radius: 99px;
           margin-bottom: 0.4rem;
@@ -380,7 +380,7 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           transition: border-color 0.15s ease;
         }
         .text-input:focus {
-          border-color: #38bdf8;
+          border-color: var(--accent);
         }
 
         .toggle-group {
@@ -401,8 +401,8 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           transition: all 0.15s ease;
         }
         .toggle-btn.active {
-          background: #38bdf8;
-          color: #0b1120;
+          background: var(--accent);
+          color: #fff;
           font-weight: 600;
         }
 
@@ -411,7 +411,7 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         }
         .test-link {
           font-size: 0.82rem;
-          color: #38bdf8;
+          color: var(--accent-dim);
           text-decoration: none;
           display: inline-flex;
           align-items: center;
@@ -455,13 +455,13 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         }
 
         .code-box {
-          background: #090d14;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 12px;
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-md);
           padding: 1rem;
           font-family: "SFMono-Regular", Consolas, Menlo, monospace;
           font-size: 0.78rem;
-          color: #7dd3fc;
+          color: #93c5fd;
           overflow-x: auto;
           line-height: 1.5;
           margin: 0;
@@ -472,25 +472,25 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           position: absolute;
           top: 10px;
           right: 10px;
-          background: #38bdf8;
-          color: #082f49;
+          background: var(--accent);
+          color: #fff;
           font-weight: 700;
           border: none;
           padding: 6px 12px;
-          border-radius: 6px;
+          border-radius: var(--radius);
           font-size: 0.78rem;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
           transition:
             transform 0.15s ease,
             background 0.15s ease;
         }
         .copy-code-btn:hover {
           transform: scale(1.05);
-          background: #7dd3fc;
+          background: var(--accent-hover);
         }
         .copy-code-btn.copied {
-          background: #10b981;
+          background: var(--success);
           color: #fff;
         }
 
@@ -514,10 +514,10 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         }
         .preview-window {
           width: 220px;
-          background: #161b22;
-          border-radius: 10px;
+          background: var(--bg-elevated);
+          border-radius: var(--radius-lg);
           overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.1);
+          border: 1px solid var(--border);
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
         }
         .preview-window-header {
@@ -564,8 +564,8 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           align-self: flex-start;
         }
         .preview-bubble.user {
-          background: #38bdf8;
-          color: #0b1120;
+          background: var(--accent);
+          color: #fff;
           font-weight: 500;
           align-self: flex-end;
         }

@@ -401,9 +401,9 @@ export function Sidebar({
         .sidebar-logo-box {
           width: 26px;
           height: 26px;
-          border-radius: 6px;
-          background: rgba(124, 124, 255, 0.12);
-          border: 1px solid rgba(124, 124, 255, 0.25);
+          border-radius: var(--radius-sm);
+          background: var(--accent-subtle);
+          border: 1px solid var(--accent-dim);
           color: var(--accent);
           display: flex;
           align-items: center;

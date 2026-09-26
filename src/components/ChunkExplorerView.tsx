@@ -295,12 +295,12 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
       </div>
 
       <style jsx>{`
-        .chunk-explorer-panel {
+        .chunk-explorer-container {
           display: flex;
           flex-direction: column;
           height: 100%;
           overflow: hidden;
-          background: #0f0f13;
+          background: var(--bg-subtle);
         }
 
         /* Nav Bar */
@@ -309,35 +309,35 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           align-items: center;
           gap: 8px;
           padding: 10px 14px;
-          background: rgba(255, 255, 255, 0.02);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+          background: var(--bg-card);
+          border-bottom: 1px solid var(--border-subtle);
           font-size: 0.78rem;
         }
         .chunk-back-btn {
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #d4d4d8;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
+          color: var(--text-secondary);
           padding: 3px 8px;
-          border-radius: 4px;
+          border-radius: var(--radius-sm);
           cursor: pointer;
           font-size: 0.75rem;
           font-weight: 500;
           transition: all 0.15s ease;
         }
         .chunk-back-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
-          color: #ffffff;
-          border-color: rgba(255, 255, 255, 0.2);
+          background: var(--bg-hover);
+          color: var(--text-primary);
+          border-color: var(--border-focus);
         }
         .nav-divider {
-          color: #52525b;
+          color: var(--text-muted);
           font-size: 0.8rem;
         }
         .nav-current-title {
-          color: #f4f4f5;
+          color: var(--text-primary);
           font-weight: 600;
           white-space: nowrap;
           overflow: hidden;
@@ -348,8 +348,8 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         /* Page Summary Card */
         .page-summary-card {
           padding: 12px 14px;
-          background: rgba(255, 255, 255, 0.015);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-surface);
+          border-bottom: 1px solid var(--border-subtle);
           display: flex;
           flex-direction: column;
           gap: 8px;
@@ -371,14 +371,14 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           margin: 0;
           font-size: 0.84rem;
           font-weight: 600;
-          color: #fafafa;
+          color: var(--text-primary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
         .doc-link {
           font-size: 0.7rem;
-          color: #7c7cff;
+          color: var(--accent);
           text-decoration: none;
           white-space: nowrap;
           overflow: hidden;
@@ -397,23 +397,23 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         .badge-pill {
           font-size: 0.68rem;
           padding: 2px 7px;
-          border-radius: 4px;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          color: #a1a1aa;
+          border-radius: var(--radius-sm);
+          background: var(--bg-card);
+          border: 1px solid var(--border-subtle);
+          color: var(--text-muted);
         }
         .badge-pill strong {
-          color: #ffffff;
+          color: var(--text-primary);
         }
         .chunks-badge {
-          background: rgba(124, 124, 255, 0.1);
-          border-color: rgba(124, 124, 255, 0.25);
-          color: #c7d2fe;
+          background: var(--accent-subtle);
+          border-color: var(--accent-dim);
+          color: var(--accent);
         }
         .embed-badge {
           background: rgba(16, 185, 129, 0.08);
           border-color: rgba(16, 185, 129, 0.2);
-          color: #a7f3d0;
+          color: #10b981;
         }
 
         /* Search Filter Row */
@@ -422,7 +422,8 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           display: flex;
           align-items: center;
           gap: 8px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          border-bottom: 1px solid var(--border-subtle);
+          background: var(--bg-card);
         }
         .search-input-box {
           position: relative;
@@ -439,33 +440,33 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         }
         .search-field {
           width: 100%;
-          background: rgba(0, 0, 0, 0.35);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 5px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-sm);
           padding: 5px 24px 5px 26px;
-          color: #f4f4f5;
+          color: var(--text-primary);
           font-size: 0.76rem;
           outline: none;
           transition: border-color 0.15s ease;
         }
         .search-field:focus {
-          border-color: #7c7cff;
+          border-color: var(--accent);
         }
         .clear-search-btn {
           position: absolute;
           right: 6px;
           background: transparent;
           border: none;
-          color: #71717a;
+          color: var(--text-muted);
           font-size: 0.7rem;
           cursor: pointer;
         }
         .clear-search-btn:hover {
-          color: #ffffff;
+          color: var(--text-primary);
         }
         .search-match-count {
           font-size: 0.7rem;
-          color: #8a8f98;
+          color: var(--text-muted);
           white-space: nowrap;
         }
 
@@ -481,14 +482,15 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
 
         /* Chunk Card */
         .chunk-card {
-          background: #13141b;
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          border-radius: 8px;
+          background: var(--bg-card);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
           overflow: hidden;
-          transition: border-color 0.15s ease;
+          transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         .chunk-card:hover {
-          border-color: rgba(255, 255, 255, 0.14);
+          border-color: var(--border-focus);
+          box-shadow: var(--shadow-sm);
         }
 
         .chunk-card-header {
@@ -496,8 +498,8 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           align-items: center;
           justify-content: space-between;
           padding: 7px 10px;
-          background: rgba(255, 255, 255, 0.02);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-surface);
+          border-bottom: 1px solid var(--border-subtle);
         }
         .header-left {
           display: flex;
@@ -506,25 +508,26 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           min-width: 0;
         }
         .chunk-order-badge {
-          font-family: ui-monospace, monospace;
+          font-family: var(--font-mono, monospace);
           font-size: 0.7rem;
           font-weight: 700;
-          color: #7c7cff;
-          background: rgba(124, 124, 255, 0.12);
+          color: var(--accent);
+          background: var(--accent-subtle);
+          border: 1px solid var(--accent-dim);
           padding: 1px 5px;
-          border-radius: 3px;
+          border-radius: var(--radius-sm);
         }
         .chunk-heading-pill {
           font-size: 0.72rem;
           font-weight: 500;
-          color: #e4e4e7;
+          color: var(--text-primary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           max-width: 140px;
         }
         .chunk-heading-pill.general {
-          color: #71717a;
+          color: var(--text-muted);
         }
 
         .header-right {
@@ -535,25 +538,26 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         }
         .chunk-metrics {
           font-size: 0.65rem;
-          color: #71717a;
-          font-family: ui-monospace, monospace;
+          color: var(--text-muted);
+          font-family: var(--font-mono, monospace);
         }
         .chunk-action-btn {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          color: #a1a1aa;
+          background: var(--bg-card);
+          border: 1px solid var(--border-default);
+          color: var(--text-secondary);
           padding: 2px 6px;
-          border-radius: 4px;
+          border-radius: var(--radius-sm);
           font-size: 0.68rem;
           cursor: pointer;
           transition: all 0.12s ease;
         }
         .chunk-action-btn:hover {
-          background: rgba(255, 255, 255, 0.12);
-          color: #ffffff;
+          background: var(--bg-hover);
+          color: var(--text-primary);
+          border-color: var(--border-focus);
         }
         .delete-btn:hover {
-          background: rgba(239, 68, 68, 0.2);
+          background: rgba(239, 68, 68, 0.15);
           border-color: #ef4444;
           color: #ef4444;
         }
@@ -563,10 +567,10 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         }
         .chunk-content {
           margin: 0;
-          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          font-family: var(--font-mono, monospace);
           font-size: 0.75rem;
-          line-height: 1.5;
-          color: #d4d4d8;
+          line-height: 1.55;
+          color: var(--text-secondary);
           white-space: pre-wrap;
           word-break: break-word;
         }
@@ -579,9 +583,9 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         .expand-toggle-btn {
           background: transparent;
           border: none;
-          color: #7c7cff;
+          color: var(--accent);
           font-size: 0.7rem;
-          font-weight: 500;
+          font-weight: 600;
           padding: 4px 0 0 0;
           cursor: pointer;
         }
@@ -597,7 +601,7 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           justify-content: center;
           gap: 8px;
           padding: 40px 10px;
-          color: #8a8f98;
+          color: var(--text-muted);
           font-size: 0.78rem;
           text-align: center;
         }
@@ -618,10 +622,10 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         }
         .retry-btn {
           padding: 4px 10px;
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 4px;
-          color: #ffffff;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-sm);
+          color: var(--text-primary);
           font-size: 0.74rem;
           cursor: pointer;
         }

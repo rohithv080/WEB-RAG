@@ -656,10 +656,10 @@ function InlineCitationChip({
           align-items: center;
           justify-content: space-between;
           padding-top: 4px;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          border-top: 1px solid var(--border-subtle);
           font-size: 0.68rem;
-          color: #a78bfa;
-          font-weight: 500;
+          color: var(--accent);
+          font-weight: 600;
         }
 
         .popover-arrow {
@@ -868,36 +868,36 @@ export function MarkdownRenderer({
         .markdown-renderer blockquote {
           margin: 0.75rem 0;
           padding: 0.4rem 0.9rem;
-          border-left: 3px solid var(--accent, #7c7cff);
-          background: rgba(124, 124, 255, 0.05);
-          border-radius: 0 6px 6px 0;
-          color: #a1a1aa;
+          border-left: 3px solid var(--accent);
+          background: var(--accent-subtle);
+          border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+          color: var(--text-secondary);
         }
         .markdown-renderer h1,
         .markdown-renderer h2,
         .markdown-renderer h3,
         .markdown-renderer h4 {
           margin: 1.1rem 0 0.4rem 0;
-          color: #f4f4f5;
+          color: var(--text-primary);
           font-weight: 600;
         }
         .inline-code {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #e4e4e7;
+          background: var(--bg-surface);
+          border: 1px solid var(--border-default);
+          color: var(--text-primary);
           font-size: 0.85em;
           padding: 2px 5px;
-          border-radius: 4px;
-          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          border-radius: var(--radius-sm);
+          font-family: var(--font-mono, monospace);
         }
         .md-link {
-          color: #93c5fd;
+          color: var(--accent);
           text-decoration: underline;
           text-underline-offset: 2px;
           transition: color 0.15s ease;
         }
         .md-link:hover {
-          color: #bfdbfe;
+          color: var(--accent-hover);
         }
         .link-arrow {
           font-size: 0.75em;
@@ -907,9 +907,9 @@ export function MarkdownRenderer({
         /* Thinking Accordion */
         .thinking-accordion {
           margin-bottom: 0.85rem;
-          background: rgba(124, 124, 255, 0.04);
-          border: 1px solid rgba(124, 124, 255, 0.15);
-          border-radius: 8px;
+          background: var(--accent-subtle);
+          border: 1px solid var(--accent-dim);
+          border-radius: var(--radius-md);
           overflow: hidden;
         }
         .thinking-toggle {
@@ -921,13 +921,13 @@ export function MarkdownRenderer({
           background: transparent;
           border: none;
           cursor: pointer;
-          color: #a78bfa;
+          color: var(--accent);
           font-size: 0.8rem;
-          font-weight: 500;
+          font-weight: 600;
           transition: background 0.15s ease;
         }
         .thinking-toggle:hover {
-          background: rgba(124, 124, 255, 0.08);
+          background: var(--bg-hover);
         }
         .thinking-title {
           display: flex;
@@ -948,7 +948,7 @@ export function MarkdownRenderer({
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #a78bfa;
+          background: var(--accent);
           display: inline-block;
           animation: pulse-dot 1.2s ease-in-out infinite;
         }
@@ -965,11 +965,11 @@ export function MarkdownRenderer({
         }
         .thinking-body {
           padding: 8px 12px 10px 12px;
-          border-top: 1px solid rgba(124, 124, 255, 0.1);
+          border-top: 1px solid var(--accent-dim);
           font-size: 0.8rem;
           line-height: 1.5;
-          color: #9ca3af;
-          background: rgba(0, 0, 0, 0.2);
+          color: var(--text-secondary);
+          background: var(--bg-surface);
           max-height: 250px;
           overflow-y: auto;
         }
@@ -984,7 +984,7 @@ export function MarkdownRenderer({
           height: 14px;
           margin-left: 3px;
           vertical-align: -1px;
-          background: var(--accent, #7c7cff);
+          background: var(--accent);
           border-radius: 1px;
           animation: caret-blink 0.8s ease-in-out infinite;
         }
