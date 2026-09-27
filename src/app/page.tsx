@@ -73,6 +73,7 @@ function AppInner() {
     startNewChat,
     switchSession,
     goHome,
+    hydrateNavigation,
     updateSiteInList,
   } = useAppStore();
 
@@ -160,11 +161,38 @@ function AppInner() {
     loadSites();
   }, [loadSites]);
 
+  // Hydrate and sync navigation on site load / change
   useEffect(() => {
-    if (!selectedSite) return;
-    const fresh = sites.find((s) => s.id === selectedSite.id);
-    if (fresh) setSelectedSite(fresh);
-  }, [sites]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (sites.length > 0) {
+      hydrateNavigation(sites);
+    }
+  }, [sites, hydrateNavigation]);
+
+  // Browser Back / Forward button support (popstate)
+  useEffect(() => {
+    function handlePopState() {
+      const params = new URLSearchParams(window.location.search);
+      const botId = params.get("bot");
+      const sessId = params.get("session");
+      const tab = params.get("tab") as DrawerTab | null;
+
+      if (botId) {
+        const site = sites.find((s) => s.id === botId);
+        if (site) {
+          openChat(site, sessId);
+          if (tab) {
+            setDrawerOpen(true);
+            setDrawerTab(tab);
+          }
+        }
+      } else {
+        goHome();
+      }
+    }
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [sites, openChat, goHome, setDrawerOpen, setDrawerTab]);
 
   // Warn user if they try to close or refresh the tab while indexing is actively running
   useEffect(() => {
@@ -1036,6 +1064,15 @@ function AppInner() {
                 onSelectSession={handleSelectSession}
                 onNewChat={handleNewChat}
               />
+            </div>
+          </div>
+        )}
+
+        {view === "chat" && !selectedSite && (
+          <div className="chat-view chat-view-loading">
+            <div className="chat-loading-placeholder">
+              <div className="chat-loading-spinner" />
+              <span className="chat-loading-text">Loading assistant...</span>
             </div>
           </div>
         )}
@@ -1977,6 +2014,27 @@ function AppInner() {
           flex-direction: column;
           height: 100vh;
           overflow: hidden;
+        }
+        .chat-view-loading {
+          align-items: center;
+          justify-content: center;
+          background: var(--bg);
+        }
+        .chat-loading-placeholder {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+          color: var(--text-muted);
+          font-size: 0.82rem;
+        }
+        .chat-loading-spinner {
+          width: 24px;
+          height: 24px;
+          border: 2px solid var(--border);
+          border-top-color: var(--accent);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
         }
         .chat-workspace-split {
           flex: 1;
