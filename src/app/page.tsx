@@ -826,10 +826,6 @@ function AppInner() {
                   <span>Back</span>
                 </button>
                 <div className="chat-breadcrumb-wrap">
-                  <span className="breadcrumb-root" onClick={goHome}>
-                    Bots
-                  </span>
-                  <span className="breadcrumb-sep">/</span>
                   <div className="chat-site-text">
                     <span className="chat-site-name">{selectedSite.name}</span>
                     <span className="chat-site-status">
@@ -2078,20 +2074,6 @@ function AppInner() {
           align-items: center;
           gap: 7px;
           min-width: 0;
-        }
-        .breadcrumb-root {
-          font-size: 0.76rem;
-          color: #64748b;
-          font-weight: 500;
-          cursor: pointer;
-          transition: color 0.15s ease;
-        }
-        .breadcrumb-root:hover {
-          color: #cbd5e1;
-        }
-        .breadcrumb-sep {
-          font-size: 0.74rem;
-          color: #475569;
         }
         .chat-site-text {
           display: flex;
