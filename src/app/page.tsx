@@ -777,29 +777,6 @@ function AppInner() {
             <nav className="chat-nav">
               <div className="chat-site-info">
                 <button
-                  type="button"
-                  className="nav-collapse-trigger"
-                  onClick={() => setSidebarCollapsed((v) => !v)}
-                  title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-                >
-                  <svg
-                    width="13"
-                    height="13"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    {sidebarCollapsed ? (
-                      <polyline points="9 18 15 12 9 6" />
-                    ) : (
-                      <polyline points="15 18 9 12 15 6" />
-                    )}
-                  </svg>
-                </button>
-                <button
                   className="back-btn"
                   onClick={goHome}
                   title="Return to Knowledge Bases grid"
@@ -2084,25 +2061,6 @@ function AppInner() {
           border-radius: 50%;
           background: var(--success);
           display: inline-block;
-        }
-        .nav-collapse-trigger {
-          background: transparent;
-          border: 1px solid var(--border);
-          color: var(--text-muted);
-          width: 26px;
-          height: 26px;
-          border-radius: var(--radius-xs);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          font-size: 0.72rem;
-          transition: all var(--transition-fast);
-          flex-shrink: 0;
-        }
-        .nav-collapse-trigger:hover {
-          color: var(--text-primary);
-          border-color: var(--border-hover);
         }
         .chat-nav-actions {
           margin-left: auto;
