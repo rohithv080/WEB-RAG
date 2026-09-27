@@ -168,44 +168,41 @@ export function CitationCard({ citation, query }: Props) {
           align-items: center;
           gap: 0.35rem;
           padding: 0.25rem 0.55rem;
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-xs);
           background: var(--bg-surface);
           color: var(--text-secondary);
           font-size: 0.74rem;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all var(--transition-fast);
           text-align: left;
           user-select: none;
         }
         .cite-chip-web {
-          border-color: rgba(6, 182, 212, 0.3);
-          background: rgba(6, 182, 212, 0.06);
+          border-color: var(--border);
+          background: var(--bg-surface);
         }
         .cite-chip-web:hover {
-          border-color: rgba(6, 182, 212, 0.6);
-          background: rgba(6, 182, 212, 0.12);
-          box-shadow: 0 2px 8px rgba(6, 182, 212, 0.2);
+          border-color: var(--success-border);
+          background: var(--success-subtle);
         }
         .cite-chip-web .cite-idx {
-          color: #06b6d4;
+          color: var(--success);
         }
         .cite-web-tag {
-          background: rgba(6, 182, 212, 0.12) !important;
-          border-color: rgba(6, 182, 212, 0.3) !important;
-          color: #06b6d4 !important;
+          background: var(--success-subtle) !important;
+          border-color: var(--success-border) !important;
+          color: var(--success) !important;
         }
         .cite-chip:hover {
-          border-color: var(--accent);
+          border-color: var(--border-hover);
           color: var(--text-primary);
-          background: var(--accent-subtle);
-          transform: translateY(-1px);
-          box-shadow: 0 2px 8px var(--accent-dim);
+          background: var(--bg-card-hover);
         }
         .cite-idx {
-          font-family: var(--font-mono, monospace);
-          color: var(--accent);
-          font-weight: 700;
+          font-family: var(--font-mono);
+          color: var(--primary);
+          font-weight: 600;
           font-size: 0.72rem;
           letter-spacing: -0.01em;
         }
@@ -227,11 +224,11 @@ export function CitationCard({ citation, query }: Props) {
         }
         .cite-arrow {
           font-size: 0.65rem;
-          color: var(--text-muted);
+          color: var(--text-dim);
           transition: transform 0.15s ease;
         }
         .cite-chip:hover .cite-arrow {
-          color: var(--accent);
+          color: var(--primary);
           transform: translate(1px, -1px);
         }
 
@@ -243,10 +240,9 @@ export function CitationCard({ citation, query }: Props) {
           width: 300px;
           padding: 0.85rem 0.95rem;
           background: var(--bg-card);
-          border: 1px solid var(--border-default);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
-          box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-subtle);
-          backdrop-filter: blur(12px);
+          box-shadow: var(--shadow-lg);
           z-index: 100;
           display: flex;
           flex-direction: column;
@@ -279,13 +275,13 @@ export function CitationCard({ citation, query }: Props) {
           display: inline-flex;
           align-items: center;
           padding: 1px 6px;
-          border-radius: 4px;
-          background: rgba(16, 185, 129, 0.1);
-          border: 1px solid rgba(16, 185, 129, 0.25);
-          color: #10b981;
+          border-radius: var(--radius-xs);
+          background: var(--success-subtle);
+          border: 1px solid var(--success-border);
+          color: var(--success);
           font-size: 0.65rem;
           font-weight: 600;
-          font-family: var(--font-mono, monospace);
+          font-family: var(--font-mono);
         }
 
         .cite-popover-title {
@@ -311,8 +307,8 @@ export function CitationCard({ citation, query }: Props) {
           overflow: hidden;
           background: var(--bg-surface);
           padding: 0.4rem 0.6rem;
-          border-radius: var(--radius-sm);
-          border-left: 2px solid var(--accent);
+          border-radius: var(--radius-xs);
+          border-left: 2px solid var(--primary);
         }
 
         .cite-popover-footer {
@@ -326,12 +322,12 @@ export function CitationCard({ citation, query }: Props) {
           margin-top: 0.1rem;
         }
         .cite-popover-key {
-          font-family: var(--font-mono, monospace);
+          font-family: var(--font-mono);
           font-size: 0.62rem;
           padding: 1px 5px;
           background: var(--bg-surface);
-          border: 1px solid var(--border-default);
-          border-radius: 3px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-xs);
           color: var(--text-secondary);
         }
 

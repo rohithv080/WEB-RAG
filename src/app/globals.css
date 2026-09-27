@@ -4,58 +4,66 @@
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Neutral Slate / Zinc Precision Palette ────────────────────────── */
-  --bg: #09090b;
-  --bg-subtle: #0f0f12;
-  --bg-elevated: #141418;
-  --bg-card: #111114;
-  --bg-card-hover: #16161b;
-  --bg-input: #0c0c0f;
-  --bg-sidebar: #0b0b0e;
-  --surface: #0f0f12;
+  /* ── Visual Hierarchy Layers (Neutral Slate / Obsidian) ──────────────── */
+  --bg: #09090b;             /* Base page canvas */
+  --bg-sidebar: #0d0d11;     /* Navigation & sidebar surface */
+  --bg-surface: #121216;     /* Header & secondary toolbar surface */
+  --bg-card: #15151a;        /* Card & component containers */
+  --bg-card-hover: #1a1a21;  /* Interactive card hover */
+  --bg-elevated: #1e1e26;    /* Modals, menus & dropdowns */
+  --bg-input: #101014;       /* Text inputs & search fields */
+  --surface: #121216;
 
-  --border: rgba(255, 255, 255, 0.08);
+  /* ── Precision Hairline Borders ──────────────────────────────────────── */
   --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-active: rgba(255, 255, 255, 0.18);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
+  --border-active: rgba(255, 255, 255, 0.22);
   --border-focus: #3b82f6;
 
+  /* ── Deliberate Text Hierarchy ────────────────────────────────────────── */
   --text: #f4f4f5;
   --text-muted: #a1a1aa;
   --text-dim: #71717a;
 
-  /* ── Precision Accent (High-Trust Enterprise Blue) ─────────────────── */
-  --accent: #2563eb;
+  /* ── Intentional Interaction Blue (Only for actions & active states) ─── */
+  --accent: #3b82f6;
+  --accent-btn: #2563eb;
   --accent-hover: #1d4ed8;
-  --accent-dim: #3b82f6;
-  --accent-soft: rgba(37, 99, 235, 0.08);
-  --accent-glow: rgba(37, 99, 235, 0.16);
+  --accent-dim: #60a5fa;
+  --accent-soft: rgba(59, 130, 246, 0.08);
+  --accent-glow: rgba(59, 130, 246, 0.15);
 
-  --brand-purple: #818cf8;
-  --brand-emerald: #10b981;
-  --brand-amber: #f59e0b;
+  /* ── Semantic System (Used strictly for meaningful states) ───────────── */
+  --success: #10b981;
+  --success-soft: rgba(16, 185, 129, 0.08);
+  --success-border: rgba(16, 185, 129, 0.2);
+
+  --warning: #f59e0b;
+  --warning-soft: rgba(245, 158, 11, 0.08);
+  --warning-border: rgba(245, 158, 11, 0.2);
 
   --danger: #ef4444;
   --danger-soft: rgba(239, 68, 68, 0.08);
-  --success: #10b981;
-  --success-soft: rgba(16, 185, 129, 0.08);
-  --warning: #f59e0b;
-  --warning-soft: rgba(245, 158, 11, 0.08);
+  --danger-border: rgba(239, 68, 68, 0.2);
 
-  --radius-sm: 4px;
+  /* ── Dimension & Radius Scale ─────────────────────────────────────────── */
+  --radius-xs: 3px;
+  --radius-sm: 5px;
   --radius: 6px;
   --radius-md: 8px;
   --radius-lg: 10px;
   --radius-xl: 12px;
 
-  /* ── Hairline Surface Tokens ───────────────────────────────────────── */
-  --glass-bg: rgba(15, 15, 18, 0.88);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-blur: 12px;
-  --glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  /* ── Elevation Shadows ─────────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
   --card-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
-  /* ── Layout Dimensions ─────────────────────────────────────────────── */
-  --sidebar-width: 256px;
+  /* ── Layout Dimensions ─────────────────────────────────────────────────── */
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 68px;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

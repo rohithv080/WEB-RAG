@@ -180,7 +180,7 @@ export function Sidebar({
           <input
             className="sidebar-search"
             type="text"
-            placeholder="Search bots or press ⌘K…"
+            placeholder="Search or press ⌘K…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onFocus={(e) => {
@@ -204,75 +204,153 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Site list */}
-      <nav className="sidebar-list">
-        {filtered.map((site) => {
-          const favicon = getFavicon(site);
-          const isActive = site.id === activeSiteId;
-
-          return (
-            <button
-              key={site.id}
-              className={`sidebar-item ${isActive ? "sidebar-item-active" : ""}`}
-              onClick={() => {
-                onSelect(site);
-                setMobileOpen(false);
-              }}
+      {/* Section 1: WORKSPACE */}
+      <div className="sidebar-section">
+        {!isCollapsed && <div className="sidebar-section-label">Workspace</div>}
+        <div className="sidebar-nav-group">
+          <button
+            type="button"
+            className={`sidebar-nav-btn ${!activeSiteId ? "active" : ""}`}
+            onClick={() => {
+              onHome();
+              setMobileOpen(false);
+            }}
+            title="All Knowledge Bases"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              {isActive && <span className="active-pill" />}
-              <div className="sidebar-item-icon">
-                {favicon ? (
-                  <img src={favicon} alt="" width={16} height={16} style={{ borderRadius: 3 }} />
-                ) : (
-                  <span className="sidebar-item-letter">{site.name.charAt(0).toUpperCase()}</span>
-                )}
+              <rect x="3" y="3" width="7" height="7" />
+              <rect x="14" y="3" width="7" height="7" />
+              <rect x="14" y="14" width="7" height="7" />
+              <rect x="3" y="14" width="7" height="7" />
+            </svg>
+            {!isCollapsed && <span>Overview</span>}
+          </button>
+
+          <button
+            type="button"
+            className="sidebar-nav-btn sidebar-create-btn"
+            onClick={() => {
+              onAddBot();
+              setMobileOpen(false);
+            }}
+            title="Create Knowledge Base"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            {!isCollapsed && <span>New Knowledge Base</span>}
+          </button>
+        </div>
+      </div>
+
+      {/* Section 2: KNOWLEDGE BASES */}
+      <div className="sidebar-section sidebar-kb-section">
+        {!isCollapsed && (
+          <div className="sidebar-section-label">
+            <span>Knowledge Bases</span>
+            <span className="sidebar-section-count">{sites.length}</span>
+          </div>
+        )}
+        <nav className="sidebar-list">
+          {filtered.length === 0 ? (
+            !isCollapsed && (
+              <div className="sidebar-empty-hint">
+                {search ? "No matching bots" : "No knowledge bases yet"}
               </div>
-              <div className="sidebar-item-info">
-                <span className="sidebar-item-name">{site.name}</span>
-                <span className="sidebar-item-meta">
-                  {site.totalChunks} chunks · {relativeTime(site.lastScrapedAt)}
-                </span>
-              </div>
-            </button>
-          );
-        })}
-      </nav>
+            )
+          ) : (
+            filtered.map((site) => {
+              const favicon = getFavicon(site);
+              const isActive = site.id === activeSiteId;
 
-      {/* Add bot button */}
-      <button
-        className="sidebar-add"
-        onClick={() => {
-          onAddBot();
-          setMobileOpen(false);
-        }}
-      >
-        <span className="sidebar-add-icon">+</span>
-        <span>New Knowledge Bot</span>
-      </button>
+              return (
+                <button
+                  key={site.id}
+                  className={`sidebar-item ${isActive ? "sidebar-item-active" : ""}`}
+                  onClick={() => {
+                    onSelect(site);
+                    setMobileOpen(false);
+                  }}
+                  title={isCollapsed ? site.name : undefined}
+                >
+                  {isActive && <span className="active-pill" />}
+                  <div className="sidebar-item-icon">
+                    {favicon ? (
+                      <img src={favicon} alt="" width={15} height={15} style={{ borderRadius: 2 }} />
+                    ) : (
+                      <span className="sidebar-item-letter">{site.name.charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  {!isCollapsed && (
+                    <div className="sidebar-item-info">
+                      <span className="sidebar-item-name">{site.name}</span>
+                      <span className="sidebar-item-meta">
+                        {site.totalChunks.toLocaleString()} chunks
+                      </span>
+                    </div>
+                  )}
+                </button>
+              );
+            })
+          )}
+        </nav>
+      </div>
 
-      {/* Developer API Keys button */}
-      {onOpenApiKeys && (
-        <button
-          type="button"
-          className="sidebar-keys-btn"
-          onClick={() => {
-            onOpenApiKeys();
-            setMobileOpen(false);
-          }}
-          title="Developer API Keys & OpenAI SDK Endpoints"
-        >
-          <span className="sidebar-keys-icon">🔑</span>
-          <span>Developer API Keys</span>
-        </button>
-      )}
+      {/* Section 3: ACCOUNT & DEVELOPER */}
+      <div className="sidebar-section sidebar-account-section">
+        {!isCollapsed && <div className="sidebar-section-label">Account</div>}
+        {onOpenApiKeys && (
+          <button
+            type="button"
+            className="sidebar-nav-btn"
+            onClick={() => {
+              onOpenApiKeys();
+              setMobileOpen(false);
+            }}
+            title="Developer API Keys & OpenAI SDK Endpoints"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21 2l-2 2m-1.5 1.5L16 7l-1.5-1.5M16 7l-2 2m0 0l-3 3-4-4L2 13l5 5 4-4 3 3 5-5-2-2z" />
+            </svg>
+            {!isCollapsed && <span>API Keys</span>}
+          </button>
+        )}
 
-      {/* Auth bar */}
-      <AuthBar />
+        <AuthBar />
+      </div>
 
       {/* Footer */}
       <div className="sidebar-footer">
         <span className="footer-status-dot" />
-        <span>RAG Engine Online</span>
+        {!isCollapsed && <span>Operational</span>}
       </div>
 
       <style jsx>{`
@@ -362,7 +440,7 @@ export function Sidebar({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-right: 8px;
+          padding: 0.75rem 0.85rem;
           border-bottom: 1px solid var(--border-subtle);
         }
         .sidebar-collapse-btn {
@@ -385,25 +463,21 @@ export function Sidebar({
           display: flex;
           align-items: center;
           gap: 0.65rem;
-          padding: 0.9rem 0.9rem;
+          padding: 0;
           border: none;
           background: transparent;
           color: var(--text);
           cursor: pointer;
           text-align: left;
           flex: 1;
-          transition: background 0.12s ease;
-        }
-        .sidebar-brand:hover {
-          background: rgba(255, 255, 255, 0.02);
         }
 
         .sidebar-logo-box {
-          width: 26px;
-          height: 26px;
+          width: 24px;
+          height: 24px;
           border-radius: var(--radius-sm);
-          background: var(--accent-subtle);
-          border: 1px solid var(--accent-dim);
+          background: var(--accent-soft);
+          border: 1px solid rgba(59, 130, 246, 0.3);
           color: var(--accent);
           display: flex;
           align-items: center;
@@ -417,7 +491,7 @@ export function Sidebar({
         }
 
         .sidebar-title {
-          font-size: 0.88rem;
+          font-size: 0.86rem;
           font-weight: 600;
           letter-spacing: -0.015em;
           color: #f7f7f8;
@@ -425,7 +499,7 @@ export function Sidebar({
 
         /* Search */
         .sidebar-search-wrap {
-          padding: 0.6rem 0.6rem 0.25rem;
+          padding: 0.5rem 0.5rem 0.25rem;
         }
 
         .sidebar-search-box {
@@ -437,17 +511,17 @@ export function Sidebar({
 
         .sidebar-search-icon {
           position: absolute;
-          left: 0.6rem;
+          left: 0.55rem;
           color: var(--text-dim);
           pointer-events: none;
         }
 
         .sidebar-search {
           width: 100%;
-          padding: 0.4rem 1.8rem 0.4rem 1.85rem;
+          padding: 0.38rem 1.6rem 0.38rem 1.75rem;
           border: 1px solid var(--border);
-          border-radius: 6px;
-          background: rgba(255, 255, 255, 0.025);
+          border-radius: var(--radius);
+          background: rgba(255, 255, 255, 0.02);
           color: var(--text);
           font-size: 0.78rem;
           outline: none;
@@ -466,8 +540,8 @@ export function Sidebar({
 
         .sidebar-search-kbd {
           position: absolute;
-          right: 0.5rem;
-          font-size: 0.62rem;
+          right: 0.45rem;
+          font-size: 0.6rem;
           font-family: var(--font-mono);
           color: var(--text-dim);
           padding: 1px 4px;
@@ -477,14 +551,99 @@ export function Sidebar({
           pointer-events: none;
         }
 
-        /* Site list */
+        /* Section Architecture */
+        .sidebar-section {
+          padding: 0.35rem 0.5rem;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .sidebar-section-label {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.35rem 0.55rem 0.25rem;
+          font-size: 0.65rem;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: var(--text-dim);
+        }
+
+        .sidebar-section-count {
+          font-size: 0.62rem;
+          font-family: var(--font-mono);
+          color: var(--text-dim);
+          background: rgba(255, 255, 255, 0.04);
+          padding: 1px 4px;
+          border-radius: 3px;
+        }
+
+        .sidebar-nav-group {
+          display: flex;
+          flex-direction: column;
+          gap: 1px;
+        }
+
+        .sidebar-nav-btn {
+          display: flex;
+          align-items: center;
+          gap: 0.55rem;
+          width: 100%;
+          padding: 0.42rem 0.55rem;
+          border-radius: var(--radius);
+          background: transparent;
+          border: 1px solid transparent;
+          color: var(--text-muted);
+          font-size: 0.8rem;
+          font-weight: 500;
+          cursor: pointer;
+          text-align: left;
+          transition: all 0.12s ease;
+        }
+
+        .sidebar-nav-btn:hover {
+          background: rgba(255, 255, 255, 0.035);
+          color: var(--text);
+        }
+
+        .sidebar-nav-btn.active {
+          background: rgba(255, 255, 255, 0.06);
+          color: #ffffff;
+        }
+
+        .sidebar-create-btn {
+          color: #93c5fd;
+        }
+        .sidebar-create-btn:hover {
+          color: #ffffff;
+          background: var(--accent-soft);
+        }
+
+        /* Knowledge Bases section */
+        .sidebar-kb-section {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 0;
+          overflow: hidden;
+          padding-bottom: 0;
+        }
+
         .sidebar-list {
           flex: 1;
           overflow-y: auto;
-          padding: 0.4rem 0.5rem;
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 1px;
+          padding-top: 1px;
+        }
+
+        .sidebar-empty-hint {
+          padding: 0.85rem 0.5rem;
+          font-size: 0.75rem;
+          color: var(--text-dim);
+          text-align: center;
         }
 
         .sidebar-item {
@@ -495,7 +654,7 @@ export function Sidebar({
           border: 1px solid transparent;
           background: transparent;
           color: var(--text-muted);
-          border-radius: 6px;
+          border-radius: var(--radius);
           cursor: pointer;
           text-align: left;
           width: 100%;
@@ -515,18 +674,18 @@ export function Sidebar({
 
         .active-pill {
           position: absolute;
-          left: -0.5rem;
+          left: 0;
           top: 50%;
           transform: translateY(-50%);
-          width: 2.5px;
+          width: 2px;
           height: 16px;
-          border-radius: 0 2px 2px 0;
+          border-radius: 0 1px 1px 0;
           background: var(--accent);
         }
 
         .sidebar-item-icon {
-          width: 22px;
-          height: 22px;
+          width: 20px;
+          height: 20px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -536,15 +695,15 @@ export function Sidebar({
         }
 
         .sidebar-item-letter {
-          width: 22px;
-          height: 22px;
+          width: 20px;
+          height: 20px;
           border-radius: 4px;
-          background: rgba(255, 255, 255, 0.06);
+          background: rgba(255, 255, 255, 0.05);
           color: var(--text);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 0.72rem;
+          font-size: 0.7rem;
           font-weight: 600;
         }
 
@@ -566,7 +725,7 @@ export function Sidebar({
 
         .sidebar-item-active .sidebar-item-name {
           color: #ffffff;
-          font-weight: 600;
+          font-weight: 500;
         }
 
         .sidebar-item-meta {
@@ -576,66 +735,19 @@ export function Sidebar({
           margin-top: 1px;
         }
 
-        /* Add button */
-        .sidebar-add {
+        /* Account & Developer section */
+        .sidebar-account-section {
+          border-top: 1px solid var(--border-subtle);
+          margin-top: auto;
+          padding: 0.5rem;
           display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.4rem;
-          margin: 0.35rem 0.5rem 0.45rem;
-          padding: 0.48rem 0.65rem;
-          border: 1px solid var(--border);
-          border-radius: 6px;
-          background: transparent;
-          color: var(--text-muted);
-          font-size: 0.78rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.12s ease;
-        }
-
-        .sidebar-add:hover {
-          border-color: rgba(255, 255, 255, 0.16);
-          color: #ffffff;
-          background: rgba(255, 255, 255, 0.04);
-        }
-
-        .sidebar-add-icon {
-          font-size: 0.95rem;
-          font-weight: 400;
-          line-height: 1;
-        }
-
-        .sidebar-keys-btn {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 0.45rem;
-          margin: 0 0.5rem 0.45rem;
-          padding: 0.45rem 0.65rem;
-          border: 1px solid rgba(124, 124, 255, 0.2);
-          border-radius: 6px;
-          background: rgba(124, 124, 255, 0.05);
-          color: #c4b5fd;
-          font-size: 0.76rem;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.12s ease;
-        }
-
-        .sidebar-keys-btn:hover {
-          border-color: rgba(124, 124, 255, 0.45);
-          color: #ffffff;
-          background: rgba(124, 124, 255, 0.12);
-        }
-
-        .sidebar-keys-icon {
-          font-size: 0.85rem;
+          flex-direction: column;
+          gap: 2px;
         }
 
         /* Footer */
         .sidebar-footer {
-          padding: 0.6rem 0.85rem;
+          padding: 0.5rem 0.75rem;
           font-size: 0.64rem;
           font-family: var(--font-mono);
           color: var(--text-dim);
@@ -650,7 +762,31 @@ export function Sidebar({
           width: 5px;
           height: 5px;
           border-radius: 50%;
-          background: #34d399;
+          background: var(--success);
+        }
+
+        /* ── Collapsed Overrides ─────────────────────────────────────── */
+        .sidebar.sidebar-collapsed :global(.sidebar-section-label),
+        .sidebar.sidebar-collapsed :global(.sidebar-item-info),
+        .sidebar.sidebar-collapsed :global(.sidebar-nav-btn span),
+        .sidebar.sidebar-collapsed :global(.sidebar-footer span:last-child),
+        .sidebar.sidebar-collapsed :global(.sidebar-empty-hint),
+        .sidebar.sidebar-collapsed :global(.user-text-col),
+        .sidebar.sidebar-collapsed :global(.logout-icon-btn),
+        .sidebar.sidebar-collapsed :global(.auth-hint),
+        .sidebar.sidebar-collapsed :global(.status-badge span:last-child),
+        .sidebar.sidebar-collapsed :global(.auth-button-group) {
+          display: none !important;
+        }
+
+        .sidebar.sidebar-collapsed :global(.sidebar-nav-btn) {
+          justify-content: center;
+          padding: 0.5rem 0;
+        }
+
+        .sidebar.sidebar-collapsed :global(.sidebar-item) {
+          justify-content: center;
+          padding: 0.5rem 0;
         }
 
         /* ── Mobile ──────────────────────────────────────────────────── */

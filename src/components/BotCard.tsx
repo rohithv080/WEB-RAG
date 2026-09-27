@@ -104,7 +104,7 @@ export function BotCard({
           </div>
         </div>
 
-        {/* Minimal status indicator */}
+        {/* Meaningful status indicator badges ONLY */}
         <div className="card-badge-row">
           {site.isPublic === false && (
             <span className="status-chip chip-private" title="Private workspace">
@@ -139,100 +139,112 @@ export function BotCard({
         </span>
 
         <div className="card-actions" onClick={(e) => e.stopPropagation()}>
-          {onAnalytics && (
-            <button
-              type="button"
-              className="action-icon-btn"
-              onClick={() => onAnalytics(site)}
-              title="Query Analytics & Logs"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+          <div className="secondary-actions-group">
+            {onAnalytics && (
+              <button
+                type="button"
+                className="action-icon-btn"
+                onClick={() => onAnalytics(site)}
+                title="Query Analytics & Logs"
               >
-                <line x1="18" y1="20" x2="18" y2="10" />
-                <line x1="12" y1="20" x2="12" y2="4" />
-                <line x1="6" y1="20" x2="6" y2="14" />
-              </svg>
-            </button>
-          )}
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="20" x2="18" y2="10" />
+                  <line x1="12" y1="20" x2="12" y2="4" />
+                  <line x1="6" y1="20" x2="6" y2="14" />
+                </svg>
+              </button>
+            )}
 
-          {onEmbed && (
-            <button
-              type="button"
-              className="action-icon-btn"
-              onClick={() => onEmbed(site)}
-              title="Get Embed Widget"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+            {onEmbed && (
+              <button
+                type="button"
+                className="action-icon-btn"
+                onClick={() => onEmbed(site)}
+                title="Get Embed Widget"
               >
-                <polyline points="16 18 22 12 16 6" />
-                <polyline points="8 6 2 12 8 18" />
-              </svg>
-            </button>
-          )}
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="16 18 22 12 16 6" />
+                  <polyline points="8 6 2 12 8 18" />
+                </svg>
+              </button>
+            )}
 
-          {onSettings && (
-            <button
-              type="button"
-              className="action-icon-btn"
-              onClick={() => onSettings(site)}
-              title="Bot Settings & Persona"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+            {onSettings && (
+              <button
+                type="button"
+                className="action-icon-btn"
+                onClick={() => onSettings(site)}
+                title="Bot Settings & Persona"
               >
-                <circle cx="12" cy="12" r="3" />
-                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
-              </svg>
-            </button>
-          )}
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+              </button>
+            )}
 
-          {onDelete && (
-            <button
-              type="button"
-              className="action-icon-btn action-danger"
-              onClick={() => onDelete(site.id)}
-              title="Delete Bot"
-            >
-              <svg
-                width="13"
-                height="13"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
+            {onDelete && (
+              <button
+                type="button"
+                className="action-icon-btn action-danger"
+                onClick={() => onDelete(site.id)}
+                title="Delete Knowledge Base"
               >
-                <polyline points="3 6 5 6 21 6" />
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-              </svg>
-            </button>
-          )}
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+              </button>
+            )}
+          </div>
 
           <button type="button" className="action-chat-btn" onClick={onClick}>
             <span>Open</span>
             <svg
-              width="12"
-              height="12"
+              width="11"
+              height="11"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
@@ -246,9 +258,9 @@ export function BotCard({
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
-          padding: 1.25rem;
+          padding: 1.15rem 1.25rem;
           background: var(--bg-card);
-          border: 1px solid var(--border-default);
+          border: 1px solid var(--border);
           border-radius: var(--radius-md);
           cursor: pointer;
           transition: all 0.15s ease;
@@ -257,8 +269,9 @@ export function BotCard({
 
         .bot-card:hover {
           background: var(--bg-card-hover);
-          border-color: var(--border-focus);
+          border-color: var(--border-hover);
           box-shadow: var(--shadow-md);
+          transform: translateY(-1px);
         }
 
         /* ── Header ─────────────────────────────────────────────── */
@@ -272,16 +285,16 @@ export function BotCard({
         .card-avatar-group {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 0.7rem;
           min-width: 0;
         }
 
         .card-avatar {
-          width: 34px;
-          height: 34px;
+          width: 32px;
+          height: 32px;
           border-radius: var(--radius-sm);
-          background: var(--accent-subtle);
-          border: 1px solid var(--accent-dim);
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--border);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -289,13 +302,13 @@ export function BotCard({
         }
 
         .avatar-img {
-          border-radius: 4px;
+          border-radius: 3px;
         }
 
         .avatar-abbr {
-          color: var(--accent);
-          font-size: 0.76rem;
-          font-weight: 700;
+          color: var(--text-muted);
+          font-size: 0.72rem;
+          font-weight: 600;
           letter-spacing: -0.01em;
         }
 
@@ -307,7 +320,7 @@ export function BotCard({
           margin: 0;
           font-size: 0.95rem;
           font-weight: 600;
-          color: var(--text-primary);
+          color: var(--text);
           letter-spacing: -0.015em;
           white-space: nowrap;
           overflow: hidden;
@@ -315,8 +328,10 @@ export function BotCard({
         }
 
         .card-meta-line {
-          font-size: 0.74rem;
-          color: var(--text-muted);
+          font-size: 0.72rem;
+          color: var(--text-dim);
+          font-family: var(--font-mono);
+          margin-top: 1px;
         }
 
         .card-badge-row {
@@ -327,38 +342,38 @@ export function BotCard({
         }
 
         .status-chip {
-          padding: 0.15rem 0.45rem;
-          border-radius: var(--radius-sm);
+          padding: 2px 7px;
+          border-radius: 4px;
           font-size: 0.68rem;
           font-weight: 500;
-          border: 1px solid var(--border-default);
-          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          background: rgba(255, 255, 255, 0.03);
           color: var(--text-muted);
         }
 
         .chip-web {
-          color: #0284c7;
-          background: rgba(2, 132, 199, 0.08);
-          border-color: rgba(2, 132, 199, 0.25);
+          color: #93c5fd;
+          background: rgba(59, 130, 246, 0.08);
+          border-color: rgba(59, 130, 246, 0.2);
         }
 
         .chip-sync {
-          color: #10b981;
-          background: rgba(16, 185, 129, 0.08);
-          border-color: rgba(16, 185, 129, 0.25);
+          color: #fcd34d;
+          background: rgba(245, 158, 11, 0.08);
+          border-color: rgba(245, 158, 11, 0.2);
         }
 
         .chip-private {
-          color: #ef4444;
-          background: rgba(239, 68, 68, 0.08);
-          border-color: rgba(239, 68, 68, 0.25);
+          color: var(--text-muted);
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(255, 255, 255, 0.08);
         }
 
         /* ── Description ────────────────────────────────────────── */
         .card-desc {
           margin: 0;
           font-size: 0.82rem;
-          color: var(--text-secondary);
+          color: var(--text-muted);
           line-height: 1.5;
           display: -webkit-box;
           -webkit-line-clamp: 2;
@@ -372,28 +387,39 @@ export function BotCard({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 0.75rem;
+          padding-top: 0.7rem;
           border-top: 1px solid var(--border-subtle);
           gap: 0.5rem;
         }
 
         .card-timestamp {
           font-size: 0.72rem;
-          color: var(--text-muted);
+          color: var(--text-dim);
         }
 
         .card-actions {
           display: flex;
           align-items: center;
-          gap: 0.35rem;
+          gap: 0.4rem;
+        }
+
+        .secondary-actions-group {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          opacity: 0.8;
+          transition: opacity 0.15s ease;
+        }
+        .bot-card:hover .secondary-actions-group {
+          opacity: 1;
         }
 
         .action-icon-btn {
-          width: 28px;
-          height: 28px;
+          width: 26px;
+          height: 26px;
           border-radius: var(--radius-sm);
-          border: 1px solid var(--border-default);
-          background: var(--bg-surface);
+          border: 1px solid transparent;
+          background: transparent;
           color: var(--text-muted);
           display: flex;
           align-items: center;
@@ -403,37 +429,35 @@ export function BotCard({
         }
 
         .action-icon-btn:hover {
-          color: var(--text-primary);
-          background: var(--bg-hover);
-          border-color: var(--border-focus);
+          color: var(--text);
+          background: rgba(255, 255, 255, 0.06);
+          border-color: var(--border);
         }
 
         .action-danger:hover {
-          color: #ef4444;
-          background: rgba(239, 68, 68, 0.1);
-          border-color: rgba(239, 68, 68, 0.25);
+          color: #f87171;
+          background: rgba(239, 68, 68, 0.08);
+          border-color: rgba(239, 68, 68, 0.2);
         }
 
         .action-chat-btn {
           display: inline-flex;
           align-items: center;
           gap: 0.35rem;
-          padding: 0.35rem 0.75rem;
+          padding: 0.32rem 0.75rem;
           border-radius: var(--radius-sm);
           border: 1px solid transparent;
-          background: var(--accent);
+          background: var(--accent-btn);
           color: #ffffff;
           font-size: 0.76rem;
-          font-weight: 600;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all 0.12s ease;
           margin-left: 0.25rem;
-          box-shadow: 0 1px 3px rgba(0, 102, 204, 0.25);
         }
 
         .action-chat-btn:hover {
           background: var(--accent-hover);
-          box-shadow: 0 2px 6px rgba(0, 102, 204, 0.35);
         }
       `}</style>
     </article>
