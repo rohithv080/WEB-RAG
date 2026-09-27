@@ -17,6 +17,8 @@ export type ChatMessage = {
   standaloneQuery?: string;
   latencyMs?: number;
   isWebFallback?: boolean;
+  suggestWebSearch?: boolean;
+  webSearchQuery?: string;
 };
 
 type Props = {
@@ -353,6 +355,9 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
             rating: m.rating || null,
             latencyMs: m.latencyMs || undefined,
             isWebFallback: Boolean(m.isWebFallback),
+            suggestWebSearch:
+              !m.isWebFallback &&
+              /would you like me to search the web/i.test(m.content),
           }));
           setMessages(loaded);
         } else {
@@ -448,7 +453,10 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
     URL.revokeObjectURL(url);
   }
 
-  function submitQuestion(question: string) {
+  function submitQuestion(
+    question: string,
+    options?: { forceWebSearch?: boolean; webSearchQuery?: string; userDisplayQuestion?: string }
+  ) {
     if (!question.trim() || !siteId || streaming) return;
 
     setError(null);
@@ -461,10 +469,11 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
     abortControllerRef.current = controller;
     setStreaming(true);
 
+    const userDisplay = options?.userDisplayQuestion || question.trim();
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
-      content: question.trim(),
+      content: userDisplay,
     };
     const assistantId = `a-${Date.now()}`;
     setMessages((prev) => [...prev, userMsg, { id: assistantId, role: "assistant", content: "" }]);
@@ -481,10 +490,12 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            question: question.trim(),
+            question: options?.webSearchQuery || question.trim(),
             siteId,
             sessionId,
             language: language === "auto" ? null : language,
+            forceWebSearch: Boolean(options?.forceWebSearch),
+            webSearchQuery: options?.webSearchQuery,
           }),
           signal: controller.signal,
         });
@@ -530,6 +541,8 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                         latencyMs: payload.latencyMs,
                         dbId: payload.messageId || payload.assistantMessageId,
                         isWebFallback: Boolean(payload.isWebFallback),
+                        suggestWebSearch: Boolean(payload.suggestWebSearch),
+                        webSearchQuery: payload.webSearchQuery,
                       }
                     : m
                 )
@@ -555,6 +568,11 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                           payload.isWebFallback !== undefined
                             ? Boolean(payload.isWebFallback)
                             : m.isWebFallback,
+                        suggestWebSearch:
+                          payload.suggestWebSearch !== undefined
+                            ? Boolean(payload.suggestWebSearch)
+                            : m.suggestWebSearch,
+                        webSearchQuery: payload.webSearchQuery || m.webSearchQuery,
                       }
                     : m
                 )
@@ -848,6 +866,39 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                           </div>
                         </div>
                       )}
+
+                    {m.suggestWebSearch && !m.isWebFallback && (
+                      <div className="web-search-suggest-box">
+                        <button
+                          type="button"
+                          className="web-search-action-btn"
+                          disabled={streaming}
+                          onClick={() => {
+                            const targetQ =
+                              m.webSearchQuery ||
+                              m.standaloneQuery ||
+                              messages
+                                .slice(0, messages.indexOf(m))
+                                .reverse()
+                                .find((x) => x.role === "user")?.content ||
+                              "";
+                            if (targetQ) {
+                              submitQuestion(targetQ, {
+                                forceWebSearch: true,
+                                webSearchQuery: targetQ,
+                                userDisplayQuestion: `🌐 Search the web for: "${targetQ}"`,
+                              });
+                            }
+                          }}
+                        >
+                          <span className="btn-globe-icon">🌐</span>
+                          <span className="btn-text">
+                            Search the Web for &ldquo;<strong>{m.webSearchQuery || "this"}</strong>&rdquo;
+                          </span>
+                          <span className="btn-arrow">→</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1330,6 +1381,59 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           display: flex;
           flex-wrap: wrap;
           gap: 0.4rem;
+        }
+
+        .web-search-suggest-box {
+          margin-top: 0.75rem;
+          padding-top: 0.6rem;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          display: flex;
+          align-items: center;
+        }
+        .web-search-action-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.55rem;
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(99, 102, 241, 0.16));
+          border: 1px solid rgba(99, 102, 241, 0.35);
+          color: #93c5fd;
+          padding: 0.55rem 0.95rem;
+          border-radius: 8px;
+          font-size: 0.82rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        .web-search-action-btn:hover:not(:disabled) {
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.22), rgba(99, 102, 241, 0.28));
+          border-color: rgba(147, 197, 253, 0.6);
+          color: #ffffff;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+        }
+        .web-search-action-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          transform: none;
+        }
+        .btn-globe-icon {
+          font-size: 0.95rem;
+        }
+        .btn-text {
+          max-width: 380px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .btn-arrow {
+          font-size: 0.9rem;
+          transition: transform 0.15s ease;
+          color: #60a5fa;
+        }
+        .web-search-action-btn:hover:not(:disabled) .btn-arrow {
+          transform: translateX(2px);
+          color: #93c5fd;
         }
 
         .scroll-to-bottom-btn {

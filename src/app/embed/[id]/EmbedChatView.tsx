@@ -19,6 +19,9 @@ type ChatMessage = {
   content: string;
   citations?: Citation[];
   standaloneQuery?: string;
+  isWebFallback?: boolean;
+  suggestWebSearch?: boolean;
+  webSearchQuery?: string;
 };
 
 type Props = {
@@ -96,17 +99,21 @@ export function EmbedChatView({
     } catch (e) {}
   }
 
-  async function askQuestion(q: string) {
+  async function askQuestion(
+    q: string,
+    options?: { forceWebSearch?: boolean; webSearchQuery?: string; userDisplayQuestion?: string }
+  ) {
     const questionText = q.trim();
     if (!questionText || streaming) return;
 
     setInput("");
     setStreaming(true);
 
+    const userDisplay = options?.userDisplayQuestion || questionText;
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       role: "user",
-      content: questionText,
+      content: userDisplay,
     };
     const assistantId = `a-${Date.now()}`;
 
@@ -117,10 +124,12 @@ export function EmbedChatView({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          question: q,
+          question: options?.webSearchQuery || questionText,
           siteId,
           sessionId: sessionId || undefined,
           language: language === "auto" ? null : language,
+          forceWebSearch: Boolean(options?.forceWebSearch),
+          webSearchQuery: options?.webSearchQuery,
         }),
       });
 
@@ -159,6 +168,9 @@ export function EmbedChatView({
                       ...m,
                       citations: payload.citations,
                       standaloneQuery: payload.standaloneQuery,
+                      isWebFallback: Boolean(payload.isWebFallback),
+                      suggestWebSearch: Boolean(payload.suggestWebSearch),
+                      webSearchQuery: payload.webSearchQuery,
                     }
                   : m
               )
@@ -169,8 +181,26 @@ export function EmbedChatView({
                 m.id === assistantId ? { ...m, content: m.content + payload.content } : m
               )
             );
-          } else if (payload.type === "done" && payload.sessionId) {
-            setSessionId(payload.sessionId);
+          } else if (payload.type === "done") {
+            if (payload.sessionId) setSessionId(payload.sessionId);
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantId
+                  ? {
+                      ...m,
+                      isWebFallback:
+                        payload.isWebFallback !== undefined
+                          ? Boolean(payload.isWebFallback)
+                          : m.isWebFallback,
+                      suggestWebSearch:
+                        payload.suggestWebSearch !== undefined
+                          ? Boolean(payload.suggestWebSearch)
+                          : m.suggestWebSearch,
+                      webSearchQuery: payload.webSearchQuery || m.webSearchQuery,
+                    }
+                  : m
+              )
+            );
           } else if (payload.type === "error") {
             throw new Error(payload.error || "Stream error");
           }
@@ -289,7 +319,9 @@ export function EmbedChatView({
                 m.citations.length > 0 &&
                 !m.content.includes("I couldn't find that in the source.") && (
                   <div className="citations-tray">
-                    <span className="citations-label">Sources:</span>
+                    <span className="citations-label">
+                      {m.isWebFallback ? "🌐 Live Web Sources:" : "Sources:"}
+                    </span>
                     <div className="citations-list">
                       {m.citations.slice(0, 3).map((c) => (
                         <a
@@ -306,6 +338,40 @@ export function EmbedChatView({
                     </div>
                   </div>
                 )}
+
+              {/* Web search suggestion button */}
+              {m.suggestWebSearch && !m.isWebFallback && (
+                <div className="embed-web-search-box">
+                  <button
+                    type="button"
+                    className="embed-web-search-btn"
+                    disabled={streaming}
+                    onClick={() => {
+                      const targetQ =
+                        m.webSearchQuery ||
+                        m.standaloneQuery ||
+                        messages
+                          .slice(0, messages.indexOf(m))
+                          .reverse()
+                          .find((x) => x.role === "user")?.content ||
+                        "";
+                      if (targetQ) {
+                        askQuestion(targetQ, {
+                          forceWebSearch: true,
+                          webSearchQuery: targetQ,
+                          userDisplayQuestion: `🌐 Search the web for: "${targetQ}"`,
+                        });
+                      }
+                    }}
+                  >
+                    <span className="btn-globe">🌐</span>
+                    <span className="btn-txt">
+                      Search the Web for &ldquo;<strong>{m.webSearchQuery || "this"}</strong>&rdquo;
+                    </span>
+                    <span className="btn-arrow">→</span>
+                  </button>
+                </div>
+              )}
 
               {/* Copy button on assistant replies */}
               {m.role === "assistant" && m.content && <CopyButton text={m.content} />}
@@ -663,6 +729,48 @@ export function EmbedChatView({
         }
         .citation-pill:hover {
           text-decoration: underline;
+        }
+
+        .embed-web-search-box {
+          margin-top: 6px;
+          display: flex;
+        }
+        .embed-web-search-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--accent);
+          color: #fff;
+          padding: 5px 10px;
+          border-radius: 6px;
+          font-size: 0.76rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .embed-web-search-btn:hover:not(:disabled) {
+          background: var(--accent);
+          color: #fff;
+          transform: translateY(-1px);
+        }
+        .embed-web-search-btn:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+          transform: none;
+        }
+        .embed-web-search-btn .btn-globe {
+          font-size: 0.85rem;
+        }
+        .embed-web-search-btn .btn-txt {
+          max-width: 220px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .embed-web-search-btn .btn-arrow {
+          font-size: 0.85rem;
         }
 
         .starter-questions-tray {
