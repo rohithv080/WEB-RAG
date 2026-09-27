@@ -109,14 +109,17 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         <div className="modal-header">
           <div className="header-left">
             <span className="cite-badge">[{citation.index}]</span>
-            {favicon && <img src={favicon} alt="" width={18} height={18} className="site-icon" />}
+            {favicon && <img src={favicon} alt="" width={16} height={16} className="site-icon" />}
             <div>
               <h3 className="source-domain">{domain}</h3>
               <p className="source-heading">{citation.heading || "Extracted Section"}</p>
             </div>
           </div>
           <button className="close-btn" onClick={onClose} aria-label="Close modal">
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
@@ -145,7 +148,7 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           </div>
 
           <div className="engine-meta-col">
-            <span className="engine-pill">⚡ Vector (Nomic-768) + BM25 Hybrid</span>
+            <span className="engine-pill">Vector (Nomic-768) + BM25 Hybrid</span>
             <span className="chunk-id-text">
               Chunk: <code>{citation.chunkId ? citation.chunkId.slice(0, 10) : "verified"}</code>
             </span>
@@ -170,12 +173,28 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
               className="adjacent-toggle-btn"
               onClick={() => setShowAdjacentContext((v) => !v)}
             >
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{
+                  transform: showAdjacentContext ? "rotate(90deg)" : "rotate(0deg)",
+                  transition: "transform 0.15s ease",
+                }}
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
               <span>
                 {showAdjacentContext
-                  ? "▾ Hide Surrounding Context"
-                  : "▸ Show Surrounding Document Context"}
+                  ? "Hide Surrounding Context"
+                  : "Show Surrounding Document Context"}
               </span>
-              <span className="adjacent-subtext">(Preceding & succeeding chunks in document)</span>
+              <span className="adjacent-subtext">(Preceding & succeeding chunks)</span>
             </button>
 
             {showAdjacentContext && (
@@ -188,10 +207,10 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
                       <div className="adjacent-chunk-item">
                         <div className="adj-header">
                           <span className="adj-tag">
-                            ← Preceding Context (Chunk #{adjacentContext.prev.order + 1})
+                            Preceding Context (Chunk #{adjacentContext.prev.order + 1})
                           </span>
                           {adjacentContext.prev.heading && (
-                            <span className="adj-heading">§ {adjacentContext.prev.heading}</span>
+                            <span className="adj-heading">{adjacentContext.prev.heading}</span>
                           )}
                         </div>
                         <p className="adj-body">{adjacentContext.prev.content}</p>
@@ -206,10 +225,10 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
                       <div className="adjacent-chunk-item">
                         <div className="adj-header">
                           <span className="adj-tag">
-                            Succeeding Context (Chunk #{adjacentContext.next.order + 1}) →
+                            Succeeding Context (Chunk #{adjacentContext.next.order + 1})
                           </span>
                           {adjacentContext.next.heading && (
-                            <span className="adj-heading">§ {adjacentContext.next.heading}</span>
+                            <span className="adj-heading">{adjacentContext.next.heading}</span>
                           )}
                         </div>
                         <p className="adj-body">{adjacentContext.next.content}</p>
@@ -231,7 +250,22 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         {/* Footer Actions */}
         <div className="modal-footer">
           <button className="btn-secondary" onClick={handleCopy}>
-            {copied ? "✓ Copied to Clipboard" : "📋 Copy Snippet"}
+            {copied ? (
+              <>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                <span>Copied</span>
+              </>
+            ) : (
+              <>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                <span>Copy Snippet</span>
+              </>
+            )}
           </button>
           <a
             className="btn-primary"
@@ -239,7 +273,12 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Open Source Webpage ↗
+            <span>Open Source Webpage</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+              <polyline points="15 3 21 3 21 9" />
+              <line x1="10" y1="14" x2="21" y2="3" />
+            </svg>
           </a>
         </div>
       </div>
@@ -248,8 +287,8 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         .modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(10, 15, 29, 0.72);
-          backdrop-filter: blur(8px);
+          background: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(4px);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -260,11 +299,11 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
 
         .modal-card {
           width: 100%;
-          max-width: 660px;
-          background: var(--bg-card);
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-lg);
-          box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-subtle);
+          max-width: 620px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
           display: flex;
           flex-direction: column;
           overflow: hidden;
@@ -275,44 +314,44 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 1rem 1.25rem;
-          border-bottom: 1px solid var(--border-subtle);
-          background: var(--bg-subtle);
+          padding: 14px 16px;
+          border-bottom: 1px solid var(--border);
+          background: var(--bg-surface);
         }
 
         .header-left {
           display: flex;
           align-items: center;
-          gap: 0.75rem;
+          gap: 10px;
           min-width: 0;
         }
 
         .cite-badge {
-          font-family: var(--font-mono, ui-monospace, monospace);
-          font-size: 0.8rem;
-          font-weight: 700;
+          font-family: monospace;
+          font-size: 0.75rem;
+          font-weight: 600;
           color: var(--accent);
-          background: var(--accent-subtle);
-          padding: 0.2rem 0.55rem;
+          background: var(--bg-card);
+          padding: 2px 6px;
           border-radius: var(--radius-sm);
-          border: 1px solid var(--accent-dim);
-          letter-spacing: 0.02em;
+          border: 1px solid var(--border);
         }
 
         .site-icon {
-          border-radius: 4px;
+          border-radius: var(--radius-micro);
         }
 
         .source-domain {
           margin: 0;
-          font-size: 0.9rem;
+          font-size: 0.88rem;
           font-weight: 600;
           color: var(--text-primary);
+          letter-spacing: -0.01em;
         }
 
         .source-heading {
           margin: 0;
-          font-size: 0.75rem;
+          font-size: 0.72rem;
           color: var(--text-muted);
           max-width: 360px;
           white-space: nowrap;
@@ -322,22 +361,21 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
 
         .close-btn {
           background: transparent;
-          border: 1px solid transparent;
+          border: 1px solid var(--border);
           color: var(--text-muted);
-          font-size: 1.1rem;
           cursor: pointer;
-          width: 32px;
-          height: 32px;
+          width: 28px;
+          height: 28px;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: var(--radius-md);
+          border-radius: var(--radius-sm);
           transition: all 0.15s ease;
         }
         .close-btn:hover {
           background: var(--bg-hover);
-          border-color: var(--border-subtle);
           color: var(--text-primary);
+          border-color: var(--border-hover);
         }
 
         /* Telemetry Bar */
@@ -345,9 +383,9 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.75rem 1.25rem;
-          background: var(--bg-surface);
-          border-bottom: 1px solid var(--border-subtle);
+          padding: 10px 16px;
+          background: var(--bg-card);
+          border-bottom: 1px solid var(--border);
           gap: 12px;
         }
 
@@ -362,25 +400,22 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           display: flex;
           align-items: center;
           gap: 6px;
-          font-size: 0.75rem;
+          font-size: 0.74rem;
         }
 
         .score-dot {
-          width: 7px;
-          height: 7px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
         }
         .score-dot.high {
-          background: #10b981;
-          box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+          background: #22c55e;
         }
         .score-dot.medium {
           background: var(--accent);
-          box-shadow: 0 0 6px var(--accent-dim);
         }
         .score-dot.fallback {
-          background: #f59e0b;
-          box-shadow: 0 0 6px rgba(245, 158, 11, 0.4);
+          background: #888888;
         }
 
         .score-text {
@@ -389,31 +424,19 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         .score-badge {
           font-size: 0.65rem;
           padding: 1px 6px;
-          border-radius: 4px;
-          font-weight: 600;
-          font-family: var(--font-mono, monospace);
-        }
-        .score-badge.high {
-          background: rgba(16, 185, 129, 0.12);
-          color: #34d399;
-          border: 1px solid rgba(16, 185, 129, 0.25);
-        }
-        .score-badge.medium {
-          background: var(--accent-subtle);
-          color: var(--accent);
-          border: 1px solid var(--accent-dim);
-        }
-        .score-badge.fallback {
-          background: rgba(245, 158, 11, 0.12);
-          color: #fbbf24;
-          border: 1px solid rgba(245, 158, 11, 0.25);
+          border-radius: var(--radius-sm);
+          font-weight: 500;
+          font-family: monospace;
+          background: var(--bg-hover);
+          border: 1px solid var(--border);
+          color: var(--text-secondary);
         }
 
         .score-progress-track {
           width: 100%;
-          max-width: 180px;
-          height: 4px;
-          background: var(--border-subtle);
+          max-width: 160px;
+          height: 3px;
+          background: var(--border);
           border-radius: 2px;
           overflow: hidden;
         }
@@ -421,15 +444,7 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           height: 100%;
           border-radius: 2px;
           transition: width 0.3s ease;
-        }
-        .score-progress-fill.high {
-          background: #10b981;
-        }
-        .score-progress-fill.medium {
           background: var(--accent);
-        }
-        .score-progress-fill.fallback {
-          background: #f59e0b;
         }
 
         .engine-meta-col {
@@ -440,27 +455,27 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         }
         .engine-pill {
           font-size: 0.68rem;
-          color: var(--text-secondary);
-          background: var(--bg-card);
-          padding: 2px 7px;
+          color: var(--text-muted);
+          background: var(--bg-surface);
+          padding: 2px 6px;
           border-radius: var(--radius-sm);
-          border: 1px solid var(--border-default);
+          border: 1px solid var(--border);
           font-weight: 500;
         }
         .chunk-id-text {
           font-size: 0.65rem;
           color: var(--text-muted);
-          font-family: var(--font-mono, ui-monospace, monospace);
+          font-family: monospace;
         }
 
         /* Content Container */
         .content-container {
-          padding: 1.25rem;
-          max-height: 440px;
+          padding: 16px;
+          max-height: 420px;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
-          gap: 0.85rem;
+          gap: 12px;
         }
 
         .content-header-row {
@@ -470,42 +485,42 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         }
         .content-label {
           font-size: 0.72rem;
-          font-weight: 700;
+          font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.05em;
           color: var(--text-muted);
         }
         .matched-terms-hint {
           font-size: 0.68rem;
-          color: #fbbf24;
+          color: var(--accent);
           font-weight: 500;
         }
 
         .chunk-text {
-          font-size: 0.85rem;
-          line-height: 1.65;
+          font-size: 0.82rem;
+          line-height: 1.6;
           color: var(--text-primary);
           white-space: pre-wrap;
           word-break: break-word;
-          background: var(--bg-surface);
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-md);
-          padding: 1rem 1.15rem;
-          font-family: var(--font-sans);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 14px;
+          font-family: inherit;
         }
 
         :global(.kw-highlight) {
-          background: rgba(245, 158, 11, 0.22);
-          color: #fde047;
+          background: rgba(37, 99, 235, 0.2);
+          color: var(--accent);
           padding: 1px 4px;
-          border-radius: 3px;
-          font-weight: 600;
+          border-radius: 2px;
+          font-weight: 500;
         }
 
         /* Adjacent Context */
         .adjacent-context-box {
-          border-top: 1px solid var(--border-subtle);
-          padding-top: 0.65rem;
+          border-top: 1px solid var(--border);
+          padding-top: 10px;
         }
         .adjacent-toggle-btn {
           display: flex;
@@ -513,15 +528,15 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           gap: 6px;
           background: transparent;
           border: none;
-          color: var(--accent);
-          font-size: 0.76rem;
-          font-weight: 600;
+          color: var(--text-secondary);
+          font-size: 0.75rem;
+          font-weight: 500;
           cursor: pointer;
           padding: 4px 0;
           transition: color 0.15s ease;
         }
         .adjacent-toggle-btn:hover {
-          color: var(--accent-hover);
+          color: var(--text-primary);
         }
         .adjacent-subtext {
           color: var(--text-muted);
@@ -531,14 +546,13 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         .adjacent-content-panel {
           margin-top: 8px;
           padding: 10px;
-          background: var(--bg-surface);
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
         }
         .adjacent-loading {
           font-size: 0.74rem;
           color: var(--text-muted);
-          font-style: italic;
           padding: 6px;
         }
         .adjacent-cards-col {
@@ -547,12 +561,10 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           gap: 8px;
         }
         .adjacent-chunk-item {
-          padding: 8px 12px;
-          background: var(--bg-card);
-          border-left: 2px solid var(--accent);
+          padding: 8px 10px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
           border-radius: var(--radius-sm);
-          border: 1px solid var(--border-subtle);
-          border-left: 2px solid var(--accent);
         }
         .adj-header {
           display: flex;
@@ -580,7 +592,6 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         .adj-boundary {
           font-size: 0.7rem;
           color: var(--text-muted);
-          font-style: italic;
           padding: 2px 4px;
         }
 
@@ -589,48 +600,49 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           display: flex;
           align-items: center;
           justify-content: flex-end;
-          gap: 0.75rem;
-          padding: 0.85rem 1.25rem;
-          border-top: 1px solid var(--border-subtle);
-          background: var(--bg-subtle);
+          gap: 8px;
+          padding: 12px 16px;
+          border-top: 1px solid var(--border);
+          background: var(--bg-surface);
         }
 
         .btn-secondary {
-          padding: 0.45rem 0.9rem;
-          background: var(--bg-surface);
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-md);
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 7px 12px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           color: var(--text-secondary);
-          font-size: 0.8rem;
+          font-size: 0.78rem;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.15s ease;
         }
         .btn-secondary:hover {
           background: var(--bg-hover);
-          border-color: var(--border-focus);
           color: var(--text-primary);
+          border-color: var(--border-hover);
         }
 
         .btn-primary {
-          padding: 0.45rem 1rem;
-          background: var(--accent);
-          border: 1px solid transparent;
-          border-radius: var(--radius-md);
-          color: #ffffff;
-          font-size: 0.8rem;
-          font-weight: 600;
-          cursor: pointer;
-          text-decoration: none;
-          transition: all 0.15s ease;
           display: inline-flex;
           align-items: center;
-          gap: 0.4rem;
-          box-shadow: 0 1px 3px rgba(0, 102, 204, 0.3);
+          gap: 6px;
+          padding: 7px 14px;
+          background: var(--accent);
+          border: 1px solid transparent;
+          border-radius: var(--radius);
+          color: #ffffff;
+          font-size: 0.78rem;
+          font-weight: 500;
+          cursor: pointer;
+          text-decoration: none;
+          transition: background 0.15s ease;
         }
         .btn-primary:hover {
           background: var(--accent-hover);
-          box-shadow: 0 2px 6px rgba(0, 102, 204, 0.45);
         }
 
         @keyframes fadeIn {

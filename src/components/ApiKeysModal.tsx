@@ -148,7 +148,7 @@ stream = client.chat.completions.create(
     stream=True,
 )
 
-print(f"🤖 Response from ${targetBot?.name || "Bot"}:\\n")
+print(f"Response from ${targetBot?.name || "Bot"}:\\n")
 for chunk in stream:
     token = chunk.choices[0].delta.content or ""
     print(token, end="", flush=True)
@@ -218,7 +218,10 @@ askKnowledgeBot().catch(console.error);`;
             <span className="endpoint-badge">/v1/chat/completions</span>
           </div>
           <button className="modal-close" onClick={onClose}>
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </header>
 
@@ -229,14 +232,21 @@ askKnowledgeBot().catch(console.error);`;
             className={`tab-btn ${activeTab === "keys" ? "active" : ""}`}
             onClick={() => setActiveTab("keys")}
           >
-            🔑 API Keys ({keys.length})
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+            </svg>
+            <span>API Keys ({keys.length})</span>
           </button>
           <button
             type="button"
             className={`tab-btn ${activeTab === "docs" ? "active" : ""}`}
             onClick={() => setActiveTab("docs")}
           >
-            💻 OpenAI SDK Integration
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+              <polyline points="16 18 22 12 16 6" />
+              <polyline points="8 6 2 12 8 18" />
+            </svg>
+            <span>OpenAI SDK Integration</span>
           </button>
         </div>
 
@@ -247,7 +257,13 @@ askKnowledgeBot().catch(console.error);`;
             {newlyCreatedKey && (
               <div className="new-key-alert">
                 <div className="alert-top">
-                  <span className="alert-icon">⚠️</span>
+                  <span className="alert-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                      <line x1="12" y1="9" x2="12" y2="13" />
+                      <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                  </span>
                   <div className="alert-text">
                     <strong>Save your API Key for &quot;{newlyCreatedKey.name}&quot;</strong>
                     <p>
@@ -310,10 +326,10 @@ askKnowledgeBot().catch(console.error);`;
                       value={selectedSiteId}
                       onChange={(e) => setSelectedSiteId(e.target.value)}
                     >
-                      <option value="">🌐 All Bots (Global Access)</option>
+                      <option value="">All Bots (Global Access)</option>
                       {sites.map((s) => (
                         <option key={s.id} value={s.id}>
-                          🤖 {s.name || s.id}
+                          {s.name || s.id}
                         </option>
                       ))}
                     </select>
@@ -347,7 +363,11 @@ askKnowledgeBot().catch(console.error);`;
               </div>
             ) : keys.length === 0 ? (
               <div className="keys-empty">
-                <div className="empty-key-icon">🔑</div>
+                <div className="empty-key-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+                  </svg>
+                </div>
                 <h4>No API keys generated yet</h4>
                 <p>
                   Generate your first key to connect your knowledge bots to custom applications,
@@ -412,7 +432,10 @@ askKnowledgeBot().catch(console.error);`;
                             onClick={() => handleDeleteKey(k.id, k.name)}
                             title="Revoke API Key"
                           >
-                            🗑️
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
                           </button>
                         </td>
                       </tr>
@@ -437,7 +460,7 @@ askKnowledgeBot().catch(console.error);`;
                 >
                   {sites.map((s) => (
                     <option key={s.id} value={s.id}>
-                      🤖 {s.name || s.id} ({s.pages.length} pages)
+                      {s.name || s.id} ({s.pages.length} pages)
                     </option>
                   ))}
                 </select>
@@ -449,21 +472,21 @@ askKnowledgeBot().catch(console.error);`;
                   className={`lang-pill ${docsLang === "python" ? "active" : ""}`}
                   onClick={() => setDocsLang("python")}
                 >
-                  🐍 Python (OpenAI SDK)
+                  Python (OpenAI SDK)
                 </button>
                 <button
                   type="button"
                   className={`lang-pill ${docsLang === "curl" ? "active" : ""}`}
                   onClick={() => setDocsLang("curl")}
                 >
-                  ⚡ cURL
+                  cURL
                 </button>
                 <button
                   type="button"
                   className={`lang-pill ${docsLang === "node" ? "active" : ""}`}
                   onClick={() => setDocsLang("node")}
                 >
-                  🟩 Node.js / TS
+                  Node.js / TS
                 </button>
               </div>
             </div>
@@ -487,7 +510,13 @@ askKnowledgeBot().catch(console.error);`;
             </div>
 
             <div className="docs-callout">
-              <span className="callout-icon">💡</span>
+              <span className="callout-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+              </span>
               <div className="callout-text">
                 <strong>Standard OpenAI API Compatibility:</strong> Your bots can be plugged into
                 any tool that supports custom OpenAI endpoints (Cursor, Continue.dev, LangChain,
@@ -506,11 +535,11 @@ askKnowledgeBot().catch(console.error);`;
           max-height: 85vh;
           display: flex;
           flex-direction: column;
-          background: var(--bg-elevated);
+          background: var(--bg-surface);
           border: 1px solid var(--border);
-          border-radius: var(--radius-xl);
+          border-radius: var(--radius);
           overflow: hidden;
-          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
         .title-with-badge {
@@ -522,39 +551,41 @@ askKnowledgeBot().catch(console.error);`;
         .endpoint-badge {
           font-size: 0.72rem;
           font-family: monospace;
-          background: var(--accent-soft);
-          color: #93c5fd;
+          background: var(--bg-card);
+          color: var(--text-muted);
           padding: 2px 8px;
           border-radius: var(--radius-sm);
-          border: 1px solid rgba(37, 99, 235, 0.25);
+          border: 1px solid var(--border);
         }
 
         .keys-tab-nav {
           display: flex;
           gap: 4px;
           padding: 0 1.5rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(0, 0, 0, 0.2);
+          border-bottom: 1px solid var(--border);
+          background: var(--bg-surface);
         }
 
         .tab-btn {
+          display: flex;
+          align-items: center;
           padding: 10px 16px;
           background: transparent;
           border: none;
           border-bottom: 2px solid transparent;
           color: var(--text-muted);
-          font-size: 0.82rem;
+          font-size: 0.8rem;
           font-weight: 500;
           cursor: pointer;
           transition: all 0.15s ease;
         }
 
         .tab-btn:hover {
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .tab-btn.active {
-          color: #fff;
+          color: var(--text-primary);
           border-bottom-color: var(--accent);
         }
 
@@ -567,9 +598,9 @@ askKnowledgeBot().catch(console.error);`;
 
         /* New Key Alert */
         .new-key-alert {
-          background: rgba(234, 179, 8, 0.1);
-          border: 1px solid rgba(234, 179, 8, 0.35);
-          border-radius: 8px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           padding: 12px 14px;
           margin-bottom: 1rem;
         }
@@ -582,33 +613,34 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .alert-icon {
-          font-size: 1.1rem;
+          color: var(--accent);
+          display: flex;
+          align-items: center;
         }
 
         .alert-text strong {
-          color: #fef08a;
-          font-size: 0.85rem;
+          color: var(--text-primary);
+          font-size: 0.84rem;
         }
 
         .alert-text p {
-          color: #fde047;
+          color: var(--text-muted);
           font-size: 0.76rem;
           margin: 2px 0 0 0;
-          opacity: 0.9;
         }
 
         .secret-copy-box {
           display: flex;
           align-items: center;
-          background: #000;
-          border: 1px solid rgba(234, 179, 8, 0.4);
-          border-radius: 6px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           padding: 4px 6px 4px 10px;
         }
 
         .raw-key-text {
           flex: 1;
-          color: #a3e635;
+          color: var(--text-primary);
           font-family: monospace;
           font-size: 0.82rem;
           overflow-x: auto;
@@ -616,18 +648,19 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .copy-secret-btn {
-          background: #eab308;
-          color: #000;
+          background: var(--accent);
+          color: #ffffff;
           border: none;
-          font-weight: 600;
+          font-weight: 500;
           font-size: 0.74rem;
           padding: 4px 10px;
-          border-radius: 4px;
+          border-radius: var(--radius-sm);
           cursor: pointer;
+          transition: background 0.15s ease;
         }
 
         .copy-secret-btn:hover {
-          background: #facc15;
+          background: var(--accent-hover);
         }
 
         /* Action bar */
@@ -641,18 +674,18 @@ askKnowledgeBot().catch(console.error);`;
 
         .keys-hint {
           font-size: 0.78rem;
-          color: #a1a1aa;
+          color: var(--text-muted);
           line-height: 1.4;
         }
 
         .create-key-btn {
           padding: 7px 14px;
           background: var(--accent);
-          color: #fff;
+          color: #ffffff;
           border: none;
           border-radius: var(--radius);
           font-size: 0.8rem;
-          font-weight: 600;
+          font-weight: 500;
           cursor: pointer;
           white-space: nowrap;
           transition: background 0.15s ease;
@@ -664,9 +697,9 @@ askKnowledgeBot().catch(console.error);`;
 
         /* Create Form */
         .create-key-form {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           padding: 1rem;
           margin-bottom: 1.25rem;
         }
@@ -674,7 +707,7 @@ askKnowledgeBot().catch(console.error);`;
         .form-heading {
           margin: 0 0 0.75rem 0;
           font-size: 0.86rem;
-          color: #f4f4f5;
+          color: var(--text-primary);
         }
 
         .form-fields-grid {
@@ -692,18 +725,19 @@ askKnowledgeBot().catch(console.error);`;
 
         .field-label {
           font-size: 0.74rem;
-          color: #a1a1aa;
+          color: var(--text-secondary);
         }
 
         .field-input,
         .field-select {
-          background: rgba(0, 0, 0, 0.35);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 6px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           padding: 7px 10px;
-          color: #f4f4f5;
+          color: var(--text-primary);
           font-size: 0.8rem;
           outline: none;
+          transition: border-color 0.15s ease;
         }
 
         .field-input:focus,
@@ -720,11 +754,14 @@ askKnowledgeBot().catch(console.error);`;
         .cancel-form-btn {
           padding: 5px 12px;
           background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 6px;
-          color: #a1a1aa;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text-muted);
           font-size: 0.76rem;
           cursor: pointer;
+        }
+        .cancel-form-btn:hover {
+          color: var(--text-primary);
         }
 
         .submit-key-btn {
@@ -732,16 +769,19 @@ askKnowledgeBot().catch(console.error);`;
           background: var(--accent);
           border: none;
           border-radius: var(--radius);
-          color: #fff;
+          color: #ffffff;
           font-size: 0.76rem;
-          font-weight: 600;
+          font-weight: 500;
           cursor: pointer;
+        }
+        .submit-key-btn:hover {
+          background: var(--accent-hover);
         }
 
         /* Keys Table */
         .keys-table-wrap {
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           overflow: hidden;
         }
 
@@ -753,42 +793,45 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .keys-table th {
-          background: rgba(255, 255, 255, 0.04);
+          background: var(--bg-card);
           padding: 8px 12px;
-          color: #a1a1aa;
+          color: var(--text-muted);
           font-weight: 500;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid var(--border);
         }
 
         .keys-table td {
           padding: 10px 12px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-          color: #d4d4d8;
+          border-bottom: 1px solid var(--border);
+          color: var(--text-secondary);
         }
 
         .key-name-cell strong {
-          color: #f4f4f5;
+          color: var(--text-primary);
         }
 
         .masked-code {
           font-family: monospace;
-          background: rgba(0, 0, 0, 0.4);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           padding: 2px 6px;
-          border-radius: 4px;
-          color: #93c5fd;
+          border-radius: var(--radius-micro);
+          color: var(--text-secondary);
         }
 
         .scope-badge {
-          background: var(--accent-soft);
-          color: #93c5fd;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          color: var(--text-muted);
           padding: 2px 6px;
-          border-radius: var(--radius-sm);
+          border-radius: var(--radius-micro);
           font-size: 0.72rem;
         }
 
         .key-time {
-          color: #71717a;
+          color: var(--text-muted);
           font-size: 0.74rem;
+          font-family: monospace;
         }
 
         .key-actions-cell {
@@ -798,40 +841,43 @@ askKnowledgeBot().catch(console.error);`;
         .revoke-key-btn {
           background: transparent;
           border: none;
-          color: #888;
+          color: var(--text-muted);
           cursor: pointer;
           font-size: 0.85rem;
           padding: 4px;
-          border-radius: 4px;
+          border-radius: var(--radius-micro);
           transition: all 0.15s ease;
         }
 
         .revoke-key-btn:hover {
           color: #ef4444;
-          background: rgba(239, 68, 68, 0.12);
+          background: rgba(239, 68, 68, 0.1);
         }
 
         .keys-loading,
         .keys-empty {
           text-align: center;
           padding: 2.5rem 1rem;
-          color: #a1a1aa;
+          color: var(--text-muted);
         }
 
         .empty-key-icon {
-          font-size: 2rem;
+          color: var(--text-muted);
           margin-bottom: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .keys-empty h4 {
           margin: 0 0 4px 0;
-          color: #f4f4f5;
+          color: var(--text-primary);
         }
 
         .keys-empty p {
           margin: 0 0 1rem 0;
           font-size: 0.78rem;
-          color: #71717a;
+          color: var(--text-muted);
         }
 
         .create-first-btn {
@@ -839,7 +885,7 @@ askKnowledgeBot().catch(console.error);`;
           background: var(--accent);
           border: none;
           border-radius: var(--radius);
-          color: #fff;
+          color: #ffffff;
           font-size: 0.8rem;
           font-weight: 500;
           cursor: pointer;
@@ -861,11 +907,11 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .docs-bot-select {
-          background: rgba(0, 0, 0, 0.35);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 6px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           padding: 6px 10px;
-          color: #f4f4f5;
+          color: var(--text-primary);
           font-size: 0.78rem;
           outline: none;
         }
@@ -876,10 +922,10 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .lang-pill {
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 6px;
-          color: #a1a1aa;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text-muted);
           font-size: 0.76rem;
           padding: 5px 10px;
           cursor: pointer;
@@ -887,20 +933,20 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .lang-pill:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.08);
+          color: var(--text-primary);
+          background: var(--bg-hover);
         }
 
         .lang-pill.active {
-          color: #fff;
-          background: var(--accent-soft);
-          border-color: rgba(37, 99, 235, 0.4);
+          color: #ffffff;
+          background: var(--accent);
+          border-color: var(--accent);
         }
 
         .snippet-container {
-          background: #08090d;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 8px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           overflow: hidden;
           margin-bottom: 1rem;
         }
@@ -910,21 +956,21 @@ askKnowledgeBot().catch(console.error);`;
           align-items: center;
           justify-content: space-between;
           padding: 6px 12px;
-          background: rgba(255, 255, 255, 0.03);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-surface);
+          border-bottom: 1px solid var(--border);
         }
 
         .snippet-lang-tag {
           font-size: 0.7rem;
-          color: #71717a;
+          color: var(--text-muted);
           font-family: monospace;
         }
 
         .copy-snippet-btn {
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 4px;
-          color: #f4f4f5;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-micro);
+          color: var(--text-primary);
           font-size: 0.7rem;
           padding: 3px 8px;
           cursor: pointer;
@@ -932,7 +978,7 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .copy-snippet-btn:hover {
-          background: rgba(255, 255, 255, 0.15);
+          background: var(--bg-hover);
         }
 
         .snippet-code-box {
@@ -941,7 +987,7 @@ askKnowledgeBot().catch(console.error);`;
           overflow-x: auto;
           font-family: monospace;
           font-size: 0.78rem;
-          color: #93c5fd;
+          color: var(--text-secondary);
           line-height: 1.45;
         }
 
@@ -949,27 +995,30 @@ askKnowledgeBot().catch(console.error);`;
           display: flex;
           align-items: flex-start;
           gap: 10px;
-          background: var(--accent-soft);
-          border: 1px solid rgba(37, 99, 235, 0.15);
-          border-radius: var(--radius-md);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           padding: 10px 14px;
         }
 
         .callout-icon {
-          font-size: 1.1rem;
+          color: var(--text-muted);
+          display: flex;
+          align-items: center;
         }
 
         .callout-text {
           font-size: 0.76rem;
-          color: #d4d4d8;
+          color: var(--text-secondary);
           line-height: 1.45;
         }
 
         .callout-text code {
-          background: rgba(0, 0, 0, 0.4);
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
           padding: 1px 4px;
-          border-radius: 4px;
-          color: #93c5fd;
+          border-radius: var(--radius-micro);
+          color: var(--text-primary);
           font-family: monospace;
         }
       `}</style>

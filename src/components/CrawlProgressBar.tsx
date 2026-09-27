@@ -52,14 +52,14 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
       )}
 
       <div className="progress-footer-badge">
-        <span>🛡️ Vercel Timeout Safe • Client-Driven Chunked Batching</span>
+        <span>Vercel Timeout Safe • Client-Driven Chunked Batching</span>
       </div>
 
       <style jsx>{`
         .crawl-progress-card {
           background: var(--bg-card);
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-md);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           padding: 0.75rem 0.9rem;
           display: flex;
           flex-direction: column;

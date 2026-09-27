@@ -135,7 +135,9 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           onClick={onBack}
           title="Return to sources list"
         >
-          <span className="back-arrow">←</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
           <span>Sources</span>
         </button>
         <span className="nav-divider">/</span>
@@ -148,7 +150,22 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
       {pageInfo && (
         <div className="page-summary-card">
           <div className="summary-title-row">
-            <span className="doc-icon">{isDocument ? "📄" : "🌐"}</span>
+            <span className="doc-icon">
+              {isDocument ? (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+              ) : (
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="2" y1="12" x2="22" y2="12"></line>
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                </svg>
+              )}
+            </span>
             <div className="doc-text-col">
               <h4 className="doc-name">{displayTitle}</h4>
               <a
@@ -158,7 +175,14 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
                 className="doc-link"
                 title={pageInfo.url}
               >
-                {pageInfo.url} {!isDocument && "↗"}
+                <span>{pageInfo.url}</span>
+                {!isDocument && (
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 3 }}>
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                  </svg>
+                )}
               </a>
             </div>
           </div>
@@ -183,7 +207,12 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
       {/* Search Filter Row */}
       <div className="chunk-search-row">
         <div className="search-input-box">
-          <span className="search-icon">🔍</span>
+          <span className="search-icon">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+          </span>
           <input
             type="text"
             className="search-field"
@@ -198,7 +227,10 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
               onClick={() => setSearchQuery("")}
               title="Clear search"
             >
-              ✕
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
             </button>
           )}
         </div>
@@ -213,12 +245,19 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
       <div className="chunks-list-canvas">
         {loading ? (
           <div className="chunks-state-box">
-            <span className="chunks-spinner">↻</span>
+            <div className="chunks-spinner" />
             <span>Fetching vectors and extracting chunks...</span>
           </div>
         ) : error ? (
           <div className="chunks-state-box error-box">
-            <span>⚠️ {error}</span>
+            <div className="error-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span>{error}</span>
+            </div>
             <button type="button" className="retry-btn" onClick={() => window.location.reload()}>
               Retry
             </button>
@@ -244,10 +283,10 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
                     <span className="chunk-order-badge">#{chunk.order + 1}</span>
                     {chunk.heading ? (
                       <span className="chunk-heading-pill" title={chunk.heading}>
-                        § {chunk.heading}
+                        {chunk.heading}
                       </span>
                     ) : (
-                      <span className="chunk-heading-pill general">§ Passage</span>
+                      <span className="chunk-heading-pill general">Passage</span>
                     )}
                   </div>
                   <div className="header-right">
@@ -260,7 +299,22 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
                       onClick={() => handleCopyChunk(chunk)}
                       title="Copy chunk text"
                     >
-                      {copiedId === chunk.id ? "✓ Copied" : "⎘ Copy"}
+                      {copiedId === chunk.id ? (
+                        <>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                          </svg>
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                          </svg>
+                          <span>Copy</span>
+                        </>
+                      )}
                     </button>
                     <button
                       type="button"
@@ -269,7 +323,14 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
                       disabled={deletingId === chunk.id}
                       title="Delete chunk from pgvector"
                     >
-                      {deletingId === chunk.id ? "…" : "🗑️"}
+                      {deletingId === chunk.id ? (
+                        <span className="btn-spinner" />
+                      ) : (
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      )}
                     </button>
                   </div>
                 </div>
@@ -284,7 +345,20 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
                       className="expand-toggle-btn"
                       onClick={() => toggleExpand(chunk.id)}
                     >
-                      {isExpanded ? "Show less ↑" : "Show full text ↓"}
+                      <span>{isExpanded ? "Show less" : "Show full text"}</span>
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ transform: isExpanded ? "rotate(180deg)" : "none", transition: "transform 0.15s ease" }}
+                      >
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
                     </button>
                   )}
                 </div>
@@ -295,12 +369,12 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
       </div>
 
       <style jsx>{`
-        .chunk-explorer-container {
+        .chunk-explorer-panel {
           display: flex;
           flex-direction: column;
           height: 100%;
           overflow: hidden;
-          background: var(--bg-subtle);
+          background: var(--bg);
         }
 
         /* Nav Bar */
@@ -308,18 +382,18 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           display: flex;
           align-items: center;
           gap: 8px;
-          padding: 10px 14px;
+          padding: 8px 12px;
           background: var(--bg-card);
-          border-bottom: 1px solid var(--border-subtle);
+          border-bottom: 1px solid var(--border);
           font-size: 0.78rem;
         }
         .chunk-back-btn {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: 5px;
           background: var(--bg-surface);
-          border: 1px solid var(--border-default);
-          color: var(--text-secondary);
+          border: 1px solid var(--border);
+          color: var(--text-muted);
           padding: 3px 8px;
           border-radius: var(--radius-sm);
           cursor: pointer;
@@ -329,15 +403,15 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         }
         .chunk-back-btn:hover {
           background: var(--bg-hover);
-          color: var(--text-primary);
-          border-color: var(--border-focus);
+          color: var(--text-main);
+          border-color: var(--border-hover);
         }
         .nav-divider {
           color: var(--text-muted);
           font-size: 0.8rem;
         }
         .nav-current-title {
-          color: var(--text-primary);
+          color: var(--text-main);
           font-weight: 600;
           white-space: nowrap;
           overflow: hidden;
@@ -349,7 +423,7 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         .page-summary-card {
           padding: 12px 14px;
           background: var(--bg-surface);
-          border-bottom: 1px solid var(--border-subtle);
+          border-bottom: 1px solid var(--border);
           display: flex;
           flex-direction: column;
           gap: 8px;
@@ -360,8 +434,12 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           gap: 8px;
         }
         .doc-icon {
-          font-size: 1.1rem;
-          margin-top: 1px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-muted);
+          flex-shrink: 0;
+          margin-top: 2px;
         }
         .doc-text-col {
           flex: 1;
@@ -371,19 +449,20 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           margin: 0;
           font-size: 0.84rem;
           font-weight: 600;
-          color: var(--text-primary);
+          color: var(--text-main);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
         .doc-link {
-          font-size: 0.7rem;
+          font-size: 0.72rem;
           color: var(--accent);
           text-decoration: none;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          display: inline-block;
+          display: inline-flex;
+          align-items: center;
           max-width: 100%;
         }
         .doc-link:hover {
@@ -397,17 +476,17 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         .badge-pill {
           font-size: 0.68rem;
           padding: 2px 7px;
-          border-radius: var(--radius-sm);
+          border-radius: var(--radius-micro);
           background: var(--bg-card);
-          border: 1px solid var(--border-subtle);
+          border: 1px solid var(--border);
           color: var(--text-muted);
         }
         .badge-pill strong {
-          color: var(--text-primary);
+          color: var(--text-main);
         }
         .chunks-badge {
-          background: var(--accent-subtle);
-          border-color: var(--accent-dim);
+          background: var(--accent-soft);
+          border-color: rgba(37, 99, 235, 0.25);
           color: var(--accent);
         }
         .embed-badge {
@@ -418,11 +497,11 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
 
         /* Search Filter Row */
         .chunk-search-row {
-          padding: 8px 14px;
+          padding: 8px 12px;
           display: flex;
           align-items: center;
           gap: 8px;
-          border-bottom: 1px solid var(--border-subtle);
+          border-bottom: 1px solid var(--border);
           background: var(--bg-card);
         }
         .search-input-box {
@@ -434,17 +513,19 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         .search-icon {
           position: absolute;
           left: 8px;
-          font-size: 0.72rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-muted);
           pointer-events: none;
-          opacity: 0.6;
         }
         .search-field {
           width: 100%;
           background: var(--bg-surface);
-          border: 1px solid var(--border-default);
+          border: 1px solid var(--border);
           border-radius: var(--radius-sm);
           padding: 5px 24px 5px 26px;
-          color: var(--text-primary);
+          color: var(--text-main);
           font-size: 0.76rem;
           outline: none;
           transition: border-color 0.15s ease;
@@ -458,11 +539,15 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           background: transparent;
           border: none;
           color: var(--text-muted);
-          font-size: 0.7rem;
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2px;
+          border-radius: var(--radius-micro);
         }
         .clear-search-btn:hover {
-          color: var(--text-primary);
+          color: var(--text-main);
         }
         .search-match-count {
           font-size: 0.7rem;
@@ -474,7 +559,7 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         .chunks-list-canvas {
           flex: 1;
           overflow-y: auto;
-          padding: 10px 14px;
+          padding: 10px 12px;
           display: flex;
           flex-direction: column;
           gap: 10px;
@@ -483,14 +568,14 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         /* Chunk Card */
         .chunk-card {
           background: var(--bg-card);
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-md);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           overflow: hidden;
           transition: border-color 0.15s ease, box-shadow 0.15s ease;
         }
         .chunk-card:hover {
-          border-color: var(--border-focus);
-          box-shadow: var(--shadow-sm);
+          border-color: var(--border-hover);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .chunk-card-header {
@@ -499,7 +584,7 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           justify-content: space-between;
           padding: 7px 10px;
           background: var(--bg-surface);
-          border-bottom: 1px solid var(--border-subtle);
+          border-bottom: 1px solid var(--border);
         }
         .header-left {
           display: flex;
@@ -509,18 +594,18 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         }
         .chunk-order-badge {
           font-family: var(--font-mono, monospace);
-          font-size: 0.7rem;
-          font-weight: 700;
+          font-size: 0.68rem;
+          font-weight: 600;
           color: var(--accent);
-          background: var(--accent-subtle);
-          border: 1px solid var(--accent-dim);
+          background: var(--accent-soft);
+          border: 1px solid rgba(37, 99, 235, 0.2);
           padding: 1px 5px;
-          border-radius: var(--radius-sm);
+          border-radius: var(--radius-micro);
         }
         .chunk-heading-pill {
           font-size: 0.72rem;
           font-weight: 500;
-          color: var(--text-primary);
+          color: var(--text-main);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -543,23 +628,36 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
         }
         .chunk-action-btn {
           background: var(--bg-card);
-          border: 1px solid var(--border-default);
-          color: var(--text-secondary);
-          padding: 2px 6px;
-          border-radius: var(--radius-sm);
-          font-size: 0.68rem;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
+          padding: 3px 7px;
+          border-radius: var(--radius-micro);
+          font-size: 0.7rem;
+          font-weight: 500;
           cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
           transition: all 0.12s ease;
         }
         .chunk-action-btn:hover {
           background: var(--bg-hover);
-          color: var(--text-primary);
-          border-color: var(--border-focus);
+          color: var(--text-main);
+          border-color: var(--border-hover);
         }
         .delete-btn:hover {
-          background: rgba(239, 68, 68, 0.15);
-          border-color: #ef4444;
+          background: rgba(239, 68, 68, 0.08);
+          border-color: rgba(239, 68, 68, 0.3);
           color: #ef4444;
+        }
+        .btn-spinner {
+          width: 10px;
+          height: 10px;
+          border: 1.5px solid var(--border);
+          border-top-color: var(--accent);
+          border-radius: 50%;
+          display: inline-block;
+          animation: spin 0.8s linear infinite;
         }
 
         .chunk-text-box {
@@ -570,7 +668,7 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           font-family: var(--font-mono, monospace);
           font-size: 0.75rem;
           line-height: 1.55;
-          color: var(--text-secondary);
+          color: var(--text-muted);
           white-space: pre-wrap;
           word-break: break-word;
         }
@@ -584,10 +682,13 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           background: transparent;
           border: none;
           color: var(--accent);
-          font-size: 0.7rem;
-          font-weight: 600;
-          padding: 4px 0 0 0;
+          font-size: 0.72rem;
+          font-weight: 500;
+          padding: 6px 0 0 0;
           cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
         }
         .expand-toggle-btn:hover {
           text-decoration: underline;
@@ -606,8 +707,12 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           text-align: center;
         }
         .chunks-spinner {
-          font-size: 1.2rem;
-          animation: spin 1s linear infinite;
+          width: 18px;
+          height: 18px;
+          border: 2px solid var(--border);
+          border-top-color: var(--accent);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
           from {
@@ -618,16 +723,28 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           }
         }
         .error-box {
-          color: #f87171;
+          color: #ef4444;
+        }
+        .error-title {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          color: #ef4444;
+          font-weight: 500;
         }
         .retry-btn {
           padding: 4px 10px;
           background: var(--bg-surface);
-          border: 1px solid var(--border-default);
+          border: 1px solid var(--border);
           border-radius: var(--radius-sm);
-          color: var(--text-primary);
+          color: var(--text-main);
           font-size: 0.74rem;
           cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .retry-btn:hover {
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
       `}</style>
     </div>

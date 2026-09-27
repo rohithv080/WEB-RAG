@@ -266,7 +266,19 @@ export function RightInspectorDrawer({
           <span className="drawer-badge">{site.pages.length} Pages</span>
         </div>
         <button type="button" className="drawer-close-btn" onClick={onClose} title="Close drawer">
-          ✕
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
         </button>
       </div>
 
@@ -280,7 +292,20 @@ export function RightInspectorDrawer({
             onTabChange("pages");
           }}
         >
-          <span>📁 Pages</span>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+          </svg>
+          <span>Pages</span>
           <span className="tab-count">{site.pages.length}</span>
         </button>
         <button
@@ -291,7 +316,19 @@ export function RightInspectorDrawer({
             onTabChange("history");
           }}
         >
-          <span>💬 History</span>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+          <span>History</span>
           {sessions.length > 0 && <span className="tab-count">{sessions.length}</span>}
         </button>
         <button
@@ -302,7 +339,21 @@ export function RightInspectorDrawer({
             onTabChange("analytics");
           }}
         >
-          <span>📊 Analytics</span>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+          <span>Analytics</span>
         </button>
         <button
           type="button"
@@ -312,7 +363,27 @@ export function RightInspectorDrawer({
             onTabChange("settings");
           }}
         >
-          <span>⚙️ Settings</span>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="4" y1="21" x2="4" y2="14" />
+            <line x1="4" y1="10" x2="4" y2="3" />
+            <line x1="12" y1="21" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12" y2="3" />
+            <line x1="20" y1="21" x2="20" y2="16" />
+            <line x1="20" y1="12" x2="20" y2="3" />
+            <line x1="1" y1="14" x2="7" y2="14" />
+            <line x1="9" y1="8" x2="15" y2="8" />
+            <line x1="17" y1="16" x2="23" y2="16" />
+          </svg>
+          <span>Settings</span>
         </button>
         <button
           type="button"
@@ -322,7 +393,20 @@ export function RightInspectorDrawer({
             onTabChange("embed");
           }}
         >
-          <span>&lt;/&gt; Embed</span>
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+          <span>Embed</span>
         </button>
       </div>
 
@@ -366,7 +450,20 @@ export function RightInspectorDrawer({
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploadingDoc}
                   >
-                    <span className="upload-icon">📎</span>
+                    <div className="upload-icon">
+                      <svg
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                      </svg>
+                    </div>
                     <div className="upload-texts">
                       <span className="upload-primary">
                         {uploadingDoc ? "Extracting & Indexing Document..." : "Upload Document"}
@@ -402,7 +499,38 @@ export function RightInspectorDrawer({
                         onClick={() => setInspectingPageId(p.id)}
                         title="Click to inspect all pgvector chunks"
                       >
-                        <div className="page-card-icon">{isDocument ? "📄" : "🌐"}</div>
+                        <div className="page-card-icon">
+                          {isDocument ? (
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.75"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                              <polyline points="14 2 14 8 20 8" />
+                            </svg>
+                          ) : (
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.75"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <circle cx="12" cy="12" r="10" />
+                              <line x1="2" y1="12" x2="22" y2="12" />
+                              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                            </svg>
+                          )}
+                        </div>
                         <div className="page-card-info">
                           <span className="page-card-title">{displayTitle}</span>
                           <div className="page-card-meta">
@@ -430,7 +558,21 @@ export function RightInspectorDrawer({
                               disabled={refreshingPageId === p.id}
                               title="Re-scrape and update chunks"
                             >
-                              <span className={refreshingPageId === p.id ? "spinning" : ""}>↻</span>
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className={refreshingPageId === p.id ? "spinning" : ""}
+                              >
+                                <polyline points="23 4 23 10 17 10" />
+                                <polyline points="1 20 1 14 7 14" />
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                              </svg>
                             </button>
                           )}
                         </div>
@@ -501,7 +643,7 @@ export function RightInspectorDrawer({
                     ) : (
                       analytics.contentGaps.slice(0, 4).map((g, idx) => (
                         <div key={idx} className="gap-card">
-                          <span className="gap-q">❓ "{g.question}"</span>
+                          <span className="gap-q">"{g.question}"</span>
                           <span className="gap-time">
                             {new Date(g.createdAt).toLocaleDateString()}
                           </span>
@@ -581,8 +723,21 @@ export function RightInspectorDrawer({
                       type="button"
                       className="chip-del-btn"
                       onClick={() => handleRemoveQuestion(idx)}
+                      title="Remove starter prompt"
                     >
-                      ×
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
                     </button>
                   </span>
                 ))}
@@ -693,7 +848,10 @@ export function RightInspectorDrawer({
           <div className="tab-panel">
             <div className="history-header-actions">
               <div className="history-search-wrap">
-                <span className="search-icon">🔍</span>
+                <svg className="search-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
                 <input
                   type="text"
                   placeholder="Search conversations…"
@@ -707,7 +865,10 @@ export function RightInspectorDrawer({
                     className="clear-search-btn"
                     onClick={() => setSessionSearch("")}
                   >
-                    ✕
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
                   </button>
                 )}
               </div>
@@ -720,7 +881,11 @@ export function RightInspectorDrawer({
                 }}
                 title="Start a new conversation thread"
               >
-                + New Chat
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 6 }}>
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                <span>New Chat</span>
               </button>
             </div>
 
@@ -731,7 +896,11 @@ export function RightInspectorDrawer({
               </div>
             ) : filteredSessions.length === 0 ? (
               <div className="sessions-empty-state">
-                <div className="empty-icon">💬</div>
+                <div className="empty-icon">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </div>
                 <h4 className="empty-title">
                   {sessionSearch ? "No matching conversations" : "No conversation history yet"}
                 </h4>
@@ -781,7 +950,7 @@ export function RightInspectorDrawer({
                         <div className="session-badges">
                           {isActive && <span className="active-tag">Current</span>}
                           <span className="msg-count-tag">
-                            💬 {s.messageCount} {s.messageCount === 1 ? "msg" : "msgs"}
+                            {s.messageCount} {s.messageCount === 1 ? "msg" : "msgs"}
                           </span>
                         </div>
                       </div>
@@ -789,7 +958,12 @@ export function RightInspectorDrawer({
                       <p className="session-preview">{s.preview}</p>
 
                       <div className="session-card-footer">
-                        <span className="resume-hint">Resume thread →</span>
+                        <span className="resume-hint">
+                          Resume thread
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: 4 }}>
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </span>
                         <button
                           type="button"
                           className="delete-session-btn"
@@ -797,7 +971,12 @@ export function RightInspectorDrawer({
                           disabled={deletingSessionId === s.id}
                           title="Delete conversation"
                         >
-                          {deletingSessionId === s.id ? "…" : "🗑️"}
+                          {deletingSessionId === s.id ? "…" : (
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -813,8 +992,8 @@ export function RightInspectorDrawer({
         .right-drawer {
           width: 380px;
           height: 100%;
-          background: var(--bg-subtle);
-          border-left: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--bg-surface);
+          border-left: 1px solid var(--border);
           display: flex;
           flex-direction: column;
           flex-shrink: 0;
@@ -834,9 +1013,9 @@ export function RightInspectorDrawer({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 1rem 1.25rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          background: rgba(255, 255, 255, 0.02);
+          padding: 14px 16px;
+          border-bottom: 1px solid var(--border);
+          background: var(--bg-surface);
         }
         .drawer-title-wrap {
           display: flex;
@@ -846,28 +1025,30 @@ export function RightInspectorDrawer({
         }
         .drawer-bot-name {
           font-weight: 600;
-          font-size: 0.95rem;
-          color: #f4f4f5;
+          font-size: 0.9rem;
+          color: var(--text-primary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          letter-spacing: -0.01em;
         }
         .drawer-badge {
           font-size: 0.68rem;
           padding: 2px 6px;
-          background: var(--accent-soft);
-          color: var(--accent-dim);
-          border: 1px solid rgba(37, 99, 235, 0.2);
+          background: var(--bg-card);
+          color: var(--text-muted);
+          border: 1px solid var(--border);
           border-radius: var(--radius-sm);
           flex-shrink: 0;
+          font-weight: 500;
         }
         .drawer-close-btn {
           width: 26px;
           height: 26px;
-          border-radius: 6px;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          color: #a1a1aa;
+          border-radius: var(--radius-sm);
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
           cursor: pointer;
           display: flex;
           align-items: center;
@@ -876,14 +1057,15 @@ export function RightInspectorDrawer({
           transition: all 0.15s ease;
         }
         .drawer-close-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
-          color: #fff;
+          background: var(--bg-hover);
+          color: var(--text-primary);
+          border-color: var(--border-hover);
         }
 
         .drawer-tabs {
           display: flex;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-          background: rgba(0, 0, 0, 0.2);
+          border-bottom: 1px solid var(--border);
+          background: var(--bg-surface);
           overflow-x: auto;
         }
         .drawer-tab {
@@ -891,67 +1073,73 @@ export function RightInspectorDrawer({
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 5px;
-          padding: 10px 6px;
+          gap: 6px;
+          padding: 10px 8px;
           background: transparent;
           border: none;
           border-bottom: 2px solid transparent;
-          color: #8a8f98;
-          font-size: 0.76rem;
+          color: var(--text-muted);
+          font-size: 0.75rem;
           font-weight: 500;
           cursor: pointer;
           white-space: nowrap;
           transition: all 0.15s ease;
         }
         .drawer-tab:hover {
-          color: #e4e4e7;
-          background: rgba(255, 255, 255, 0.02);
+          color: var(--text-primary);
+          background: var(--bg-hover);
         }
         .drawer-tab.active {
-          color: var(--accent-dim);
+          color: var(--text-primary);
           border-bottom-color: var(--accent);
-          background: var(--accent-soft);
+          background: transparent;
         }
         .tab-count {
           font-size: 0.65rem;
-          background: rgba(255, 255, 255, 0.08);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          color: var(--text-muted);
           padding: 1px 5px;
-          border-radius: 10px;
+          border-radius: 999px;
         }
 
         .drawer-content {
           flex: 1;
           overflow-y: auto;
-          padding: 1.25rem;
+          padding: 16px;
         }
         .tab-panel {
           display: flex;
           flex-direction: column;
-          gap: 1.25rem;
+          gap: 16px;
         }
 
         .panel-section {
           display: flex;
           flex-direction: column;
-          gap: 0.6rem;
+          gap: 8px;
         }
         .section-label {
-          font-size: 0.76rem;
+          font-size: 0.72rem;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          color: #8a8f98;
+          color: var(--text-muted);
         }
         .section-desc {
           margin: 0;
           font-size: 0.78rem;
-          color: #a1a1aa;
-          line-height: 1.4;
+          color: var(--text-secondary);
+          line-height: 1.45;
         }
         .section-desc code {
-          background: rgba(255, 255, 255, 0.08);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           padding: 1px 4px;
-          border-radius: 3px;
+          border-radius: var(--radius-micro);
+          color: var(--text-primary);
+          font-family: monospace;
+          font-size: 0.74rem;
         }
 
         .doc-upload-box {
@@ -963,20 +1151,23 @@ export function RightInspectorDrawer({
           align-items: center;
           gap: 10px;
           padding: 10px 12px;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px dashed rgba(255, 255, 255, 0.12);
-          border-radius: 8px;
-          color: #e4e4e7;
+          background: var(--bg-card);
+          border: 1px dashed var(--border);
+          border-radius: var(--radius);
+          color: var(--text-primary);
           cursor: pointer;
           text-align: left;
           transition: all 0.15s ease;
         }
         .upload-dropzone-btn:hover {
-          background: var(--accent-soft);
-          border-color: rgba(37, 99, 235, 0.3);
+          background: var(--bg-hover);
+          border-color: var(--accent);
         }
         .upload-icon {
-          font-size: 1.1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-muted);
         }
         .upload-texts {
           display: flex;
@@ -985,11 +1176,11 @@ export function RightInspectorDrawer({
         .upload-primary {
           font-size: 0.8rem;
           font-weight: 500;
-          color: #f4f4f5;
+          color: var(--text-primary);
         }
         .upload-sub {
           font-size: 0.68rem;
-          color: #8a8f98;
+          color: var(--text-muted);
         }
 
         .pages-scroll-list {
@@ -1004,16 +1195,20 @@ export function RightInspectorDrawer({
           align-items: center;
           gap: 10px;
           padding: 8px 10px;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 6px;
-          transition: background 0.15s ease;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          transition: all 0.15s ease;
         }
         .drawer-page-card:hover {
-          background: rgba(255, 255, 255, 0.04);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
         .page-card-icon {
-          font-size: 0.95rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-muted);
           flex-shrink: 0;
         }
         .page-card-info {
@@ -1025,22 +1220,23 @@ export function RightInspectorDrawer({
         .page-card-title {
           font-size: 0.78rem;
           font-weight: 500;
-          color: #e4e4e7;
+          color: var(--text-primary);
           text-decoration: none;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
         .page-card-title:hover {
-          color: var(--accent-dim);
+          color: var(--accent);
         }
         .page-card-meta {
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 6px;
           font-size: 0.68rem;
-          color: #8a8f98;
+          color: var(--text-muted);
           margin-top: 2px;
+          font-family: monospace;
         }
         .page-card-actions {
           display: flex;
@@ -1051,10 +1247,10 @@ export function RightInspectorDrawer({
         .inspect-chunks-btn {
           display: inline-flex;
           align-items: center;
-          gap: 3px;
-          background: var(--accent-soft);
-          border: 1px solid rgba(37, 99, 235, 0.25);
-          color: #93c5fd;
+          gap: 4px;
+          background: var(--bg-hover);
+          border: 1px solid var(--border);
+          color: var(--text-primary);
           font-size: 0.68rem;
           font-weight: 500;
           padding: 2px 7px;
@@ -1063,27 +1259,26 @@ export function RightInspectorDrawer({
           transition: all 0.15s ease;
         }
         .inspect-chunks-btn:hover {
-          background: var(--accent-glow);
-          border-color: var(--accent);
-          color: #ffffff;
+          background: var(--bg-card);
+          border-color: var(--border-hover);
         }
         .re-scrape-btn {
           width: 24px;
           height: 24px;
-          border-radius: 4px;
+          border-radius: var(--radius-micro);
           background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          color: #8a8f98;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          font-size: 0.85rem;
           transition: all 0.15s ease;
         }
         .re-scrape-btn:hover {
-          color: #fff;
-          border-color: rgba(255, 255, 255, 0.2);
+          color: var(--text-primary);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
         .spinning {
           display: inline-block;
@@ -1106,9 +1301,9 @@ export function RightInspectorDrawer({
         }
         .metric-card {
           padding: 10px 8px;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 6px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -1116,16 +1311,20 @@ export function RightInspectorDrawer({
         }
         .metric-num {
           font-size: 1.1rem;
-          font-weight: 700;
-          color: #f4f4f5;
+          font-weight: 600;
+          color: var(--text-primary);
+          font-family: monospace;
+          letter-spacing: -0.02em;
         }
         .metric-num.satisfaction {
-          color: #34d399;
+          color: var(--text-primary);
         }
         .metric-lbl {
           font-size: 0.64rem;
-          color: #8a8f98;
+          color: var(--text-muted);
           margin-top: 2px;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
         }
 
         .top-sources-list,
@@ -1137,20 +1336,22 @@ export function RightInspectorDrawer({
         .top-source-row {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           padding: 6px 8px;
-          background: rgba(255, 255, 255, 0.02);
-          border-radius: 4px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           font-size: 0.74rem;
         }
         .source-rank {
-          color: #8a8f98;
+          color: var(--text-muted);
           font-weight: 600;
           font-size: 0.68rem;
+          font-family: monospace;
         }
         .source-name {
           flex: 1;
-          color: #e4e4e7;
+          color: var(--text-primary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -1159,28 +1360,29 @@ export function RightInspectorDrawer({
           color: var(--accent);
           font-weight: 600;
           font-size: 0.7rem;
+          font-family: monospace;
         }
         .gap-card {
           padding: 8px 10px;
-          background: rgba(248, 113, 113, 0.06);
-          border: 1px solid rgba(248, 113, 113, 0.15);
-          border-radius: 6px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           display: flex;
           justify-content: space-between;
           align-items: center;
           font-size: 0.74rem;
         }
         .gap-q {
-          color: #fca5a5;
+          color: var(--text-secondary);
         }
         .gap-time {
-          color: #8a8f98;
+          color: var(--text-muted);
           font-size: 0.65rem;
+          font-family: monospace;
         }
         .empty-subtext {
           font-size: 0.74rem;
-          color: #8a8f98;
-          font-style: italic;
+          color: var(--text-muted);
           padding: 4px 0;
         }
 
@@ -1188,23 +1390,24 @@ export function RightInspectorDrawer({
         .form-group {
           display: flex;
           flex-direction: column;
-          gap: 5px;
+          gap: 6px;
         }
         .field-label {
           font-size: 0.74rem;
-          font-weight: 600;
-          color: #a1a1aa;
+          font-weight: 500;
+          color: var(--text-secondary);
         }
         .field-input,
         .field-textarea {
           width: 100%;
-          background: rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 6px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           padding: 8px 10px;
-          color: #f4f4f5;
+          color: var(--text-primary);
           font-size: 0.8rem;
           font-family: inherit;
+          transition: border-color 0.15s ease;
         }
         .field-input:focus,
         .field-textarea:focus {
@@ -1217,20 +1420,25 @@ export function RightInspectorDrawer({
           gap: 6px;
         }
         .tone-pill {
-          padding: 6px;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 6px;
-          color: #8a8f98;
+          padding: 6px 8px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text-muted);
           font-size: 0.75rem;
           cursor: pointer;
+          text-align: center;
           transition: all 0.15s ease;
         }
+        .tone-pill:hover {
+          color: var(--text-primary);
+          background: var(--bg-hover);
+        }
         .tone-pill.active {
-          background: var(--accent-soft);
+          background: var(--accent);
           border-color: var(--accent);
-          color: #fff;
-          font-weight: 600;
+          color: #ffffff;
+          font-weight: 500;
         }
         .starter-chips-wrap {
           display: flex;
@@ -1241,24 +1449,27 @@ export function RightInspectorDrawer({
         .starter-chip {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: 6px;
           padding: 3px 8px;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 4px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           font-size: 0.72rem;
-          color: #d4d4d8;
+          color: var(--text-secondary);
         }
         .chip-del-btn {
           background: transparent;
           border: none;
-          color: #8a8f98;
+          color: var(--text-muted);
           cursor: pointer;
-          font-size: 0.85rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
           padding: 0;
+          transition: color 0.15s ease;
         }
         .chip-del-btn:hover {
-          color: #ef4444;
+          color: var(--text-primary);
         }
         .add-starter-row {
           display: flex;
@@ -1266,21 +1477,30 @@ export function RightInspectorDrawer({
         }
         .field-input-sm {
           flex: 1;
-          background: rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 4px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           padding: 5px 8px;
-          color: #f4f4f5;
+          color: var(--text-primary);
           font-size: 0.75rem;
+        }
+        .field-input-sm:focus {
+          outline: none;
+          border-color: var(--accent);
         }
         .add-starter-btn {
           padding: 5px 10px;
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 4px;
-          color: #f4f4f5;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text-primary);
           font-size: 0.74rem;
           cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .add-starter-btn:hover {
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
         .toggle-row {
           display: flex;
@@ -1290,17 +1510,17 @@ export function RightInspectorDrawer({
         }
         .toggle-text {
           font-size: 0.76rem;
-          color: #d4d4d8;
+          color: var(--text-secondary);
         }
         .save-settings-btn {
           margin-top: 0.5rem;
-          padding: 9px;
+          padding: 8px 14px;
           background: var(--accent);
-          color: #fff;
+          color: #ffffff;
           border: none;
           border-radius: var(--radius);
-          font-size: 0.82rem;
-          font-weight: 600;
+          font-size: 0.8rem;
+          font-weight: 500;
           cursor: pointer;
           transition: background 0.15s ease;
         }
@@ -1311,17 +1531,17 @@ export function RightInspectorDrawer({
         /* Embed Tab */
         .embed-code-box {
           position: relative;
-          background: var(--bg);
+          background: var(--bg-card);
           border: 1px solid var(--border);
-          border-radius: 6px;
+          border-radius: var(--radius);
           overflow: hidden;
         }
         .embed-code-pre {
           margin: 0;
-          padding: 10px;
+          padding: 12px;
           overflow-x: auto;
           font-size: 0.74rem;
-          color: #93c5fd;
+          color: var(--text-secondary);
           font-family: monospace;
           line-height: 1.45;
         }
@@ -1329,18 +1549,24 @@ export function RightInspectorDrawer({
           position: absolute;
           top: 6px;
           right: 6px;
-          padding: 3px 8px;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 4px;
-          color: #fff;
+          padding: 4px 8px;
+          background: var(--bg-hover);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text-primary);
           font-size: 0.7rem;
+          font-weight: 500;
           cursor: pointer;
+          transition: all 0.15s ease;
+        }
+        .embed-copy-btn:hover {
+          background: var(--bg-card);
+          border-color: var(--border-hover);
         }
         .embed-settings-form {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 10px;
         }
         .form-row-embed {
           display: flex;
@@ -1349,7 +1575,7 @@ export function RightInspectorDrawer({
         }
         .field-label-embed {
           font-size: 0.74rem;
-          color: #a1a1aa;
+          color: var(--text-secondary);
         }
         .color-pick-wrap {
           display: flex;
@@ -1357,26 +1583,30 @@ export function RightInspectorDrawer({
           gap: 6px;
         }
         .color-input {
-          width: 28px;
-          height: 28px;
+          width: 24px;
+          height: 24px;
           padding: 0;
-          border: none;
-          border-radius: 4px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-micro);
           cursor: pointer;
           background: transparent;
         }
         .color-val {
           font-size: 0.72rem;
-          color: #8a8f98;
+          color: var(--text-muted);
           font-family: monospace;
         }
         .select-embed {
-          background: rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #f4f4f5;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          color: var(--text-primary);
           padding: 4px 8px;
-          border-radius: 4px;
+          border-radius: var(--radius-sm);
           font-size: 0.74rem;
+        }
+        .select-embed:focus {
+          outline: none;
+          border-color: var(--accent);
         }
         .form-group-embed {
           display: flex;
@@ -1396,39 +1626,45 @@ export function RightInspectorDrawer({
           display: flex;
           align-items: center;
           gap: 6px;
-          background: rgba(0, 0, 0, 0.35);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 6px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           padding: 6px 10px;
         }
         .search-icon {
-          font-size: 0.75rem;
-          opacity: 0.6;
+          color: var(--text-muted);
+          display: flex;
+          align-items: center;
         }
         .history-search-input {
           background: transparent;
           border: none;
           outline: none;
-          color: #f4f4f5;
+          color: var(--text-primary);
           font-size: 0.75rem;
           width: 100%;
         }
         .clear-search-btn {
           background: transparent;
           border: none;
-          color: #888;
-          font-size: 0.7rem;
+          color: var(--text-muted);
           cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
         }
         .clear-search-btn:hover {
-          color: #fff;
+          color: var(--text-primary);
         }
         .new-chat-drawer-btn {
+          display: inline-flex;
+          align-items: center;
           padding: 6px 10px;
-          background: var(--accent-soft);
-          border: 1px solid rgba(37, 99, 235, 0.3);
-          border-radius: var(--radius);
-          color: #93c5fd;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text-secondary);
           font-size: 0.74rem;
           font-weight: 500;
           cursor: pointer;
@@ -1436,9 +1672,9 @@ export function RightInspectorDrawer({
           transition: all 0.15s ease;
         }
         .new-chat-drawer-btn:hover {
-          background: var(--accent-glow);
-          color: #fff;
-          border-color: rgba(37, 99, 235, 0.5);
+          background: var(--bg-hover);
+          color: var(--text-primary);
+          border-color: var(--border-hover);
         }
 
         .sessions-loading-state {
@@ -1447,13 +1683,13 @@ export function RightInspectorDrawer({
           justify-content: center;
           gap: 8px;
           padding: 2.5rem 1rem;
-          color: #a1a1aa;
+          color: var(--text-muted);
           font-size: 0.8rem;
         }
         .history-spinner {
           width: 14px;
           height: 14px;
-          border: 2px solid rgba(37, 99, 235, 0.2);
+          border: 2px solid var(--border);
           border-top-color: var(--accent);
           border-radius: 50%;
           animation: histSpin 0.8s linear infinite;
@@ -1472,19 +1708,22 @@ export function RightInspectorDrawer({
           padding: 2.5rem 1.5rem;
         }
         .empty-icon {
-          font-size: 2.2rem;
+          color: var(--text-muted);
           margin-bottom: 0.5rem;
-          opacity: 0.8;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .empty-title {
           font-size: 0.88rem;
           font-weight: 600;
-          color: #f4f4f5;
+          color: var(--text-primary);
           margin: 0 0 0.35rem 0;
+          letter-spacing: -0.01em;
         }
         .empty-desc {
           font-size: 0.76rem;
-          color: #8a8f98;
+          color: var(--text-muted);
           line-height: 1.45;
           margin: 0 0 1rem 0;
         }
@@ -1493,10 +1732,14 @@ export function RightInspectorDrawer({
           background: var(--accent);
           border: none;
           border-radius: var(--radius);
-          color: #fff;
+          color: #ffffff;
           font-size: 0.76rem;
           font-weight: 500;
           cursor: pointer;
+          transition: background 0.15s ease;
+        }
+        .empty-start-btn:hover {
+          background: var(--accent-hover);
         }
 
         .session-list {
@@ -1505,23 +1748,21 @@ export function RightInspectorDrawer({
           gap: 8px;
         }
         .session-card {
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 8px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           padding: 10px 12px;
           cursor: pointer;
           transition: all 0.15s ease;
           position: relative;
         }
         .session-card:hover {
-          background: rgba(255, 255, 255, 0.04);
-          border-color: rgba(255, 255, 255, 0.15);
-          transform: translateY(-1px);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
         .session-card.active-session {
-          background: var(--accent-soft);
-          border-color: rgba(37, 99, 235, 0.4);
-          box-shadow: 0 0 12px rgba(37, 99, 235, 0.1);
+          background: var(--bg-hover);
+          border-color: var(--accent);
         }
         .session-card-top {
           display: flex;
@@ -1531,32 +1772,33 @@ export function RightInspectorDrawer({
         }
         .session-date {
           font-size: 0.7rem;
-          color: #8a8f98;
+          color: var(--text-muted);
           font-family: monospace;
         }
         .session-badges {
           display: flex;
           align-items: center;
-          gap: 4px;
+          gap: 6px;
         }
         .active-tag {
           font-size: 0.65rem;
-          padding: 1px 5px;
-          background: var(--accent-soft);
-          border: 1px solid rgba(37, 99, 235, 0.4);
+          padding: 1px 6px;
+          background: var(--bg-card);
+          border: 1px solid var(--border-hover);
           border-radius: var(--radius-sm);
-          color: #93c5fd;
-          font-weight: 600;
+          color: var(--accent);
+          font-weight: 500;
         }
         .msg-count-tag {
           font-size: 0.68rem;
-          color: #a1a1aa;
+          color: var(--text-muted);
+          font-family: monospace;
         }
         .session-preview {
           font-size: 0.78rem;
-          color: #e4e4e7;
+          color: var(--text-secondary);
           margin: 0 0 8px 0;
-          line-height: 1.4;
+          line-height: 1.45;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -1566,30 +1808,34 @@ export function RightInspectorDrawer({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          border-top: 1px solid var(--border);
           padding-top: 6px;
         }
         .resume-hint {
+          display: inline-flex;
+          align-items: center;
           font-size: 0.7rem;
-          color: var(--accent-dim);
-          opacity: 0.85;
+          color: var(--text-muted);
+          transition: color 0.15s ease;
         }
         .session-card:hover .resume-hint {
-          opacity: 1;
+          color: var(--text-primary);
         }
         .delete-session-btn {
           background: transparent;
           border: none;
-          color: #888;
+          color: var(--text-muted);
           cursor: pointer;
-          font-size: 0.8rem;
-          padding: 2px 5px;
-          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 4px;
+          border-radius: var(--radius-micro);
           transition: all 0.15s ease;
         }
         .delete-session-btn:hover {
-          color: #ef4444;
-          background: rgba(239, 68, 68, 0.1);
+          color: var(--text-primary);
+          background: var(--bg-card);
         }
       `}</style>
     </aside>

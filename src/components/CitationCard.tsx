@@ -111,7 +111,10 @@ export function CitationCard({ citation, query }: Props) {
           />
         )}
         <span className="cite-label">{displayTitle}</span>
-        <span className="cite-arrow">↗</span>
+        <svg className="cite-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="7" y1="17" x2="17" y2="7" />
+          <polyline points="7 7 17 7 17 17" />
+        </svg>
       </button>
 
       {/* Floating Rich Popover Preview on Hover */}
@@ -134,7 +137,7 @@ export function CitationCard({ citation, query }: Props) {
               <span className="cite-popover-domain">{domain}</span>
             </div>
             <span className={`cite-match-badge ${isWebCitation ? "cite-web-tag" : ""}`}>
-              {isWebCitation ? "🌐 Web Search" : `${matchPercent}% match`}
+              {isWebCitation ? "Web Search" : `${matchPercent}% match`}
             </span>
           </div>
 
@@ -146,9 +149,9 @@ export function CitationCard({ citation, query }: Props) {
 
           <div className="cite-popover-footer">
             <span>
-              {isWebCitation ? "Click to open article ↗" : "Click to inspect verified context"}
+              {isWebCitation ? "Open external article" : "Inspect verified context"}
             </span>
-            <span className="cite-popover-key">{isWebCitation ? "Open URL" : "Space / ⏎"}</span>
+            <span className="cite-popover-key">{isWebCitation ? "Open URL" : "Enter"}</span>
           </div>
         </div>
       )}

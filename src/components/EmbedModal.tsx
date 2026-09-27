@@ -38,7 +38,7 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
   useEffect(() => {
     if (site) {
       setTitle(site.name);
-      setGreeting(`Hello! 👋 Ask me anything about ${site.name}.`);
+      setGreeting(`Hello! Ask me anything about ${site.name}.`);
     }
   }, [site]);
 
@@ -81,11 +81,14 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         {/* Header */}
         <div className="modal-header">
           <div className="modal-header-left">
-            <span className="badge-embed">🚀 Embed Anywhere</span>
-            <h2 className="modal-title">Embed "{site.name}" on Your Website</h2>
+            <span className="badge-embed">Widget Integration</span>
+            <h2 className="modal-title">Embed &quot;{site.name}&quot; on Your Website</h2>
           </div>
           <button className="modal-close-btn" onClick={onClose} aria-label="Close">
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
 
@@ -119,7 +122,7 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
                 className="text-input"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Vijay Wiki Assistant"
+                placeholder="e.g. Wiki Assistant"
               />
             </div>
 
@@ -164,7 +167,11 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
                 rel="noopener noreferrer"
                 className="test-link"
               >
-                ↗ Open Full Screen Embed Preview
+                <span>Open Full Screen Embed Preview</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="7" y1="17" x2="17" y2="7" />
+                  <polyline points="7 7 17 7 17 17" />
+                </svg>
               </a>
             </div>
           </div>
@@ -197,7 +204,22 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
                 className={`copy-code-btn ${copied ? "copied" : ""}`}
                 onClick={handleCopy}
               >
-                {copied ? "✓ Copied!" : "📋 Copy Code"}
+                {copied ? (
+                  <>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>Copied</span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                    <span>Copy Code</span>
+                  </>
+                )}
               </button>
             </div>
 
@@ -212,11 +234,13 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
                   </div>
                   <div className="preview-window-body">
                     <div className="preview-bubble bot">{greeting}</div>
-                    <div className="preview-bubble user">Who is Vijay?</div>
+                    <div className="preview-bubble user">Hello assistant</div>
                   </div>
                 </div>
                 <div className="preview-launcher" style={{ background: color }}>
-                  💬
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
                 </div>
               </div>
             </div>
@@ -231,14 +255,14 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.75);
-          backdrop-filter: blur(8px);
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(4px);
           z-index: 99999;
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 1.5rem;
-          animation: fadeIn 0.2s ease-out;
+          animation: fadeIn 0.15s ease-out;
         }
 
         @keyframes fadeIn {
@@ -253,10 +277,10 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         .modal-card {
           width: 100%;
           max-width: 860px;
-          background: var(--bg-elevated);
+          background: var(--bg-surface);
           border: 1px solid var(--border);
-          border-radius: var(--radius-xl);
-          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+          border-radius: var(--radius);
+          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
           overflow: hidden;
           display: flex;
           flex-direction: column;
@@ -267,54 +291,55 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 1.5rem 1.75rem 1rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          padding: 1.25rem 1.5rem 1rem;
+          border-bottom: 1px solid var(--border);
         }
 
         .badge-embed {
           display: inline-block;
-          font-size: 0.72rem;
-          font-weight: 700;
-          color: var(--accent-dim);
-          background: var(--accent-soft);
+          font-size: 0.68rem;
+          font-weight: 600;
+          color: var(--text-muted);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           padding: 2px 8px;
-          border-radius: 99px;
-          margin-bottom: 0.4rem;
+          border-radius: var(--radius-micro);
+          margin-bottom: 0.35rem;
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
 
         .modal-title {
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: #fff;
+          font-size: 1.05rem;
+          font-weight: 600;
+          color: var(--text-main);
           margin: 0;
         }
 
         .modal-close-btn {
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #8b949e;
-          width: 34px;
-          height: 34px;
-          border-radius: 50%;
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
+          width: 28px;
+          height: 28px;
+          border-radius: var(--radius-sm);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          font-size: 1rem;
           transition: all 0.15s ease;
         }
         .modal-close-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.12);
+          color: var(--text-main);
+          background: var(--bg-hover);
+          border-color: var(--border-strong);
         }
 
         .modal-body {
           display: grid;
           grid-template-columns: 1fr 1.2fr;
           gap: 1.5rem;
-          padding: 1.5rem 1.75rem;
+          padding: 1.5rem;
           overflow-y: auto;
         }
 
@@ -333,15 +358,15 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         .form-group {
           display: flex;
           flex-direction: column;
-          gap: 0.5rem;
+          gap: 0.4rem;
         }
 
         .form-label {
-          font-size: 0.8rem;
+          font-size: 0.72rem;
           font-weight: 600;
-          color: #c9d1d9;
+          color: var(--text-muted);
           text-transform: uppercase;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.05em;
         }
 
         .color-swatches {
@@ -351,31 +376,28 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         }
 
         .color-swatch {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
+          width: 28px;
+          height: 28px;
+          border-radius: var(--radius-micro);
           border: 2px solid transparent;
           cursor: pointer;
-          transition:
-            transform 0.15s ease,
-            border-color 0.15s ease;
+          transition: all 0.15s ease;
         }
         .color-swatch:hover {
-          transform: scale(1.15);
+          transform: scale(1.08);
         }
         .color-swatch.active {
-          border-color: #fff;
-          box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
-          transform: scale(1.1);
+          border-color: var(--text-main);
+          box-shadow: 0 0 0 1px var(--bg-surface);
         }
 
         .text-input {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 8px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           padding: 8px 12px;
-          color: #fff;
-          font-size: 0.88rem;
+          color: var(--text-main);
+          font-size: 0.85rem;
           outline: none;
           transition: border-color 0.15s ease;
         }
@@ -385,15 +407,15 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
 
         .toggle-group {
           display: flex;
-          border-radius: 8px;
+          border-radius: var(--radius-sm);
           overflow: hidden;
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          border: 1px solid var(--border);
         }
 
         .toggle-btn {
           flex: 1;
-          background: rgba(255, 255, 255, 0.04);
-          color: #8b949e;
+          background: var(--bg-card);
+          color: var(--text-muted);
           border: none;
           padding: 8px 12px;
           font-size: 0.82rem;
@@ -403,7 +425,7 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         .toggle-btn.active {
           background: var(--accent);
           color: #fff;
-          font-weight: 600;
+          font-weight: 500;
         }
 
         .quick-links {
@@ -411,7 +433,7 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         }
         .test-link {
           font-size: 0.82rem;
-          color: var(--accent-dim);
+          color: var(--accent);
           text-decoration: none;
           display: inline-flex;
           align-items: center;
@@ -430,24 +452,25 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         .tab-bar {
           display: flex;
           gap: 6px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid var(--border);
           padding-bottom: 6px;
         }
 
         .tab-btn {
           background: transparent;
-          border: none;
-          color: #8b949e;
-          font-size: 0.82rem;
-          font-weight: 600;
+          border: 1px solid transparent;
+          color: var(--text-muted);
+          font-size: 0.8rem;
+          font-weight: 500;
           padding: 4px 10px;
-          border-radius: 6px;
+          border-radius: var(--radius-sm);
           cursor: pointer;
           transition: all 0.15s ease;
         }
         .tab-btn.active {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.08);
+          color: var(--text-main);
+          background: var(--bg-card);
+          border-color: var(--border);
         }
 
         .code-box-wrapper {
@@ -457,11 +480,11 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         .code-box {
           background: var(--bg);
           border: 1px solid var(--border);
-          border-radius: var(--radius-md);
+          border-radius: var(--radius-sm);
           padding: 1rem;
-          font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+          font-family: var(--font-mono, monospace);
           font-size: 0.78rem;
-          color: #93c5fd;
+          color: var(--text-main);
           overflow-x: auto;
           line-height: 1.5;
           margin: 0;
@@ -474,19 +497,17 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
           right: 10px;
           background: var(--accent);
           color: #fff;
-          font-weight: 700;
+          font-weight: 500;
           border: none;
           padding: 6px 12px;
-          border-radius: var(--radius);
-          font-size: 0.78rem;
+          border-radius: var(--radius-sm);
+          font-size: 0.75rem;
           cursor: pointer;
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-          transition:
-            transform 0.15s ease,
-            background 0.15s ease;
+          display: inline-flex;
+          align-items: center;
+          transition: background 0.15s ease;
         }
         .copy-code-btn:hover {
-          transform: scale(1.05);
           background: var(--accent-hover);
         }
         .copy-code-btn.copied {
@@ -495,15 +516,17 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         }
 
         .preview-card {
-          background: #090d14;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 12px;
+          background: var(--bg);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           padding: 12px 14px;
         }
         .preview-label {
-          font-size: 0.75rem;
+          font-size: 0.72rem;
           font-weight: 600;
-          color: #8b949e;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
           margin-bottom: 8px;
         }
         .preview-mockup {
@@ -514,11 +537,11 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         }
         .preview-window {
           width: 220px;
-          background: var(--bg-elevated);
-          border-radius: var(--radius-lg);
+          background: var(--bg-card);
+          border-radius: var(--radius-sm);
           overflow: hidden;
           border: 1px solid var(--border);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
         }
         .preview-window-header {
           display: flex;
@@ -530,17 +553,17 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         .preview-avatar {
           width: 18px;
           height: 18px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.25);
+          border-radius: var(--radius-micro);
+          background: rgba(255, 255, 255, 0.2);
           font-size: 0.65rem;
-          font-weight: 700;
+          font-weight: 600;
           display: flex;
           align-items: center;
           justify-content: center;
         }
         .preview-title-text {
           font-size: 0.72rem;
-          font-weight: 600;
+          font-weight: 500;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -554,30 +577,30 @@ export function EmbedModal({ site, isOpen, onClose }: Props) {
         .preview-bubble {
           font-size: 0.68rem;
           padding: 4px 8px;
-          border-radius: 8px;
+          border-radius: var(--radius-micro);
           line-height: 1.3;
           max-width: 85%;
         }
         .preview-bubble.bot {
-          background: rgba(255, 255, 255, 0.08);
-          color: #c9d1d9;
+          background: var(--bg-surface);
+          color: var(--text-muted);
+          border: 1px solid var(--border);
           align-self: flex-start;
         }
         .preview-bubble.user {
           background: var(--accent);
           color: #fff;
-          font-weight: 500;
+          font-weight: 400;
           align-self: flex-end;
         }
         .preview-launcher {
-          width: 42px;
-          height: 42px;
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 1.1rem;
-          box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
       `}</style>
     </div>

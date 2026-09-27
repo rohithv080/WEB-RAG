@@ -490,7 +490,20 @@ function AppInner() {
                   )}
 
                   <button type="button" className="hero-create-btn" onClick={openModal}>
-                    <span className="hero-btn-icon">+</span>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{ marginRight: 4 }}
+                    >
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
                     <span>New Bot</span>
                   </button>
 
@@ -731,7 +744,21 @@ function AppInner() {
                       />
                     ))}
                     <button type="button" className="add-bot-card" onClick={openModal}>
-                      <span className="add-bot-icon">+</span>
+                      <div className="add-bot-icon">
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="12" y1="5" x2="12" y2="19" />
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                      </div>
                       <div className="add-bot-info">
                         <span className="add-bot-title">Deploy New Bot</span>
                         <span className="add-bot-desc">Index a web URL or upload document</span>
@@ -755,14 +782,43 @@ function AppInner() {
                   onClick={() => setSidebarCollapsed((v) => !v)}
                   title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >
-                  {sidebarCollapsed ? "▶" : "◀"}
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    {sidebarCollapsed ? (
+                      <polyline points="9 18 15 12 9 6" />
+                    ) : (
+                      <polyline points="15 18 9 12 15 6" />
+                    )}
+                  </svg>
                 </button>
                 <button
                   className="back-btn"
                   onClick={goHome}
                   title="Return to Knowledge Bases grid"
                 >
-                  ← Back
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ marginRight: 4 }}
+                  >
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                  </svg>
+                  <span>Back</span>
                 </button>
                 <div className="chat-breadcrumb-wrap">
                   <span className="breadcrumb-root" onClick={goHome}>
@@ -819,8 +875,12 @@ function AppInner() {
                       fill="none"
                       stroke="currentColor"
                       strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     >
-                      <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+                      <polyline points="23 4 23 10 17 10" />
+                      <polyline points="1 20 1 14 7 14" />
+                      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
                     </svg>
                     <span>{refreshingSiteId === selectedSite.id ? "Syncing…" : "Sync"}</span>
                   </button>
@@ -831,7 +891,21 @@ function AppInner() {
                     onClick={handleNewChat}
                     title="Start a fresh conversation thread"
                   >
-                    <span>+ New Chat</span>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{ marginRight: 4 }}
+                    >
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    <span>New Chat</span>
                   </button>
                 </div>
 
@@ -844,7 +918,18 @@ function AppInner() {
                     onClick={() => toggleDrawer("history")}
                     title="View conversation history & past threads"
                   >
-                    <span>💬</span>
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
                     <span className="btn-label">History</span>
                   </button>
 
@@ -854,7 +939,19 @@ function AppInner() {
                     onClick={() => toggleDrawer("pages")}
                     title="View and index document pages"
                   >
-                    <span>📁</span>
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                      <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                    </svg>
                     <span className="btn-label">Sources</span>
                   </button>
 
@@ -864,7 +961,20 @@ function AppInner() {
                     onClick={() => toggleDrawer("analytics")}
                     title="View bot traffic, queries, and satisfaction"
                   >
-                    <span>📊</span>
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <line x1="18" y1="20" x2="18" y2="10" />
+                      <line x1="12" y1="20" x2="12" y2="4" />
+                      <line x1="6" y1="20" x2="6" y2="14" />
+                    </svg>
                     <span className="btn-label">Analytics</span>
                   </button>
 
@@ -874,7 +984,26 @@ function AppInner() {
                     onClick={() => toggleDrawer("settings")}
                     title="Customize persona, tone, and starter prompts"
                   >
-                    <span>⚙️</span>
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <line x1="4" y1="21" x2="4" y2="14" />
+                      <line x1="4" y1="10" x2="4" y2="3" />
+                      <line x1="12" y1="21" x2="12" y2="12" />
+                      <line x1="12" y1="8" x2="12" y2="3" />
+                      <line x1="20" y1="21" x2="20" y2="16" />
+                      <line x1="20" y1="12" x2="20" y2="3" />
+                      <line x1="1" y1="14" x2="7" y2="14" />
+                      <line x1="9" y1="8" x2="15" y2="8" />
+                      <line x1="17" y1="16" x2="23" y2="16" />
+                    </svg>
                     <span className="btn-label">Settings</span>
                   </button>
 
@@ -884,7 +1013,19 @@ function AppInner() {
                     onClick={() => toggleDrawer("embed")}
                     title="Get 1-line embed snippet for your website"
                   >
-                    <span>&lt;/&gt;</span>
+                    <svg
+                      width="13"
+                      height="13"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.75"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="16 18 22 12 16 6" />
+                      <polyline points="8 6 2 12 8 18" />
+                    </svg>
                     <span className="btn-label">Embed</span>
                   </button>
                 </div>
@@ -928,9 +1069,25 @@ function AppInner() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal glass" onClick={(e) => e.stopPropagation()}>
             <header className="modal-header">
-              <h2 className="modal-title">Add new bot</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)}>
-                ✕
+              <h2 className="modal-title">Deploy Knowledge Bot</h2>
+              <button
+                className="modal-close"
+                onClick={() => setShowModal(false)}
+                title="Close modal"
+              >
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </header>
 
@@ -942,7 +1099,22 @@ function AppInner() {
                 onClick={() => setModalMode("url")}
                 disabled={modalLoading}
               >
-                🌐 Website URL
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ marginRight: 6 }}
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+                Website URL
               </button>
               <button
                 type="button"
@@ -950,7 +1122,23 @@ function AppInner() {
                 onClick={() => setModalMode("file")}
                 disabled={modalLoading}
               >
-                📄 Upload Document (PDF / Text)
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ marginRight: 6 }}
+                >
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+                Upload Document
               </button>
             </div>
 
@@ -1001,9 +1189,26 @@ function AppInner() {
                         if (f) handleFileSelect(f);
                       }}
                     >
-                      <div className="dropzone-icon">📄</div>
+                      <div className="dropzone-icon">
+                        <svg
+                          width="24"
+                          height="24"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="12" y1="18" x2="12" y2="12" />
+                          <line x1="9" y1="15" x2="12" y2="12" />
+                          <line x1="15" y1="15" x2="12" y2="12" />
+                        </svg>
+                      </div>
                       <div className="dropzone-text">
-                        <strong>Click to browse</strong> or drag & drop file
+                        <strong>Click to browse</strong> or drag and drop file
                       </div>
                       <div className="dropzone-sub">
                         Supports PDF, Word (.docx), TXT, Markdown, CSV, JSON
@@ -1011,7 +1216,23 @@ function AppInner() {
                     </div>
                   ) : (
                     <div className="file-selected-card">
-                      <div className="file-selected-icon">📄</div>
+                      <div className="file-selected-icon">
+                        <svg
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="16" y1="13" x2="8" y2="13" />
+                          <line x1="16" y1="17" x2="8" y2="17" />
+                        </svg>
+                      </div>
                       <div className="file-selected-info">
                         <span className="file-selected-name">{modalFile.name}</span>
                         <span className="file-selected-size">
@@ -1023,8 +1244,21 @@ function AppInner() {
                         className="file-remove-btn"
                         onClick={() => setModalFile(null)}
                         disabled={modalLoading}
+                        title="Remove file"
                       >
-                        ✕
+                        <svg
+                          width="12"
+                          height="12"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
                       </button>
                     </div>
                   )}
@@ -1048,16 +1282,16 @@ function AppInner() {
                     </div>
                     <div className="crawl-pills-grid">
                       {[
-                        { count: 1, label: "1 Page", tag: "⚡ Single", desc: "Instant (~2s)" },
-                        { count: 5, label: "5 Pages", tag: "🚀 Quick", desc: "Fast & safe (~10s)" },
+                        { count: 1, label: "1 Page", tag: "Single", desc: "Instant (~2s)" },
+                        { count: 5, label: "5 Pages", tag: "Quick", desc: "Fast & safe (~10s)" },
                         {
                           count: 15,
                           label: "15 Pages",
-                          tag: "⭐ Best",
-                          desc: "Recommended (~25s)",
+                          tag: "Recommended",
+                          desc: "Standard (~25s)",
                         },
-                        { count: 30, label: "30 Pages", tag: "📚 Deep", desc: "Thorough (~50s)" },
-                        { count: 100, label: "100 Pages", tag: "🌐 Full", desc: "Complete (2-3m)" },
+                        { count: 30, label: "30 Pages", tag: "Deep", desc: "Thorough (~50s)" },
+                        { count: 100, label: "100 Pages", tag: "Full", desc: "Complete (2-3m)" },
                       ].map((opt) => (
                         <button
                           key={opt.count}
@@ -1078,10 +1312,24 @@ function AppInner() {
 
                   <div className="modal-sync-toggle">
                     <div className="modal-sync-info">
-                      <span className="modal-sync-title">🌅 Daily Auto-Sync (Cron)</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span className="modal-sync-title">Daily Auto-Sync</span>
+                      </div>
                       <span className="modal-sync-sub">
-                        Automatically scan for newly published articles & updates daily at 06:30 AM
-                        IST
+                        Automatically scan for newly published articles & updates daily at 06:30 AM IST
                       </span>
                     </div>
                     <label className="toggle-switch">
@@ -1123,7 +1371,7 @@ function AppInner() {
                         : "Indexing…"
                     : modalMode === "file"
                       ? "Upload & Create Bot"
-                      : "Scrape & add"}
+                      : "Scrape & Add"}
                 </button>
               </div>
             </form>
@@ -1309,24 +1557,18 @@ function AppInner() {
           align-items: center;
           gap: 0.35rem;
           padding: 0.42rem 0.85rem;
-          border-radius: 6px;
-          background: #f4f4f5;
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          color: #09090b;
+          border-radius: var(--radius-sm);
+          background: var(--accent);
+          border: 1px solid transparent;
+          color: #ffffff;
           font-size: 0.78rem;
-          font-weight: 600;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.12s ease;
+          transition: background-color var(--transition-fast);
         }
 
         .hero-create-btn:hover {
-          background: #ffffff;
-          box-shadow: 0 2px 8px rgba(255, 255, 255, 0.12);
-        }
-
-        .hero-btn-icon {
-          font-size: 0.95rem;
-          line-height: 1;
+          background: var(--accent-hover);
         }
 
         .hero-auth-slot {
@@ -1339,19 +1581,19 @@ function AppInner() {
           align-items: center;
           gap: 0.35rem;
           padding: 0.42rem 0.75rem;
-          border-radius: 6px;
+          border-radius: var(--radius-sm);
           background: transparent;
           border: 1px solid var(--border);
           color: var(--text-muted);
           font-size: 0.78rem;
           font-weight: 500;
           cursor: pointer;
-          transition: all 0.12s ease;
+          transition: all var(--transition-fast);
         }
         .hero-logout-btn:hover {
-          color: #f87171;
-          border-color: rgba(248, 113, 113, 0.3);
-          background: rgba(248, 113, 113, 0.06);
+          color: var(--text-primary);
+          border-color: var(--border-hover);
+          background: var(--bg-surface);
         }
 
         .hero-guest-auth {
@@ -1362,34 +1604,34 @@ function AppInner() {
 
         .hero-signin-btn {
           padding: 0.42rem 0.75rem;
-          border-radius: 6px;
+          border-radius: var(--radius-sm);
           background: transparent;
           border: 1px solid var(--border);
           color: var(--text-muted);
           font-size: 0.78rem;
           font-weight: 500;
           cursor: pointer;
-          transition: all 0.12s ease;
+          transition: all var(--transition-fast);
         }
         .hero-signin-btn:hover {
-          background: rgba(255, 255, 255, 0.04);
-          border-color: rgba(255, 255, 255, 0.16);
-          color: #ffffff;
+          background: var(--bg-surface);
+          border-color: var(--border-hover);
+          color: var(--text-primary);
         }
 
         .hero-signup-btn {
           padding: 0.42rem 0.85rem;
-          border-radius: 6px;
-          background: #2563eb;
+          border-radius: var(--radius-sm);
+          background: var(--accent);
           border: 1px solid transparent;
           color: #ffffff;
           font-size: 0.78rem;
-          font-weight: 600;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.12s ease;
+          transition: background-color var(--transition-fast);
         }
         .hero-signup-btn:hover {
-          background: #1d4ed8;
+          background: var(--accent-hover);
         }
 
         .hero-stats-strip {
@@ -1412,8 +1654,8 @@ function AppInner() {
           display: flex;
           flex-direction: column;
           gap: 0.25rem;
-          padding: 0.85rem 1rem;
-          border-radius: var(--radius-md);
+          padding: 1rem 1.125rem;
+          border-radius: var(--radius);
           background: var(--bg-card);
           border: 1px solid var(--border);
           transition: border-color var(--transition-fast);
@@ -1423,29 +1665,26 @@ function AppInner() {
         }
 
         .stat-lbl {
-          font-size: 0.68rem;
+          font-size: 0.72rem;
           font-weight: 500;
           color: var(--text-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.01em;
         }
 
         .stat-num {
-          font-size: 1.45rem;
+          font-size: 1.5rem;
           font-weight: 600;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.03em;
           color: var(--text-primary);
-          font-family: var(--font-mono);
           line-height: 1.2;
         }
 
         .stat-num.stat-status-text {
-          font-size: 1.1rem;
+          font-size: 1.05rem;
           font-weight: 600;
-          color: var(--success);
+          color: var(--text-primary);
           letter-spacing: -0.01em;
           line-height: 1.2;
-          font-family: var(--font-sans);
         }
 
         .stat-sub {
@@ -1462,11 +1701,11 @@ function AppInner() {
         }
 
         .pulse-dot {
-          width: 7px;
-          height: 7px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
-          background: var(--success);
-          box-shadow: 0 0 0 2px var(--success-subtle);
+          background: var(--status-live);
+          flex-shrink: 0;
         }
 
         /* ── Bot Search, Filter & Sort Ribbon ──────────────────── */
@@ -1631,21 +1870,21 @@ function AppInner() {
         }
 
         .reset-filters-btn {
-          padding: 0.45rem 0.9rem;
-          border-radius: 6px;
-          background: rgba(124, 124, 255, 0.12);
-          border: 1px solid rgba(124, 124, 255, 0.3);
-          color: #a5b4fc;
+          padding: 0.42rem 0.85rem;
+          border-radius: var(--radius-sm);
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
           font-size: 0.78rem;
           font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all var(--transition-fast);
         }
 
         .reset-filters-btn:hover {
-          background: rgba(124, 124, 255, 0.2);
-          border-color: rgba(124, 124, 255, 0.5);
-          color: #ffffff;
+          background: var(--bg-surface);
+          border-color: var(--border-hover);
+          color: var(--text-primary);
         }
 
         .bot-grid {
@@ -1659,33 +1898,39 @@ function AppInner() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          gap: 0.65rem;
+          gap: 0.75rem;
           padding: 1.75rem 1.25rem;
           background: transparent;
-          border: 1px dashed rgba(255, 255, 255, 0.12);
-          border-radius: var(--radius-lg);
+          border: 1px dashed var(--border);
+          border-radius: var(--radius);
           color: var(--text-muted);
           min-height: 180px;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all var(--transition-fast);
         }
 
         .add-bot-card:hover {
-          border-color: var(--accent);
-          background: rgba(124, 124, 255, 0.03);
-          transform: translateY(-1px);
+          border-color: var(--border-hover);
+          background: var(--bg-surface);
         }
 
         .add-bot-icon {
-          font-size: 1.4rem;
-          font-weight: 300;
-          color: var(--text-dim);
-          line-height: 1;
-          transition: color 0.15s ease;
+          width: 34px;
+          height: 34px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-muted);
+          background: var(--bg-card);
+          transition: all var(--transition-fast);
         }
 
         .add-bot-card:hover .add-bot-icon {
           color: var(--accent);
+          border-color: var(--accent-border);
+          background: var(--accent-subtle);
         }
 
         .add-bot-info {
@@ -1698,13 +1943,13 @@ function AppInner() {
 
         .add-bot-title {
           font-size: 0.85rem;
-          font-weight: 500;
-          color: var(--text);
+          font-weight: 600;
+          color: var(--text-primary);
         }
 
         .add-bot-desc {
-          font-size: 0.72rem;
-          color: var(--text-dim);
+          font-size: 0.75rem;
+          color: var(--text-muted);
           max-width: 190px;
           line-height: 1.4;
         }
@@ -1874,19 +2119,20 @@ function AppInner() {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          background: var(--success-subtle);
-          border: 1px solid var(--success-border);
-          color: var(--success);
+          background: transparent;
+          border: 1px solid var(--border);
+          color: var(--text-muted);
           font-size: 0.74rem;
           font-weight: 500;
           padding: 0.32rem 0.65rem;
-          border-radius: var(--radius-xs);
+          border-radius: var(--radius-sm);
           cursor: pointer;
           transition: all var(--transition-fast);
         }
         .chat-sync-btn:hover:not(:disabled) {
-          background: rgba(16, 185, 129, 0.2);
-          color: #ffffff;
+          background: var(--bg-surface);
+          border-color: var(--border-hover);
+          color: var(--text-primary);
         }
         .chat-sync-btn:disabled {
           opacity: 0.5;
@@ -1898,19 +2144,19 @@ function AppInner() {
         .chat-new-thread-btn {
           display: inline-flex;
           align-items: center;
-          gap: 5px;
-          background: var(--primary);
+          gap: 4px;
+          background: var(--accent);
           border: 1px solid transparent;
           color: #ffffff;
           font-size: 0.74rem;
           font-weight: 500;
-          padding: 0.35rem 0.75rem;
-          border-radius: var(--radius-xs);
+          padding: 0.32rem 0.75rem;
+          border-radius: var(--radius-sm);
           cursor: pointer;
           transition: background-color var(--transition-fast);
         }
         .chat-new-thread-btn:hover {
-          background: var(--primary-hover);
+          background: var(--accent-hover);
         }
         .nav-divider {
           width: 1px;
@@ -1923,7 +2169,7 @@ function AppInner() {
           align-items: center;
           background: var(--bg-surface);
           border: 1px solid var(--border);
-          border-radius: var(--radius-xs);
+          border-radius: var(--radius-sm);
           padding: 2px;
           gap: 2px;
         }
@@ -1939,10 +2185,10 @@ function AppInner() {
           transition: all var(--transition-fast);
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: 5px;
         }
         .drawer-trigger-btn:hover {
-          background: var(--bg-card-hover);
+          background: var(--bg-card);
           color: var(--text-primary);
         }
         .drawer-trigger-btn.active {
@@ -1955,7 +2201,7 @@ function AppInner() {
         .modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(0, 0, 0, 0.7);
+          background: rgba(0, 0, 0, 0.65);
           backdrop-filter: blur(4px);
           display: flex;
           align-items: center;
@@ -1969,7 +2215,7 @@ function AppInner() {
           max-width: 480px;
           background: var(--bg-card);
           border: 1px solid var(--border);
-          border-radius: var(--radius-lg);
+          border-radius: var(--radius);
           overflow: hidden;
           animation: scaleIn 0.18s ease;
           box-shadow: var(--shadow-lg);
@@ -1983,7 +2229,7 @@ function AppInner() {
         }
         .modal-title {
           margin: 0;
-          font-size: 0.95rem;
+          font-size: 0.92rem;
           font-weight: 600;
           color: var(--text-primary);
         }
@@ -2027,7 +2273,7 @@ function AppInner() {
           width: 100%;
           padding: 0.55rem 0.75rem;
           border: 1px solid var(--border);
-          border-radius: var(--radius-xs);
+          border-radius: var(--radius-sm);
           background: var(--bg-input);
           color: var(--text-primary);
           font-size: 0.8125rem;
@@ -2038,8 +2284,8 @@ function AppInner() {
         }
         .field-input:focus,
         .field-textarea:focus {
-          border-color: var(--border-focus);
-          box-shadow: 0 0 0 1px var(--primary);
+          border-color: var(--accent);
+          box-shadow: 0 0 0 1px var(--accent);
         }
         .crawl-options-wrapper {
           display: flex;
@@ -2070,18 +2316,18 @@ function AppInner() {
           padding: 0.5rem 0.65rem;
           background: var(--bg-surface);
           border: 1px solid var(--border);
-          border-radius: var(--radius-xs);
+          border-radius: var(--radius-sm);
           cursor: pointer;
           text-align: left;
           transition: all var(--transition-fast);
         }
         .crawl-pill:hover:not(:disabled) {
           border-color: var(--border-hover);
-          background: var(--bg-card-hover);
+          background: var(--bg-card);
         }
         .crawl-pill.active {
-          border-color: var(--primary);
-          background: var(--primary-subtle);
+          border-color: var(--accent);
+          background: var(--accent-subtle);
         }
         .pill-top {
           display: flex;
@@ -2095,7 +2341,7 @@ function AppInner() {
           color: var(--text-primary);
         }
         .crawl-pill.active .pill-label {
-          color: var(--primary-hover);
+          color: var(--text-primary);
           font-weight: 600;
         }
         .pill-tag {
@@ -2120,7 +2366,7 @@ function AppInner() {
         .modal-cancel {
           padding: 0.45rem 0.85rem;
           border: 1px solid var(--border);
-          border-radius: var(--radius-xs);
+          border-radius: var(--radius-sm);
           background: transparent;
           color: var(--text-muted);
           font-size: 0.8rem;
@@ -2135,8 +2381,8 @@ function AppInner() {
         .modal-submit {
           padding: 0.45rem 1rem;
           border: 1px solid transparent;
-          border-radius: var(--radius-xs);
-          background: var(--primary);
+          border-radius: var(--radius-sm);
+          background: var(--accent);
           color: #fff;
           font-size: 0.8rem;
           font-weight: 500;
@@ -2144,7 +2390,7 @@ function AppInner() {
           transition: background-color var(--transition-fast);
         }
         .modal-submit:hover:not(:disabled) {
-          background: var(--primary-hover);
+          background: var(--accent-hover);
         }
 
         /* ── File Upload & Mode Tabs ────────────────────────────────── */

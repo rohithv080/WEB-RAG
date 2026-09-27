@@ -209,7 +209,10 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
                 <span className="card-icon">{card.icon}</span>
                 <span className="card-title">{card.title}</span>
               </div>
-              <span className="card-arrow">&nearr;</span>
+              <svg className="card-arrow" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="7" y1="17" x2="17" y2="7" />
+                <polyline points="7 7 17 7 17 17" />
+              </svg>
             </div>
             <p className="card-question">&ldquo;{card.question}&rdquo;</p>
             {card.desc && <span className="card-desc">{card.desc}</span>}
@@ -244,11 +247,11 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
         }
 
         .welcome-emblem {
-          width: 38px;
-          height: 38px;
+          width: 36px;
+          height: 36px;
           border-radius: var(--radius-sm);
-          background: var(--accent-subtle);
-          border: 1px solid var(--accent-dim);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           color: var(--accent);
           display: flex;
           align-items: center;
@@ -258,18 +261,18 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
 
         .welcome-title {
           margin: 0 0 0.5rem;
-          font-size: 1.35rem;
-          font-weight: 700;
-          letter-spacing: -0.025em;
+          font-size: 1.25rem;
+          font-weight: 600;
+          letter-spacing: -0.02em;
           color: var(--text-primary);
         }
 
         .welcome-sub {
           margin: 0 0 1.25rem;
-          font-size: 0.86rem;
-          color: var(--text-secondary);
-          line-height: 1.55;
-          max-width: 520px;
+          font-size: 0.84rem;
+          color: var(--text-muted);
+          line-height: 1.5;
+          max-width: 500px;
         }
 
         .welcome-capabilities {
@@ -278,26 +281,26 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
           justify-content: center;
           gap: 0.5rem;
           flex-wrap: wrap;
-          margin-bottom: 2rem;
+          margin-bottom: 1.75rem;
         }
 
         .cap-pill {
           display: inline-flex;
           align-items: center;
           gap: 0.4rem;
-          padding: 0.25rem 0.65rem;
+          padding: 0.25rem 0.6rem;
           border-radius: var(--radius-sm);
-          font-size: 0.74rem;
+          font-size: 0.72rem;
           font-weight: 500;
-          color: var(--text-secondary);
-          background: var(--bg-surface);
-          border: 1px solid var(--border-default);
+          color: var(--text-muted);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
         }
 
         .welcome-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
-          gap: 0.75rem;
+          gap: 0.65rem;
           width: 100%;
           text-align: left;
         }
@@ -305,22 +308,19 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
         .prompt-card {
           display: flex;
           flex-direction: column;
-          gap: 0.45rem;
-          padding: 1rem 1.15rem;
+          gap: 0.35rem;
+          padding: 12px 14px;
           background: var(--bg-card);
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-md);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           cursor: pointer;
           transition: all 0.15s ease;
           color: inherit;
-          box-shadow: var(--shadow-sm);
         }
 
         .prompt-card:hover {
-          background: var(--bg-card-hover);
-          border-color: var(--border-focus);
-          transform: translateY(-1px);
-          box-shadow: var(--shadow-md);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
 
         .card-top {
@@ -337,38 +337,37 @@ export function WelcomeScreen({ siteName, onSuggest, starterQuestions }: Props) 
         }
 
         .card-icon {
-          color: var(--accent);
+          color: var(--text-muted);
           display: flex;
           align-items: center;
         }
 
         .card-title {
-          font-size: 0.78rem;
-          font-weight: 600;
+          font-size: 0.76rem;
+          font-weight: 500;
           color: var(--text-primary);
           letter-spacing: -0.01em;
         }
 
         .card-arrow {
-          font-size: 0.85rem;
           color: var(--text-muted);
           transition: color 0.12s ease;
         }
 
         .prompt-card:hover .card-arrow {
-          color: var(--accent);
+          color: var(--text-primary);
         }
 
         .card-question {
           margin: 0;
-          font-size: 0.82rem;
-          font-weight: 500;
-          color: var(--text-primary);
+          font-size: 0.8rem;
+          font-weight: 400;
+          color: var(--text-secondary);
           line-height: 1.45;
         }
 
         .card-desc {
-          font-size: 0.73rem;
+          font-size: 0.7rem;
           color: var(--text-muted);
         }
 

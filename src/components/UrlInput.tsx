@@ -162,7 +162,7 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
           .add-page-form {
             display: flex;
             flex-direction: column;
-            gap: 0.3rem;
+            gap: 0.35rem;
           }
           .add-page-row {
             display: flex;
@@ -173,11 +173,12 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
             min-width: 0;
             padding: 0.45rem 0.65rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--bg-input);
-            color: var(--text);
-            font-size: 0.82rem;
+            border-radius: var(--radius-sm);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-size: 0.8rem;
             outline: none;
+            transition: border-color 0.15s ease;
           }
           .add-page-input:focus {
             border-color: var(--accent);
@@ -185,26 +186,27 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
           .add-page-btn {
             flex-shrink: 0;
             padding: 0.45rem 0.8rem;
-            border: 1px solid var(--accent-dim);
-            border-radius: var(--radius);
-            background: transparent;
-            color: var(--accent);
+            border: none;
+            border-radius: var(--radius-sm);
+            background: var(--accent);
+            color: #ffffff;
             font-size: 0.8rem;
-            font-weight: 600;
-            transition: background 0.12s ease;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.15s ease;
           }
           .add-page-btn:hover:not(:disabled) {
-            background: var(--accent-soft);
+            background: var(--accent-hover);
           }
           .add-page-status {
             margin: 0;
-            font-size: 0.78rem;
-            color: var(--success);
+            font-size: 0.76rem;
+            color: var(--text-secondary);
           }
           .add-page-error {
             margin: 0;
-            font-size: 0.78rem;
-            color: var(--danger);
+            font-size: 0.76rem;
+            color: #ef4444;
           }
         `}</style>
       </form>
@@ -242,15 +244,15 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
         <div className="crawl-options-wrapper">
           <div className="crawl-options-header">
             <span className="url-label">Crawl Scope</span>
-            <span className="vercel-badge">⚡ Vercel-Optimized</span>
+            <span className="vercel-badge">Vercel-Optimized</span>
           </div>
           <div className="crawl-pills-row">
             {[
-              { count: 1, label: "1 Page", tag: "⚡ Single", desc: "Instant (~2s)" },
-              { count: 5, label: "5 Pages", tag: "🚀 Quick", desc: "Fast (~10s)" },
-              { count: 15, label: "15 Pages", tag: "⭐ Best", desc: "Balanced (~25s)" },
-              { count: 30, label: "30 Pages", tag: "📚 Deep", desc: "Thorough (~50s)" },
-              { count: 100, label: "100 Pages", tag: "🌐 Full", desc: "Complete (2-3m)" },
+              { count: 1, label: "1 Page", tag: "Single", desc: "Instant (~2s)" },
+              { count: 5, label: "5 Pages", tag: "Quick", desc: "Fast (~10s)" },
+              { count: 15, label: "15 Pages", tag: "Recommended", desc: "Balanced (~25s)" },
+              { count: 30, label: "30 Pages", tag: "Deep", desc: "Thorough (~50s)" },
+              { count: 100, label: "100 Pages", tag: "Full", desc: "Complete (2-3m)" },
             ].map((opt) => (
               <button
                 key={opt.count}
@@ -287,11 +289,12 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
         }
         .vercel-badge {
           font-size: 0.68rem;
-          color: var(--accent);
-          background: var(--accent-soft);
-          padding: 0.15rem 0.45rem;
-          border-radius: 4px;
-          font-weight: 600;
+          color: var(--text-muted);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          padding: 2px 6px;
+          border-radius: var(--radius-sm);
+          font-weight: 500;
         }
         .crawl-pills-row {
           display: grid;
@@ -303,21 +306,21 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
           flex-direction: column;
           align-items: flex-start;
           gap: 0.15rem;
-          padding: 0.4rem 0.55rem;
-          background: var(--bg-input);
+          padding: 8px 10px;
+          background: var(--bg-card);
           border: 1px solid var(--border);
-          border-radius: var(--radius);
+          border-radius: var(--radius-sm);
           cursor: pointer;
           text-align: left;
           transition: all 0.15s ease;
         }
         .crawl-pill-mini:hover:not(:disabled) {
-          border-color: var(--border-active);
-          background: var(--bg-card);
+          border-color: var(--border-hover);
+          background: var(--bg-hover);
         }
         .crawl-pill-mini.active {
           border-color: var(--accent);
-          background: var(--accent-soft);
+          background: var(--bg-hover);
         }
         .pill-mini-top {
           display: flex;
@@ -328,14 +331,15 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
         .pill-mini-label {
           font-size: 0.76rem;
           font-weight: 600;
-          color: var(--text);
+          color: var(--text-primary);
         }
         .crawl-pill-mini.active .pill-mini-label {
-          color: var(--accent);
+          color: var(--text-primary);
         }
         .pill-mini-tag {
           font-size: 0.62rem;
           color: var(--text-muted);
+          font-family: monospace;
         }
         .pill-mini-desc {
           font-size: 0.62rem;
@@ -347,56 +351,53 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
           gap: 0.5rem;
         }
         .url-label {
-          font-size: 0.8rem;
+          font-size: 0.78rem;
           font-weight: 500;
-          color: var(--text-muted);
-          letter-spacing: 0.02em;
+          color: var(--text-secondary);
         }
         .url-row {
           display: flex;
-          gap: 0.6rem;
+          gap: 0.5rem;
           flex-wrap: wrap;
         }
         .url-input {
           flex: 1;
           min-width: 220px;
-          padding: 0.7rem 0.9rem;
+          padding: 8px 12px;
           border: 1px solid var(--border);
           border-radius: var(--radius);
-          background: var(--bg-input);
-          color: var(--text);
+          background: var(--bg-card);
+          color: var(--text-primary);
           outline: none;
+          font-size: 0.82rem;
+          transition: border-color 0.15s ease;
         }
         .url-input:focus {
           border-color: var(--accent);
-          box-shadow: 0 0 0 3px var(--accent-soft);
         }
         .url-btn {
-          padding: 0.7rem 1.1rem;
+          padding: 8px 16px;
           border: none;
           border-radius: var(--radius);
           background: var(--accent);
-          color: #fff;
-          font-weight: 600;
-          transition:
-            opacity 0.15s ease,
-            transform 0.1s ease;
+          color: #ffffff;
+          font-size: 0.82rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: background 0.15s ease;
         }
         .url-btn:hover:not(:disabled) {
-          opacity: 0.85;
-        }
-        .url-btn:active:not(:disabled) {
-          transform: scale(0.98);
+          background: var(--accent-hover);
         }
         .url-status {
           margin: 0;
-          font-size: 0.85rem;
-          color: var(--success);
+          font-size: 0.78rem;
+          color: var(--text-secondary);
         }
         .url-error {
           margin: 0;
-          font-size: 0.85rem;
-          color: var(--danger);
+          font-size: 0.78rem;
+          color: #ef4444;
         }
       `}</style>
     </form>

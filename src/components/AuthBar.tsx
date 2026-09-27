@@ -224,7 +224,7 @@ export function AuthBar() {
           color: #ffffff;
         }
         .sign-up-btn:hover {
-          background: #6e6eff;
+          background: var(--accent-hover);
         }
       `}</style>
     </div>

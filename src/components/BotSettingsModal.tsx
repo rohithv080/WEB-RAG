@@ -173,7 +173,12 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
       <div className="modal glass" onClick={(e) => e.stopPropagation()}>
         <header className="modal-header">
           <div className="header-title-group">
-            <span className="header-icon">⚙️</span>
+            <span className="header-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+            </span>
             <div>
               <h2 className="modal-title">Bot Customization</h2>
               <p className="modal-subtitle">
@@ -182,7 +187,10 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             </div>
           </div>
           <button className="modal-close" onClick={onClose} aria-label="Close">
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </header>
 
@@ -230,7 +238,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
               rows={3}
               value={systemPrompt}
               onChange={(e) => setSystemPrompt(e.target.value)}
-              placeholder="e.g., You are an empathetic customer support agent. Answer warmly, use friendly emojis, and always provide links where possible."
+              placeholder="e.g., You are an empathetic customer support agent. Answer warmly, clearly, and always provide links where possible."
             />
           </div>
 
@@ -241,17 +249,17 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
               {[
                 {
                   id: "concise",
-                  title: "⚡ Concise",
+                  title: "Concise",
                   desc: "Direct, bullet points, 1-2 sentence answers with no fluff",
                 },
                 {
                   id: "balanced",
-                  title: "⚖️ Balanced",
+                  title: "Balanced",
                   desc: "Standard informative, conversational, and natural style",
                 },
                 {
                   id: "detailed",
-                  title: "📚 Detailed",
+                  title: "Detailed",
                   desc: "Comprehensive deep-dives with thorough step-by-step explanations",
                 },
               ].map((t) => (
@@ -300,7 +308,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
                 onClick={handleAddQuestion}
                 disabled={!newQuestion.trim() || starterQuestions.length >= 6}
               >
-                + Add
+                Add
               </button>
             </div>
 
@@ -308,14 +316,20 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
               <div className="chips-list">
                 {starterQuestions.map((q, idx) => (
                   <div key={idx} className="chip-item">
-                    <span className="chip-text">💬 {q}</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    <span className="chip-text">{q}</span>
                     <button
                       type="button"
                       className="chip-remove"
                       onClick={() => handleRemoveQuestion(idx)}
                       title="Remove question"
                     >
-                      ✕
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
                     </button>
                   </div>
                 ))}
@@ -371,7 +385,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
                       className={`freq-btn ${syncFrequency === "daily" ? "active" : ""}`}
                       onClick={() => setSyncFrequency("daily")}
                     >
-                      <span>🌅 Daily</span>
+                      <span>Daily</span>
                       <small>06:30 AM IST</small>
                     </button>
                     <button
@@ -379,7 +393,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
                       className={`freq-btn ${syncFrequency === "weekly" ? "active" : ""}`}
                       onClick={() => setSyncFrequency("weekly")}
                     >
-                      <span>📅 Weekly</span>
+                      <span>Weekly</span>
                       <small>Every Monday</small>
                     </button>
                   </div>
@@ -408,14 +422,31 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
                     <span className="sync-spinner" /> Checking for News…
                   </>
                 ) : (
-                  <>⚡ Sync Latest News Now</>
+                  <>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
+                      <polyline points="23 4 23 10 17 10" />
+                      <polyline points="1 20 1 14 7 14" />
+                      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                    </svg>
+                    Sync Latest News Now
+                  </>
                 )}
               </button>
             </div>
 
             {syncResult && (
               <div className={`sync-banner ${syncResult.success ? "success" : "error"}`}>
-                <span>{syncResult.success ? "✓" : "⚠"}</span>
+                {syncResult.success ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="8" x2="12" y2="12" />
+                    <line x1="12" y1="16" x2="12.01" y2="16" />
+                  </svg>
+                )}
                 <span>{syncResult.message}</span>
               </div>
             )}
@@ -430,13 +461,8 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
                 </h3>
                 <span
                   className="badge-sync-pill"
-                  style={{
-                    background: "rgba(16, 185, 129, 0.12)",
-                    color: "#34d399",
-                    border: "1px solid rgba(16, 185, 129, 0.25)",
-                  }}
                 >
-                  🌐 Agentic RAG
+                  Agentic RAG
                 </span>
               </div>
               <p className="section-hint" style={{ marginTop: "0.25rem" }}>
@@ -491,28 +517,28 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           .modal-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             padding: 1rem;
-            animation: fadeIn 0.2s ease;
+            animation: fadeIn 0.15s ease;
           }
 
           .modal {
-            background: var(--bg-elevated);
+            background: var(--bg-surface);
             border: 1px solid var(--border);
-            border-radius: var(--radius-xl);
+            border-radius: var(--radius);
             width: 100%;
             max-width: 600px;
             max-height: 90vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            animation: slideUp 0.25s ease;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+            animation: slideUp 0.15s ease;
           }
 
           .modal-header {
@@ -521,7 +547,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             justify-content: space-between;
             padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.02);
+            background: transparent;
           }
 
           .header-title-group {
@@ -531,35 +557,42 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
 
           .header-icon {
-            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
           }
 
           .modal-title {
             margin: 0;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-main);
           }
 
           .modal-subtitle {
             margin: 2px 0 0;
             font-size: 0.78rem;
-            color: #8b949e;
+            color: var(--text-muted);
           }
 
           .modal-close {
             background: transparent;
-            border: none;
-            color: #8b949e;
-            font-size: 1.1rem;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            padding: 6px;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             transition: all 0.15s ease;
           }
           .modal-close:hover {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-main);
+            background: var(--bg-hover);
+            border-color: var(--border-strong);
           }
 
           .modal-body {
@@ -584,9 +617,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
 
           .section-heading {
             margin: 0;
-            font-size: 0.88rem;
+            font-size: 0.75rem;
             font-weight: 600;
-            color: #c9d1d9;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.05em;
           }
@@ -594,24 +627,25 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           .section-hint {
             margin: 0;
             font-size: 0.78rem;
-            color: #8b949e;
+            color: var(--text-muted);
             line-height: 1.4;
           }
 
           .badge-hint {
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             padding: 2px 6px;
-            background: var(--accent-soft);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            color: var(--accent-dim);
-            border-radius: var(--radius-sm);
-            font-weight: 600;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: var(--radius-micro);
+            font-weight: 500;
+            text-transform: uppercase;
           }
 
           .badge-count {
             font-size: 0.72rem;
-            font-family: monospace;
-            color: #8b949e;
+            font-family: var(--font-mono, monospace);
+            color: var(--text-muted);
           }
 
           .field-group {
@@ -621,28 +655,26 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
 
           .field-label {
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 500;
-            color: #8b949e;
+            color: var(--text-muted);
           }
 
           .field-input,
           .field-textarea {
             width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 8px;
-            padding: 0.6rem 0.85rem;
-            color: #fff;
-            font-size: 0.88rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 0.55rem 0.75rem;
+            color: var(--text-main);
+            font-size: 0.85rem;
             outline: none;
             transition: all 0.15s ease;
           }
           .field-input:focus,
           .field-textarea:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 0 2px var(--accent-soft);
-            background: rgba(255, 255, 255, 0.08);
           }
 
           /* Tone Cards */
@@ -654,9 +686,9 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
 
           .tone-card {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             padding: 0.6rem;
             display: flex;
             flex-direction: column;
@@ -666,24 +698,23 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             transition: all 0.15s ease;
           }
           .tone-card:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.2);
+            background: var(--bg-hover);
+            border-color: var(--border-strong);
           }
           .tone-card.active {
-            background: var(--accent-soft);
+            background: var(--bg-hover);
             border-color: var(--accent);
-            box-shadow: 0 0 12px rgba(37, 99, 235, 0.15);
           }
 
           .tone-title {
             font-size: 0.82rem;
             font-weight: 600;
-            color: #fff;
+            color: var(--text-main);
           }
 
           .tone-desc {
             font-size: 0.68rem;
-            color: #8b949e;
+            color: var(--text-muted);
             line-height: 1.3;
           }
 
@@ -695,20 +726,20 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
 
           .btn-add-q {
-            background: var(--accent-soft);
-            color: var(--accent-dim);
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            border-radius: var(--radius);
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             padding: 0 1rem;
-            font-size: 0.85rem;
-            font-weight: 600;
+            font-size: 0.82rem;
+            font-weight: 500;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.15s ease;
           }
           .btn-add-q:hover:not(:disabled) {
-            background: var(--accent-glow);
-            color: #fff;
+            background: var(--bg-hover);
+            border-color: var(--border-strong);
           }
           .btn-add-q:disabled {
             opacity: 0.5;
@@ -723,22 +754,22 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
 
           .chip-item {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             padding: 0.3rem 0.65rem;
             display: inline-flex;
             align-items: center;
             gap: 6px;
             font-size: 0.78rem;
-            color: #e6edf3;
+            color: var(--text-main);
             animation: fadeIn 0.15s ease;
           }
 
           .chip-remove {
             background: transparent;
             border: none;
-            color: #8b949e;
+            color: var(--text-muted);
             cursor: pointer;
             font-size: 0.75rem;
             padding: 0;
@@ -746,14 +777,14 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             align-items: center;
           }
           .chip-remove:hover {
-            color: #f85149;
+            color: var(--danger);
           }
 
           /* Sync Section */
           .sync-section {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             padding: 1rem;
           }
           .sync-title-row {
@@ -765,25 +796,26 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           .badge-sync-pill {
             font-size: 0.65rem;
             padding: 2px 7px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.35);
-            color: #34d399;
-            border-radius: 9999px;
-            font-weight: 600;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: var(--radius-micro);
+            font-weight: 500;
+            text-transform: uppercase;
           }
           .sync-options-card {
             display: flex;
             flex-direction: column;
             gap: 0.85rem;
             padding: 0.9rem;
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             margin-top: 0.5rem;
           }
           .field-subtext {
             font-size: 0.72rem;
-            color: #8b949e;
+            color: var(--text-muted);
           }
           .freq-selector {
             display: grid;
@@ -796,30 +828,30 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             align-items: flex-start;
             gap: 2px;
             padding: 0.55rem 0.75rem;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 6px;
-            color: #c9d1d9;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
             font-size: 0.8rem;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.15s ease;
           }
           .freq-btn small {
             font-size: 0.68rem;
-            color: #8b949e;
+            color: var(--text-muted);
             font-weight: normal;
           }
           .freq-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: var(--bg-hover);
           }
           .freq-btn.active {
-            background: var(--accent-soft);
+            background: var(--bg-hover);
             border-color: var(--accent);
-            color: var(--accent-dim);
+            color: var(--text-main);
           }
           .freq-btn.active small {
-            color: rgba(37, 99, 235, 0.8);
+            color: var(--accent);
           }
           .sync-trigger-box {
             display: flex;
@@ -827,39 +859,37 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             justify-content: space-between;
             gap: 1rem;
             padding: 0.75rem 0.9rem;
-            background: rgba(124, 124, 255, 0.05);
-            border: 1px solid rgba(124, 124, 255, 0.15);
-            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
             margin-top: 0.4rem;
           }
           .sync-trigger-title {
             font-size: 0.82rem;
-            font-weight: 600;
-            color: #e2e8f0;
+            font-weight: 500;
+            color: var(--text-main);
           }
           .sync-trigger-sub {
             font-size: 0.72rem;
-            color: #94a3b8;
+            color: var(--text-muted);
           }
           .btn-sync-now {
             display: inline-flex;
             align-items: center;
             gap: 6px;
             padding: 0.45rem 0.85rem;
-            background: var(--accent-subtle);
-            border: 1px solid var(--accent-dim);
-            color: var(--accent);
+            background: var(--accent);
+            border: none;
+            color: #fff;
             border-radius: var(--radius-sm);
             font-size: 0.78rem;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             white-space: nowrap;
             transition: all 0.15s ease;
           }
           .btn-sync-now:hover:not(:disabled) {
-            background: var(--accent);
-            color: #fff;
-            border-color: var(--accent);
+            background: var(--accent-hover);
           }
           .btn-sync-now:disabled {
             opacity: 0.5;
@@ -868,8 +898,8 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           .sync-spinner {
             width: 12px;
             height: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-top-color: var(--accent);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
             display: inline-block;
@@ -884,19 +914,19 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             align-items: center;
             gap: 8px;
             padding: 0.55rem 0.75rem;
-            border-radius: 6px;
+            border-radius: var(--radius-sm);
             font-size: 0.78rem;
             margin-top: 0.3rem;
           }
           .sync-banner.success {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: #34d399;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--success);
           }
           .sync-banner.error {
-            background: rgba(248, 113, 113, 0.1);
-            border: 1px solid rgba(248, 113, 113, 0.3);
-            color: #f87171;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--danger);
           }
 
           /* Visibility Switch */
@@ -905,16 +935,16 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             align-items: center;
             justify-content: space-between;
             padding: 0.75rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
           }
 
           .toggle-switch {
             position: relative;
             display: inline-block;
-            width: 44px;
-            height: 24px;
+            width: 38px;
+            height: 20px;
             flex-shrink: 0;
           }
           .toggle-switch input {
@@ -926,34 +956,34 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             position: absolute;
             cursor: pointer;
             inset: 0;
-            background-color: rgba(255, 255, 255, 0.2);
-            transition: 0.3s;
-            border-radius: 24px;
+            background-color: var(--border-strong);
+            transition: 0.2s;
+            border-radius: 20px;
           }
           .toggle-slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
+            height: 14px;
+            width: 14px;
             left: 3px;
             bottom: 3px;
             background-color: white;
-            transition: 0.3s;
+            transition: 0.2s;
             border-radius: 50%;
           }
           input:checked + .toggle-slider {
             background-color: var(--accent);
           }
           input:checked + .toggle-slider:before {
-            transform: translateX(20px);
+            transform: translateX(18px);
           }
 
           .modal-error-banner {
             padding: 0.6rem 0.85rem;
-            background: rgba(248, 81, 73, 0.15);
-            border: 1px solid rgba(248, 81, 73, 0.3);
-            color: #ff7b72;
-            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+            border-radius: var(--radius-sm);
             font-size: 0.8rem;
           }
 
@@ -964,23 +994,24 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             gap: 0.75rem;
             padding: 1rem 1.5rem;
             border-top: 1px solid var(--border);
-            background: rgba(255, 255, 255, 0.02);
+            background: transparent;
           }
 
           .btn-secondary {
             background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #c9d1d9;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
             padding: 0.5rem 1rem;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             font-size: 0.85rem;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.15s ease;
           }
           .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
+            background: var(--bg-hover);
+            color: var(--text-main);
+            border-color: var(--border-strong);
           }
 
           .btn-primary {
@@ -988,15 +1019,14 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
             border: none;
             color: #fff;
             padding: 0.5rem 1.25rem;
-            border-radius: var(--radius);
+            border-radius: var(--radius-sm);
             font-size: 0.85rem;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
             transition: all 0.15s ease;
           }
           .btn-primary:hover:not(:disabled) {
             background: var(--accent-hover);
-            transform: translateY(-1px);
           }
           .btn-primary:disabled {
             opacity: 0.5;
@@ -1013,7 +1043,7 @@ export function BotSettingsModal({ site, isOpen, onClose, onSave }: Props) {
           }
           @keyframes slideUp {
             from {
-              transform: translateY(12px);
+              transform: translateY(8px);
               opacity: 0;
             }
             to {

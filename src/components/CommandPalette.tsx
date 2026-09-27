@@ -85,7 +85,12 @@ export function CommandPalette({
           category: "Actions",
           title: `Start New Chat in ${selectedSite.name}`,
           subtitle: "Reset screen to a fresh conversation session",
-          icon: "+",
+          icon: (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          ),
           badge: "Chat",
           action: () => {
             onNewChat();
@@ -98,7 +103,11 @@ export function CommandPalette({
         category: "Actions",
         title: `View Chat History for ${selectedSite.name}`,
         subtitle: "Browse past conversation threads and multi-turn context",
-        icon: "💬",
+        icon: (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        ),
         badge: "Drawer",
         action: () => {
           onOpenDrawer("history");
@@ -110,7 +119,11 @@ export function CommandPalette({
         category: "Actions",
         title: `Index Knowledge into ${selectedSite.name}`,
         subtitle: "Add URLs or upload PDF, Word, TXT, CSV documents",
-        icon: "📁",
+        icon: (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+          </svg>
+        ),
         badge: "Drawer",
         action: () => {
           onOpenDrawer("pages");
@@ -122,7 +135,13 @@ export function CommandPalette({
         category: "Actions",
         title: `View Analytics for ${selectedSite.name}`,
         subtitle: "Live queries, response latency, and content gaps",
-        icon: "📊",
+        icon: (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+        ),
         badge: "Drawer",
         action: () => {
           onOpenDrawer("analytics");
@@ -134,7 +153,12 @@ export function CommandPalette({
         category: "Actions",
         title: `Customize Persona & Tone for ${selectedSite.name}`,
         subtitle: "Edit system prompt, starter questions, and response style",
-        icon: "⚙️",
+        icon: (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+          </svg>
+        ),
         badge: "Drawer",
         action: () => {
           onOpenDrawer("settings");
@@ -146,7 +170,12 @@ export function CommandPalette({
         category: "Actions",
         title: `Get Embeddable Widget for ${selectedSite.name}`,
         subtitle: "1-line HTML script tag for external websites",
-        icon: "</>",
+        icon: (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+        ),
         badge: "Drawer",
         action: () => {
           onOpenDrawer("embed");
@@ -159,7 +188,13 @@ export function CommandPalette({
           category: "Actions",
           title: `Sync News & Articles for ${selectedSite.name}`,
           subtitle: "Crawl sitemap and homepage for newly published pages",
-          icon: "↻",
+          icon: (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="23 4 23 10 17 10" />
+              <polyline points="1 20 1 14 7 14" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
+          ),
           badge: "Sync",
           action: () => {
             onSyncSite(selectedSite.id);
@@ -173,7 +208,12 @@ export function CommandPalette({
       category: "Actions",
       title: "Deploy New Knowledge Bot",
       subtitle: "Scrape a website or upload knowledge files",
-      icon: "+",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      ),
       badge: "Create",
       action: () => {
         onDeployBot();
@@ -186,7 +226,11 @@ export function CommandPalette({
         category: "Actions",
         title: "Manage Developer API Keys",
         subtitle: "Generate keys & integrate bots via OpenAI Python SDK, cURL, or LangChain",
-        icon: "🔑",
+        icon: (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+          </svg>
+        ),
         badge: "API",
         action: () => {
           onOpenApiKeys();
@@ -200,7 +244,12 @@ export function CommandPalette({
         category: "Actions",
         title: "Toggle Sidebar Rail",
         subtitle: "Collapse sidebar to 68px icon rail or expand",
-        icon: "◀ / ▶",
+        icon: (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+            <line x1="9" y1="3" x2="9" y2="21" />
+          </svg>
+        ),
         badge: "Layout",
         action: () => {
           onToggleSidebar();
@@ -213,7 +262,12 @@ export function CommandPalette({
       category: "Actions",
       title: "Return to Knowledge Bases Grid",
       subtitle: "View all deployed bots and statistics overview",
-      icon: "🏠",
+      icon: (
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <polyline points="9 22 9 12 15 12 15 22" />
+        </svg>
+      ),
       badge: "Navigate",
       action: () => {
         onHome();
@@ -227,7 +281,13 @@ export function CommandPalette({
         category: "Knowledge Bases",
         title: site.name,
         subtitle: `${site.pages.length} Pages • ${site.totalChunks} Chunks`,
-        icon: "🤖",
+        icon: (
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+          </svg>
+        ),
         badge: site.id === selectedSite?.id ? "Active" : "Switch",
         action: () => {
           onSelectSite(site);
@@ -396,8 +456,8 @@ export function CommandPalette({
         .palette-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(10, 15, 29, 0.72);
-          backdrop-filter: blur(8px);
+          background: rgba(0, 0, 0, 0.75);
+          backdrop-filter: blur(4px);
           display: flex;
           align-items: flex-start;
           justify-content: center;
@@ -408,11 +468,11 @@ export function CommandPalette({
 
         .palette-dialog {
           width: 100%;
-          max-width: 620px;
-          background: var(--bg-card);
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-lg);
-          box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-subtle);
+          max-width: 580px;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
           overflow: hidden;
           display: flex;
           flex-direction: column;
@@ -424,14 +484,14 @@ export function CommandPalette({
           display: flex;
           align-items: center;
           gap: 10px;
-          padding: 14px 16px;
-          border-bottom: 1px solid var(--border-subtle);
-          background: var(--bg-subtle);
+          padding: 12px 16px;
+          border-bottom: 1px solid var(--border);
+          background: var(--bg-surface);
         }
 
         .palette-search-icon {
-          width: 18px;
-          height: 18px;
+          width: 16px;
+          height: 16px;
           color: var(--text-muted);
           flex-shrink: 0;
         }
@@ -442,7 +502,7 @@ export function CommandPalette({
           border: none;
           outline: none;
           color: var(--text-primary);
-          font-size: 0.95rem;
+          font-size: 0.9rem;
           font-family: inherit;
         }
 
@@ -451,23 +511,23 @@ export function CommandPalette({
         }
 
         .palette-kbd {
-          font-family: var(--font-mono, monospace);
+          font-family: monospace;
           font-size: 0.68rem;
           color: var(--text-muted);
-          background: var(--bg-surface);
-          border: 1px solid var(--border-default);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           padding: 2px 5px;
-          border-radius: var(--radius-sm);
+          border-radius: var(--radius-micro);
         }
 
         /* Results List */
         .palette-list {
           max-height: 380px;
           overflow-y: auto;
-          padding: 8px;
+          padding: 6px;
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 2px;
         }
 
         .palette-empty {
@@ -484,9 +544,9 @@ export function CommandPalette({
         }
 
         .palette-group-header {
-          padding: 6px 10px 4px;
+          padding: 8px 10px 4px;
           font-size: 0.68rem;
-          font-weight: 700;
+          font-weight: 600;
           letter-spacing: 0.05em;
           text-transform: uppercase;
           color: var(--text-muted);
@@ -497,35 +557,33 @@ export function CommandPalette({
           align-items: center;
           gap: 10px;
           padding: 8px 10px;
-          border-radius: var(--radius-md);
+          border-radius: var(--radius-sm);
           cursor: pointer;
           transition: all 0.12s ease;
           border: 1px solid transparent;
         }
 
         .palette-item.selected {
-          background: var(--accent-subtle);
-          border-color: var(--accent-dim);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
 
         .palette-item-icon {
-          width: 26px;
-          height: 26px;
-          border-radius: var(--radius-sm);
-          background: var(--bg-surface);
-          border: 1px solid var(--border-subtle);
+          width: 24px;
+          height: 24px;
+          border-radius: var(--radius-micro);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 0.82rem;
-          color: var(--accent);
+          color: var(--text-muted);
           flex-shrink: 0;
         }
 
         .palette-item.selected .palette-item-icon {
-          background: var(--accent);
-          border-color: var(--accent);
-          color: #ffffff;
+          color: var(--text-primary);
+          border-color: var(--border-hover);
         }
 
         .palette-item-text {
@@ -537,7 +595,7 @@ export function CommandPalette({
         }
 
         .palette-item-title {
-          font-size: 0.84rem;
+          font-size: 0.82rem;
           font-weight: 500;
           color: var(--text-primary);
           white-space: nowrap;
@@ -547,7 +605,6 @@ export function CommandPalette({
 
         .palette-item.selected .palette-item-title {
           color: var(--text-primary);
-          font-weight: 600;
         }
 
         .palette-item-sub {
@@ -562,16 +619,16 @@ export function CommandPalette({
           font-size: 0.65rem;
           font-weight: 500;
           padding: 2px 6px;
-          border-radius: var(--radius-sm);
-          background: var(--bg-surface);
+          border-radius: var(--radius-micro);
+          background: var(--bg-card);
           color: var(--text-muted);
-          border: 1px solid var(--border-default);
+          border: 1px solid var(--border);
         }
 
         .palette-item-badge.active {
-          background: rgba(16, 185, 129, 0.12);
-          border-color: rgba(16, 185, 129, 0.25);
-          color: #10b981;
+          background: var(--bg-card);
+          border-color: var(--border-hover);
+          color: var(--accent);
           font-weight: 600;
         }
 
@@ -581,8 +638,8 @@ export function CommandPalette({
           align-items: center;
           justify-content: space-between;
           padding: 8px 14px;
-          background: var(--bg-subtle);
-          border-top: 1px solid var(--border-subtle);
+          background: var(--bg-surface);
+          border-top: 1px solid var(--border);
           font-size: 0.7rem;
           color: var(--text-muted);
         }
@@ -600,10 +657,10 @@ export function CommandPalette({
         }
 
         .kbd-pill {
-          font-family: var(--font-mono, monospace);
-          background: var(--bg-surface);
-          border: 1px solid var(--border-default);
-          border-radius: 3px;
+          font-family: monospace;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-micro);
           padding: 1px 4px;
           font-size: 0.65rem;
           color: var(--text-secondary);
@@ -611,7 +668,7 @@ export function CommandPalette({
 
         .footer-branding {
           font-size: 0.68rem;
-          font-family: var(--font-mono, monospace);
+          font-family: monospace;
           color: var(--text-muted);
         }
 

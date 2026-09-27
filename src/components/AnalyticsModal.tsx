@@ -184,7 +184,13 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         {/* Modal Header */}
         <div className="modal-header">
           <div className="header-left">
-            <div className="bot-avatar">📊</div>
+            <div className="bot-avatar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="20" x2="18" y2="10" />
+                <line x1="12" y1="20" x2="12" y2="4" />
+                <line x1="6" y1="20" x2="6" y2="14" />
+              </svg>
+            </div>
             <div>
               <div className="title-row">
                 <h2 className="modal-title">{site.name} Analytics</h2>
@@ -208,7 +214,12 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                   onClick={exportCSV}
                   title="Export as CSV spreadsheet"
                 >
-                  📥 Export CSV
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export CSV
                 </button>
                 <button
                   type="button"
@@ -221,7 +232,10 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
               </div>
             )}
             <button type="button" className="close-btn" onClick={onClose} title="Close">
-              ✕
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
             </button>
           </div>
         </div>
@@ -235,7 +249,13 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
             </div>
           ) : error ? (
             <div className="error-state">
-              <span className="error-icon">⚠️</span>
+              <span className="error-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+                  <line x1="12" y1="9" x2="12" y2="13" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+              </span>
               <p>{error}</p>
               <button
                 type="button"
@@ -258,19 +278,19 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
               {/* KPI Cards Row */}
               <div className="kpi-grid">
                 <div className="kpi-card">
-                  <span className="kpi-label">💬 Total Queries</span>
+                  <span className="kpi-label">Total Queries</span>
                   <div className="kpi-value">{data.metrics.totalQueries}</div>
                   <span className="kpi-hint">User questions asked</span>
                 </div>
 
                 <div className="kpi-card">
-                  <span className="kpi-label">👥 Conversations</span>
+                  <span className="kpi-label">Conversations</span>
                   <div className="kpi-value">{data.metrics.totalSessions}</div>
                   <span className="kpi-hint">Unique chat sessions</span>
                 </div>
 
                 <div className="kpi-card">
-                  <span className="kpi-label">⭐ Satisfaction Score</span>
+                  <span className="kpi-label">Satisfaction Score</span>
                   <div className="kpi-value">
                     {data.metrics.satisfactionRate !== null ? (
                       <span
@@ -285,12 +305,12 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                     )}
                   </div>
                   <span className="kpi-hint">
-                    👍 {data.metrics.thumbsUpCount} &nbsp;|&nbsp; 👎 {data.metrics.thumbsDownCount}
+                    Positive: {data.metrics.thumbsUpCount} &nbsp;|&nbsp; Negative: {data.metrics.thumbsDownCount}
                   </span>
                 </div>
 
                 <div className="kpi-card">
-                  <span className="kpi-label">⚡ Avg Latency</span>
+                  <span className="kpi-label">Avg Latency</span>
                   <div className="kpi-value">
                     {data.metrics.avgLatencyMs ? (
                       `${data.metrics.avgLatencyMs}ms`
@@ -298,7 +318,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                       <span className="text-muted">Real-time</span>
                     )}
                   </div>
-                  <span className="kpi-hint">Groq inference speed</span>
+                  <span className="kpi-hint">Inference duration</span>
                 </div>
               </div>
 
@@ -306,7 +326,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
               {data.activityTimeline && data.activityTimeline.length > 0 && (
                 <div className="activity-card">
                   <div className="activity-header">
-                    <span className="activity-title">📈 Query Activity (Last 14 Days)</span>
+                    <span className="activity-title">Query Activity (Last 14 Days)</span>
                     <span className="activity-count">
                       {data.activityTimeline.reduce((acc, cur) => acc + cur.count, 0)} total in
                       period
@@ -332,7 +352,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                               style={{
                                 height: `${heightPercent}%`,
                                 background:
-                                  item.count > 0 ? "var(--accent)" : "rgba(255,255,255,0.06)",
+                                  item.count > 0 ? "var(--accent)" : "var(--border)",
                               }}
                             />
                           </div>
@@ -351,21 +371,21 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                   className={`tab-btn ${activeTab === "logs" ? "active" : ""}`}
                   onClick={() => setActiveTab("logs")}
                 >
-                  📜 Query Transcripts ({data.transcripts.length})
+                  Query Transcripts ({data.transcripts.length})
                 </button>
                 <button
                   type="button"
                   className={`tab-btn ${activeTab === "gaps" ? "active" : ""}`}
                   onClick={() => setActiveTab("gaps")}
                 >
-                  ⚠️ Content Gaps ({data.contentGaps.length})
+                  Content Gaps ({data.contentGaps.length})
                 </button>
                 <button
                   type="button"
                   className={`tab-btn ${activeTab === "sources" ? "active" : ""}`}
                   onClick={() => setActiveTab("sources")}
                 >
-                  🔗 Top Cited Pages ({data.topCitedSources.length})
+                  Top Cited Pages ({data.topCitedSources.length})
                 </button>
               </div>
 
@@ -376,7 +396,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                     <input
                       type="text"
                       className="search-input"
-                      placeholder="🔍 Search questions, answers, or keywords across conversations…"
+                      placeholder="Search questions, answers, or keywords across conversations…"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
@@ -411,7 +431,17 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                           <div key={t.id} className="transcript-session-card">
                             <div className="session-header" onClick={() => toggleSession(t.id)}>
                               <div className="session-summary">
-                                <span className="session-chevron">{isExpanded ? "▼" : "▶"}</span>
+                                <span className="session-chevron">
+                                  {isExpanded ? (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <polyline points="6 9 12 15 18 9" />
+                                    </svg>
+                                  ) : (
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                      <polyline points="9 18 15 12 9 6" />
+                                    </svg>
+                                  )}
+                                </span>
                                 <span className="session-preview">
                                   {firstUserMsg
                                     ? firstUserMsg.content
@@ -433,7 +463,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                                   <div key={m.id} className={`transcript-msg msg-${m.role}`}>
                                     <div className="msg-header">
                                       <span className="msg-role-tag">
-                                        {m.role === "user" ? "👤 User" : "🤖 Assistant"}
+                                        {m.role === "user" ? "User" : "Assistant"}
                                       </span>
                                       <span className="msg-time">
                                         {new Date(m.createdAt).toLocaleTimeString([], {
@@ -443,7 +473,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                                         })}
                                       </span>
                                       {m.latencyMs && (
-                                        <span className="msg-latency">⚡ {m.latencyMs}ms</span>
+                                        <span className="msg-latency">{m.latencyMs}ms</span>
                                       )}
                                       {m.rating && (
                                         <span
@@ -451,7 +481,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                                             m.rating === "up" ? "rating-up" : "rating-down"
                                           }`}
                                         >
-                                          {m.rating === "up" ? "👍 Upvoted" : "👎 Downvoted"}
+                                          {m.rating === "up" ? "Upvoted" : "Downvoted"}
                                         </span>
                                       )}
                                     </div>
@@ -471,7 +501,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                                     {/* Citations used */}
                                     {m.citations && m.citations.length > 0 && (
                                       <div className="msg-citations-strip">
-                                        <span className="cite-label">📚 Referenced Sources:</span>
+                                        <span className="cite-label">Referenced Sources:</span>
                                         <div className="cite-tags">
                                           {m.citations.map((c, i) => {
                                             const label =
@@ -493,7 +523,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                                     {/* User feedback note */}
                                     {m.feedback && (
                                       <div className="feedback-note">
-                                        💬 <em>User note: "{m.feedback}"</em>
+                                        <em>User note: "{m.feedback}"</em>
                                       </div>
                                     )}
                                   </div>
@@ -512,7 +542,13 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
               {activeTab === "gaps" && (
                 <div className="tab-pane">
                   <div className="gaps-explainer">
-                    <span className="explainer-icon">💡</span>
+                    <span className="explainer-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                    </span>
                     <div>
                       <strong>What are Content Gaps?</strong>
                       <p>
@@ -525,7 +561,12 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
 
                   {data.contentGaps.length === 0 ? (
                     <div className="empty-gaps">
-                      <span className="check-icon">✨</span>
+                      <span className="check-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                          <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg>
+                      </span>
                       <h3>Zero Content Gaps Detected</h3>
                       <p>
                         Your documentation successfully provided answers for all recent user
@@ -612,14 +653,14 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.75);
-          backdrop-filter: blur(8px);
+          background: rgba(0, 0, 0, 0.7);
+          backdrop-filter: blur(4px);
           z-index: 99999;
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 1.5rem;
-          animation: fadeIn 0.2s ease-out;
+          animation: fadeIn 0.15s ease-out;
         }
 
         @keyframes fadeIn {
@@ -635,21 +676,19 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           width: 100%;
           max-width: 960px;
           max-height: 88vh;
-          background: var(--bg-elevated);
+          background: var(--bg-surface);
           border: 1px solid var(--border);
-          border-radius: var(--radius-xl);
-          box-shadow:
-            0 24px 60px rgba(0, 0, 0, 0.6),
-            0 0 40px rgba(37, 99, 235, 0.08);
+          border-radius: var(--radius);
+          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          animation: scaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: scaleUp 0.15s ease;
         }
 
         @keyframes scaleUp {
           from {
-            transform: scale(0.96);
+            transform: scale(0.98);
             opacity: 0;
           }
           to {
@@ -663,8 +702,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           align-items: center;
           justify-content: space-between;
           padding: 1.25rem 1.5rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(255, 255, 255, 0.02);
+          border-bottom: 1px solid var(--border);
+          background: transparent;
         }
 
         .header-left {
@@ -674,15 +713,15 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .bot-avatar {
-          width: 44px;
-          height: 44px;
-          border-radius: var(--radius-md);
-          background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
+          width: 36px;
+          height: 36px;
+          border-radius: var(--radius-sm);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          color: var(--text-muted);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 1.3rem;
-          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
         }
 
         .title-row {
@@ -692,9 +731,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .modal-title {
-          font-size: 1.25rem;
-          font-weight: 700;
-          color: #f8fafc;
+          font-size: 1.05rem;
+          font-weight: 600;
+          color: var(--text-main);
           margin: 0;
         }
 
@@ -702,26 +741,25 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: #34d399;
-          background: rgba(52, 211, 153, 0.12);
-          border: 1px solid rgba(52, 211, 153, 0.25);
+          font-size: 0.7rem;
+          font-weight: 500;
+          color: var(--text-muted);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           padding: 0.15rem 0.55rem;
-          border-radius: 20px;
+          border-radius: var(--radius-micro);
         }
 
         .live-dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #34d399;
-          box-shadow: 0 0 6px #34d399;
+          background: var(--accent);
         }
 
         .modal-subtitle {
-          font-size: 0.82rem;
-          color: #94a3b8;
+          font-size: 0.78rem;
+          color: var(--text-muted);
           margin: 0.25rem 0 0 0;
         }
 
@@ -734,50 +772,51 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         .export-dropdown {
           display: flex;
           align-items: center;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 8px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           overflow: hidden;
         }
 
         .export-btn {
+          display: inline-flex;
+          align-items: center;
           padding: 0.45rem 0.75rem;
           background: transparent;
           border: none;
-          color: #f1f5f9;
+          color: var(--text-main);
           font-size: 0.78rem;
-          font-weight: 600;
+          font-weight: 500;
           cursor: pointer;
           transition: background 0.15s ease;
         }
         .export-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: var(--bg-hover);
         }
 
         .export-btn-secondary {
           padding: 0.45rem 0.6rem;
           background: transparent;
           border: none;
-          border-left: 1px solid rgba(255, 255, 255, 0.1);
-          color: #94a3b8;
+          border-left: 1px solid var(--border);
+          color: var(--text-muted);
           font-size: 0.75rem;
-          font-weight: 600;
+          font-weight: 500;
           cursor: pointer;
-          transition: background 0.15s ease;
+          transition: all 0.15s ease;
         }
         .export-btn-secondary:hover {
-          background: rgba(255, 255, 255, 0.1);
-          color: #f1f5f9;
+          background: var(--bg-hover);
+          color: var(--text-main);
         }
 
         .close-btn {
-          width: 32px;
-          height: 32px;
-          border-radius: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          background: rgba(255, 255, 255, 0.04);
-          color: #94a3b8;
-          font-size: 1rem;
+          width: 28px;
+          height: 28px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          background: transparent;
+          color: var(--text-muted);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -785,8 +824,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           transition: all 0.15s ease;
         }
         .close-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
-          color: #fff;
+          background: var(--bg-hover);
+          color: var(--text-main);
+          border-color: var(--border-strong);
         }
 
         .modal-body {
@@ -828,9 +868,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           padding: 0.5rem 1.25rem;
           background: var(--accent);
           color: #fff;
-          font-weight: 600;
+          font-weight: 500;
           border: none;
-          border-radius: var(--radius);
+          border-radius: var(--radius-sm);
           cursor: pointer;
         }
 
@@ -838,56 +878,56 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         .kpi-grid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 1rem;
+          gap: 0.75rem;
         }
 
         .kpi-card {
-          padding: 1.1rem 1.2rem;
-          background: rgba(255, 255, 255, 0.03);
+          padding: 1rem 1.15rem;
+          background: var(--bg-card);
           border: 1px solid var(--border);
-          border-radius: var(--radius-lg);
+          border-radius: var(--radius-sm);
           display: flex;
           flex-direction: column;
           gap: 0.35rem;
-          box-shadow: var(--card-highlight);
+          box-shadow: none;
         }
 
         .kpi-label {
-          font-size: 0.76rem;
-          font-weight: 600;
-          color: #94a3b8;
+          font-size: 0.72rem;
+          font-weight: 500;
+          color: var(--text-muted);
           text-transform: uppercase;
-          letter-spacing: 0.04em;
+          letter-spacing: 0.05em;
         }
 
         .kpi-value {
-          font-size: 1.6rem;
-          font-weight: 800;
-          color: #f8fafc;
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: var(--text-main);
           line-height: 1.2;
         }
 
         .kpi-hint {
           font-size: 0.72rem;
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         .text-success {
-          color: #34d399;
+          color: var(--success);
         }
         .text-warning {
-          color: #fbbf24;
+          color: #eab308;
         }
         .text-muted {
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         /* Activity Card */
         .activity-card {
           padding: 1rem 1.25rem;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 14px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           display: flex;
           flex-direction: column;
           gap: 0.85rem;
@@ -900,14 +940,16 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .activity-title {
-          font-size: 0.82rem;
-          font-weight: 700;
-          color: #cbd5e1;
+          font-size: 0.78rem;
+          font-weight: 600;
+          color: var(--text-main);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
 
         .activity-count {
           font-size: 0.74rem;
-          color: #94a3b8;
+          color: var(--text-muted);
         }
 
         .chart-bars {
@@ -937,8 +979,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
 
         .bar-fill {
           width: 100%;
-          border-radius: 4px 4px 0 0;
-          transition: height 0.3s ease;
+          border-radius: 2px 2px 0 0;
+          transition: height 0.2s ease;
         }
 
         .bar-count-popup {
@@ -947,8 +989,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           left: 50%;
           transform: translateX(-50%);
           font-size: 0.65rem;
-          font-weight: 700;
-          color: var(--accent-dim);
+          font-weight: 600;
+          color: var(--text-main);
           opacity: 0;
           transition: opacity 0.15s ease;
           pointer-events: none;
@@ -960,7 +1002,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
 
         .bar-date {
           font-size: 0.62rem;
-          color: #64748b;
+          color: var(--text-muted);
           margin-top: 4px;
         }
 
@@ -968,30 +1010,31 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         .tabs-nav {
           display: flex;
           gap: 0.5rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+          border-bottom: 1px solid var(--border);
           padding-bottom: 0.5rem;
         }
 
         .tab-btn {
-          padding: 0.55rem 1rem;
+          padding: 0.45rem 0.85rem;
           background: transparent;
-          border: none;
-          color: #94a3b8;
-          font-size: 0.84rem;
-          font-weight: 600;
-          border-radius: 8px;
+          border: 1px solid transparent;
+          color: var(--text-muted);
+          font-size: 0.82rem;
+          font-weight: 500;
+          border-radius: var(--radius-sm);
           cursor: pointer;
           transition: all 0.15s ease;
         }
 
         .tab-btn:hover {
-          color: #f1f5f9;
-          background: rgba(255, 255, 255, 0.04);
+          color: var(--text-main);
+          background: var(--bg-hover);
         }
 
         .tab-btn.active {
-          color: var(--accent-dim);
-          background: var(--accent-soft);
+          color: var(--text-main);
+          background: var(--bg-card);
+          border-color: var(--border);
         }
 
         .tab-pane {
@@ -1009,28 +1052,31 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
 
         .search-input {
           flex: 1;
-          padding: 0.65rem 0.95rem;
-          background: rgba(0, 0, 0, 0.3);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-          color: #f8fafc;
+          padding: 0.55rem 0.85rem;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text-main);
           font-size: 0.84rem;
           outline: none;
           transition: border-color 0.15s ease;
         }
         .search-input:focus {
           border-color: var(--accent);
-          box-shadow: 0 0 0 2px var(--accent-soft);
         }
 
         .clear-search {
-          padding: 0.65rem 0.9rem;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-          color: #94a3b8;
+          padding: 0.55rem 0.85rem;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          color: var(--text-muted);
           font-size: 0.78rem;
           cursor: pointer;
+        }
+        .clear-search:hover {
+          background: var(--bg-hover);
+          color: var(--text-main);
         }
 
         /* Transcripts */
@@ -1041,9 +1087,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .transcript-session-card {
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.07);
-          border-radius: 12px;
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           overflow: hidden;
         }
 
@@ -1051,13 +1097,13 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.85rem 1.1rem;
+          padding: 0.75rem 1rem;
           cursor: pointer;
-          background: rgba(255, 255, 255, 0.01);
+          background: transparent;
           transition: background 0.15s ease;
         }
         .session-header:hover {
-          background: rgba(255, 255, 255, 0.04);
+          background: var(--bg-hover);
         }
 
         .session-summary {
@@ -1070,14 +1116,15 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .session-chevron {
-          font-size: 0.7rem;
-          color: #64748b;
+          display: flex;
+          align-items: center;
+          color: var(--text-muted);
         }
 
         .session-preview {
-          font-size: 0.86rem;
-          font-weight: 600;
-          color: #f1f5f9;
+          font-size: 0.84rem;
+          font-weight: 500;
+          color: var(--text-main);
         }
 
         .session-meta {
@@ -1089,25 +1136,26 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
 
         .meta-badge {
           font-size: 0.7rem;
-          font-weight: 600;
-          color: #94a3b8;
-          background: rgba(255, 255, 255, 0.05);
+          font-weight: 500;
+          color: var(--text-muted);
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
           padding: 0.15rem 0.5rem;
-          border-radius: 6px;
+          border-radius: var(--radius-micro);
         }
 
         .meta-date {
           font-size: 0.74rem;
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         .session-body {
-          padding: 1rem 1.1rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          padding: 1rem;
+          border-top: 1px solid var(--border);
           display: flex;
           flex-direction: column;
-          gap: 1rem;
-          background: rgba(0, 0, 0, 0.15);
+          gap: 0.75rem;
+          background: var(--bg);
         }
 
         .transcript-msg {
@@ -1115,17 +1163,17 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           flex-direction: column;
           gap: 0.35rem;
           padding: 0.75rem 0.95rem;
-          border-radius: 10px;
+          border-radius: var(--radius-sm);
         }
 
         .msg-user {
-          background: var(--accent-soft);
-          border: 1px solid rgba(37, 99, 235, 0.2);
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
         }
 
         .msg-assistant {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
         }
 
         .msg-header {
@@ -1136,40 +1184,47 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .msg-role-tag {
-          font-weight: 700;
-          color: #cbd5e1;
+          font-weight: 600;
+          color: var(--text-main);
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
         }
 
         .msg-time {
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         .msg-latency {
-          font-weight: 600;
-          color: #fbbf24;
-          background: rgba(251, 191, 36, 0.1);
+          font-weight: 500;
+          color: var(--text-muted);
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
           padding: 0.1rem 0.4rem;
-          border-radius: 4px;
+          border-radius: var(--radius-micro);
         }
 
         .rating-badge {
-          font-weight: 700;
+          font-weight: 500;
           padding: 0.1rem 0.4rem;
-          border-radius: 4px;
+          border-radius: var(--radius-micro);
+          font-size: 0.7rem;
         }
         .rating-up {
-          color: #34d399;
-          background: rgba(52, 211, 153, 0.12);
+          color: #10b981;
+          background: rgba(16, 185, 129, 0.08);
+          border: 1px solid rgba(16, 185, 129, 0.2);
         }
         .rating-down {
-          color: #f87171;
-          background: rgba(248, 113, 113, 0.12);
+          color: #ef4444;
+          background: rgba(239, 68, 68, 0.08);
+          border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .msg-content {
           font-size: 0.86rem;
           line-height: 1.55;
-          color: #e2e8f0;
+          color: var(--text-main);
         }
 
         .user-text {
@@ -1190,13 +1245,13 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           gap: 0.5rem;
           margin-top: 0.4rem;
           padding-top: 0.4rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.06);
+          border-top: 1px solid var(--border);
           font-size: 0.72rem;
         }
 
         .cite-label {
-          color: #94a3b8;
-          font-weight: 600;
+          color: var(--text-muted);
+          font-weight: 500;
         }
 
         .cite-tags {
@@ -1206,20 +1261,21 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .cite-tag {
-          background: rgba(255, 255, 255, 0.06);
-          color: #cbd5e1;
+          background: var(--bg-surface);
+          color: var(--text-muted);
           padding: 0.15rem 0.45rem;
-          border-radius: 4px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: var(--radius-micro);
+          border: 1px solid var(--border);
           max-width: 260px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          font-size: 0.7rem;
         }
 
         .feedback-note {
           font-size: 0.74rem;
-          color: #fbbf24;
+          color: var(--text-muted);
           margin-top: 0.25rem;
         }
 
@@ -1229,21 +1285,27 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           display: flex;
           align-items: flex-start;
           gap: 0.75rem;
-          padding: 0.9rem 1.1rem;
-          background: var(--accent-soft);
-          border: 1px solid rgba(37, 99, 235, 0.15);
-          border-radius: var(--radius-lg);
+          padding: 0.85rem 1rem;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           font-size: 0.82rem;
-          color: #94a3b8;
+          color: var(--text-muted);
           line-height: 1.45;
         }
-        .gaps-explainer strong {
-          color: #f8fafc;
+        .gaps-explainer strong,
+        .sources-explainer strong {
+          color: var(--text-main);
           display: block;
           margin-bottom: 0.2rem;
         }
         .explainer-icon {
-          font-size: 1.2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--accent);
+          flex-shrink: 0;
+          margin-top: 2px;
         }
 
         .gaps-list {
@@ -1253,10 +1315,10 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .gap-card {
-          padding: 1rem 1.2rem;
-          background: rgba(239, 68, 68, 0.04);
-          border: 1px solid rgba(239, 68, 68, 0.18);
-          border-radius: 12px;
+          padding: 1rem 1.15rem;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
           display: flex;
           flex-direction: column;
           gap: 0.5rem;
@@ -1270,38 +1332,43 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
 
         .gap-badge {
           font-size: 0.68rem;
-          font-weight: 700;
-          color: #f87171;
-          background: rgba(239, 68, 68, 0.12);
+          font-weight: 600;
+          color: #ef4444;
+          background: rgba(239, 68, 68, 0.08);
+          border: 1px solid rgba(239, 68, 68, 0.2);
           padding: 0.15rem 0.5rem;
-          border-radius: 6px;
+          border-radius: var(--radius-micro);
         }
 
         .gap-date {
           font-size: 0.72rem;
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         .gap-question {
-          font-size: 0.95rem;
-          font-weight: 700;
-          color: #f8fafc;
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: var(--text-main);
           margin: 0;
         }
 
         .gap-bot-reply {
           font-size: 0.82rem;
-          color: #94a3b8;
-          background: rgba(0, 0, 0, 0.2);
+          color: var(--text-muted);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
           padding: 0.6rem 0.8rem;
-          border-radius: 8px;
+          border-radius: var(--radius-sm);
         }
 
         .bot-reply-label {
           font-weight: 600;
-          color: #cbd5e1;
+          color: var(--text-main);
           display: block;
           margin-bottom: 0.2rem;
+          font-size: 0.72rem;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
         }
 
         .empty-gaps,
@@ -1313,12 +1380,15 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           justify-content: center;
           padding: 3rem 1rem;
           text-align: center;
-          color: #94a3b8;
+          color: var(--text-muted);
           gap: 0.5rem;
         }
 
         .check-icon {
-          font-size: 2rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: var(--text-muted);
         }
 
         /* Sources */
@@ -1332,22 +1402,23 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.85rem 1.1rem;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          border-radius: 12px;
+          padding: 0.75rem 1rem;
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
           gap: 1rem;
-          transition: background 0.15s ease;
+          transition: background 0.15s ease, border-color 0.15s ease;
         }
         .source-row:hover {
-          background: rgba(255, 255, 255, 0.05);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
 
         .source-rank {
-          font-size: 0.84rem;
-          font-weight: 800;
-          color: var(--accent-dim);
-          width: 28px;
+          font-size: 0.82rem;
+          font-weight: 600;
+          color: var(--text-muted);
+          width: 24px;
         }
 
         .source-info {
@@ -1358,22 +1429,23 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         }
 
         .source-url {
-          font-size: 0.85rem;
-          color: #f1f5f9;
+          font-size: 0.84rem;
+          color: var(--text-main);
           text-decoration: none;
         }
         .source-url:hover {
-          color: var(--accent-dim);
+          color: var(--accent);
           text-decoration: underline;
         }
 
         .source-count-badge {
-          font-size: 0.74rem;
-          font-weight: 700;
-          color: var(--accent-dim);
-          background: var(--accent-soft);
-          padding: 0.25rem 0.65rem;
-          border-radius: 20px;
+          font-size: 0.72rem;
+          font-weight: 600;
+          color: var(--text-muted);
+          background: var(--bg-card);
+          border: 1px solid var(--border);
+          padding: 0.2rem 0.55rem;
+          border-radius: var(--radius-micro);
           white-space: nowrap;
         }
 

@@ -1,73 +1,127 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Web RAG — Minimalist Enterprise Design System
-   Architecture: High-density, institutional-grade, clean typographic hierarchy
+   Design System — High-Craft Minimalist SaaS Token System
+   References: Linear, Vercel Dashboard, Stripe, Raycast, Notion
+   Strict Single Accent · Low-Contrast Hairline Borders · Crisp Typography
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Visual Hierarchy Layers (Neutral Slate / Obsidian) ──────────────── */
-  --bg: #09090b;             /* Base page canvas */
-  --bg-sidebar: #0d0d11;     /* Navigation & sidebar surface */
-  --bg-surface: #121216;     /* Header & secondary toolbar surface */
-  --bg-card: #15151a;        /* Card & component containers */
-  --bg-card-hover: #1a1a21;  /* Interactive card hover */
-  --bg-elevated: #1e1e26;    /* Modals, menus & dropdowns */
-  --bg-input: #101014;       /* Text inputs & search fields */
-  --surface: #121216;
+  /* ── 12-Step True Neutral Grayscale ─────────────────────────────────── */
+  --neutral-0: #000000;
+  --neutral-50: #09090b;
+  --neutral-100: #0d0d10;
+  --neutral-150: #121215;
+  --neutral-200: #16161a;
+  --neutral-250: #1c1c22;
+  --neutral-300: #24242c;
+  --neutral-400: #32323d;
+  --neutral-500: #52525b;
+  --neutral-600: #71717a;
+  --neutral-700: #a1a1aa;
+  --neutral-800: #d4d4d8;
+  --neutral-850: #e4e4e7;
+  --neutral-900: #f4f4f5;
+  --neutral-950: #fafafa;
+  --neutral-1000: #ffffff;
 
-  /* ── Precision Hairline Borders ──────────────────────────────────────── */
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --border: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.15);
-  --border-active: rgba(255, 255, 255, 0.22);
-  --border-focus: #3b82f6;
+  /* ── Dark Mode Default Surfaces ─────────────────────────────────────── */
+  --bg: #0a0a0b;
+  --bg-sidebar: #0f0f11;
+  --bg-surface: #141416;
+  --bg-card: #141416;
+  --bg-card-hover: #19191d;
+  --bg-elevated: #1a1a1e;
+  --bg-input: #111113;
 
-  /* ── Deliberate Text Hierarchy ────────────────────────────────────────── */
-  --text: #f4f4f5;
-  --text-muted: #a1a1aa;
-  --text-dim: #71717a;
+  /* ── Precision Low-Contrast Hairlines ───────────────────────────────── */
+  --border-subtle: #1c1c21;
+  --border: #23232a;
+  --border-hover: #353540;
+  --border-focus: #2563eb;
 
-  /* ── Intentional Interaction Blue (Only for actions & active states) ─── */
-  --accent: #3b82f6;
-  --accent-btn: #2563eb;
+  /* ── Typography Colors ──────────────────────────────────────────────── */
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-dim: #52525b;
+
+  /* ── ONE Single Accent Color: Restrained Blue (Linear/Raycast) ───────── */
+  --accent: #2563eb;
   --accent-hover: #1d4ed8;
-  --accent-dim: #60a5fa;
-  --accent-soft: rgba(59, 130, 246, 0.08);
-  --accent-glow: rgba(59, 130, 246, 0.15);
+  --accent-subtle: rgba(37, 99, 235, 0.08);
+  --accent-border: rgba(37, 99, 235, 0.28);
+  --accent-text: #60a5fa;
 
-  /* ── Semantic System (Used strictly for meaningful states) ───────────── */
-  --success: #10b981;
-  --success-soft: rgba(16, 185, 129, 0.08);
-  --success-border: rgba(16, 185, 129, 0.2);
+  /* ── Strict Status Indicators (Small Dots Only, No Heavy Pills) ─────── */
+  --status-live: #10b981;
+  --status-idle: #71717a;
+  --status-error: #ef4444;
+  --status-live-subtle: rgba(16, 185, 129, 0.1);
+  --status-live-border: rgba(16, 185, 129, 0.25);
+  --status-error-subtle: rgba(239, 68, 68, 0.1);
+  --status-error-border: rgba(239, 68, 68, 0.25);
 
-  --warning: #f59e0b;
-  --warning-soft: rgba(245, 158, 11, 0.08);
-  --warning-border: rgba(245, 158, 11, 0.2);
+  /* ── Standard Spacing Scale ─────────────────────────────────────────── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
 
-  --danger: #ef4444;
-  --danger-soft: rgba(239, 68, 68, 0.08);
-  --danger-border: rgba(239, 68, 68, 0.2);
-
-  /* ── Dimension & Radius Scale ─────────────────────────────────────────── */
-  --radius-xs: 3px;
-  --radius-sm: 5px;
-  --radius: 6px;
+  /* ── Standard Corner Radius Scale (Single Dominant Radius: 8px) ────── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius: 8px;
   --radius-md: 8px;
   --radius-lg: 10px;
-  --radius-xl: 12px;
+  --radius-full: 9999px;
 
-  /* ── Elevation Shadows ─────────────────────────────────────────────────── */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
-  --card-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  /* ── Elevation Shadows (Very Subtle Hairline Drops) ─────────────────── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
 
-  /* ── Layout Dimensions ─────────────────────────────────────────────────── */
-  --sidebar-width: 260px;
-  --sidebar-collapsed-width: 68px;
+  /* ── Transitions ────────────────────────────────────────────────────── */
+  --transition-fast: 0.12s ease;
+  --transition-normal: 0.18s ease;
+
+  /* ── Navigation Dimensions ─────────────────────────────────────────── */
+  --sidebar-width: 250px;
+  --sidebar-collapsed-width: 60px;
+}
+
+/* ── Light Mode Token Mappings ───────────────────────────────────────── */
+[data-theme="light"],
+.light {
+  --bg: #fafafa;
+  --bg-sidebar: #f4f4f5;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f7f7f8;
+  --bg-elevated: #ffffff;
+  --bg-input: #ffffff;
+
+  --border-subtle: #f0f0f2;
+  --border: #e4e4e7;
+  --border-hover: #d4d4d8;
+  --border-focus: #2563eb;
+
+  --text-primary: #09090b;
+  --text-secondary: #52525b;
+  --text-muted: #71717a;
+  --text-dim: #a1a1aa;
+
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Reset & Base
+   Reset & Baseline
    ═══════════════════════════════════════════════════════════════════════════ */
 
 * {
@@ -80,16 +134,8 @@ body {
   padding: 0;
   min-height: 100vh;
   background-color: var(--bg);
-  color: var(--text);
-  font-family:
-    var(--font-sans),
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    "Helvetica Neue",
-    Arial,
-    sans-serif;
+  color: var(--text-primary);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -97,12 +143,12 @@ body {
 }
 
 a {
-  color: var(--text);
+  color: var(--text-primary);
   text-decoration: none;
-  transition: color 0.15s ease;
+  transition: color var(--transition-fast);
 }
 a:hover {
-  color: var(--accent-dim);
+  color: var(--accent-text);
 }
 
 button,
@@ -111,8 +157,10 @@ textarea,
 select {
   font: inherit;
 }
+
 button {
   cursor: pointer;
+  user-select: none;
 }
 button:disabled {
   cursor: not-allowed;
@@ -120,44 +168,102 @@ button:disabled {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Glass Utility
+   Button System (Exactly 3 Standard Styles Across Entire App)
    ═══════════════════════════════════════════════════════════════════════════ */
 
-.glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), var(--card-highlight);
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Skeleton Loader
-   ═══════════════════════════════════════════════════════════════════════════ */
-
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.03) 25%,
-    rgba(255, 255, 255, 0.07) 50%,
-    rgba(255, 255, 255, 0.03) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.8s ease-in-out infinite;
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
   border-radius: var(--radius);
+  background: var(--accent);
+  color: #ffffff;
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color var(--transition-fast);
+}
+.btn-primary:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+.btn-primary:active:not(:disabled) {
+  opacity: 0.95;
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 500;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--bg-card-hover);
+  border-color: var(--border-hover);
+  color: var(--text-primary);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  font-size: 13px;
+  font-weight: 500;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--bg-card-hover);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   Toast Notifications (Clean, Minimalist Pill)
+   Status Dot Indicator (Replacing Colorful Badges System-wide)
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.status-dot-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot-live {
+  background: var(--status-live);
+}
+.status-dot-idle {
+  background: var(--status-idle);
+}
+.status-dot-error {
+  background: var(--status-error);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Toast Notifications
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .toast-container {
@@ -175,41 +281,40 @@ button:disabled {
   pointer-events: auto;
   padding: 0.65rem 1rem;
   border-radius: var(--radius);
-  font-size: 0.82rem;
+  font-size: 13px;
   font-weight: 500;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border);
   background: var(--bg-elevated);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
   animation:
-    toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-    toastOut 0.25s ease 3.7s forwards;
+    toastIn 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    toastOut 0.2s ease 3.7s forwards;
   max-width: 360px;
 }
 
 .toast-success {
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.25);
-  background: rgba(16, 185, 129, 0.08);
+  border-color: var(--status-live-border);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
 .toast-error {
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.25);
-  background: rgba(239, 68, 68, 0.08);
+  border-color: var(--status-error-border);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
 .toast-info {
-  color: #60a5fa;
-  border-color: rgba(59, 130, 246, 0.25);
-  background: rgba(59, 130, 246, 0.08);
+  border-color: var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-primary);
 }
 
 @keyframes toastIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -224,7 +329,7 @@ button:disabled {
   }
   to {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
 }
 
@@ -244,7 +349,7 @@ button:disabled {
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(5px);
   }
   to {
     opacity: 1;
@@ -281,9 +386,9 @@ button:disabled {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 99px;
+  background: var(--border);
+  border-radius: var(--radius-full);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--border-hover);
 }

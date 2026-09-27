@@ -367,11 +367,11 @@ export function Sidebar({
           z-index: 50;
           padding: 0;
           overflow: hidden;
-          transition: width 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: width 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .sidebar.sidebar-collapsed {
-          width: 68px;
+          width: var(--sidebar-collapsed-width);
         }
         .sidebar.sidebar-collapsed .sidebar-brand-row {
           justify-content: center;
@@ -400,17 +400,17 @@ export function Sidebar({
         .sidebar.sidebar-collapsed :global(.sidebar-add),
         .sidebar.sidebar-collapsed :global(.sidebar-keys-btn) {
           justify-content: center;
-          padding: 0.6rem 0;
+          padding: 0.5rem 0;
         }
         .sidebar.sidebar-collapsed :global(.sidebar-item) {
           justify-content: center;
-          padding: 0.6rem 0;
+          padding: 0.5rem 0;
         }
         .sidebar.sidebar-collapsed :global(.auth-bar-fallback),
         .sidebar.sidebar-collapsed :global(.signed-in-card) {
           justify-content: center;
           padding: 0.4rem 0;
-          margin: 0 6px 6px;
+          margin: 0 4px 6px;
         }
         .sidebar-collapsed-search-wrap {
           display: flex;
@@ -418,22 +418,22 @@ export function Sidebar({
           padding: 8px 0;
         }
         .sidebar-collapsed-search-btn {
-          width: 34px;
-          height: 34px;
-          border-radius: 6px;
-          background: rgba(255, 255, 255, 0.04);
+          width: 32px;
+          height: 32px;
+          border-radius: var(--radius-sm);
+          background: var(--bg-surface);
           border: 1px solid var(--border);
           color: var(--text-muted);
           display: flex;
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all var(--transition-fast);
         }
         .sidebar-collapsed-search-btn:hover {
-          background: rgba(124, 124, 255, 0.15);
-          border-color: var(--accent);
-          color: #ffffff;
+          background: var(--bg-card-hover);
+          border-color: var(--border-hover);
+          color: var(--text-primary);
         }
 
         .sidebar-brand-row {
@@ -446,16 +446,16 @@ export function Sidebar({
         .sidebar-collapse-btn {
           background: transparent;
           border: none;
-          color: var(--text-muted);
+          color: var(--text-dim);
           cursor: pointer;
           font-size: 0.75rem;
           padding: 4px 6px;
-          border-radius: 4px;
-          transition: all 0.15s ease;
+          border-radius: var(--radius-xs);
+          transition: all var(--transition-fast);
         }
         .sidebar-collapse-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.08);
+          color: var(--text-primary);
+          background: var(--bg-card-hover);
         }
 
         /* Brand */
@@ -466,18 +466,18 @@ export function Sidebar({
           padding: 0;
           border: none;
           background: transparent;
-          color: var(--text);
+          color: var(--text-primary);
           cursor: pointer;
           text-align: left;
           flex: 1;
         }
 
         .sidebar-logo-box {
-          width: 24px;
-          height: 24px;
-          border-radius: var(--radius-sm);
-          background: var(--accent-soft);
-          border: 1px solid rgba(59, 130, 246, 0.3);
+          width: 22px;
+          height: 22px;
+          border-radius: var(--radius-xs);
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
           color: var(--accent);
           display: flex;
           align-items: center;
@@ -491,10 +491,10 @@ export function Sidebar({
         }
 
         .sidebar-title {
-          font-size: 0.86rem;
+          font-size: 13px;
           font-weight: 600;
           letter-spacing: -0.015em;
-          color: #f7f7f8;
+          color: var(--text-primary);
         }
 
         /* Search */
@@ -518,19 +518,18 @@ export function Sidebar({
 
         .sidebar-search {
           width: 100%;
-          padding: 0.38rem 1.6rem 0.38rem 1.75rem;
+          padding: 0.35rem 1.6rem 0.35rem 1.75rem;
           border: 1px solid var(--border);
-          border-radius: var(--radius);
-          background: rgba(255, 255, 255, 0.02);
-          color: var(--text);
-          font-size: 0.78rem;
+          border-radius: var(--radius-sm);
+          background: var(--bg-input);
+          color: var(--text-primary);
+          font-size: 12px;
           outline: none;
-          transition: all 0.12s ease;
+          transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
         }
 
         .sidebar-search:focus {
-          border-color: var(--accent);
-          background: rgba(255, 255, 255, 0.04);
+          border-color: var(--border-focus);
           box-shadow: 0 0 0 1px var(--accent);
         }
 
@@ -541,13 +540,13 @@ export function Sidebar({
         .sidebar-search-kbd {
           position: absolute;
           right: 0.45rem;
-          font-size: 0.6rem;
+          font-size: 10px;
           font-family: var(--font-mono);
           color: var(--text-dim);
           padding: 1px 4px;
           border-radius: 3px;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
           pointer-events: none;
         }
 
@@ -562,8 +561,8 @@ export function Sidebar({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0.35rem 0.55rem 0.25rem;
-          font-size: 0.65rem;
+          padding: 0.4rem 0.55rem 0.25rem;
+          font-size: 11px;
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.06em;
@@ -571,12 +570,9 @@ export function Sidebar({
         }
 
         .sidebar-section-count {
-          font-size: 0.62rem;
+          font-size: 11px;
           font-family: var(--font-mono);
           color: var(--text-dim);
-          background: rgba(255, 255, 255, 0.04);
-          padding: 1px 4px;
-          border-radius: 3px;
         }
 
         .sidebar-nav-group {
@@ -590,34 +586,35 @@ export function Sidebar({
           align-items: center;
           gap: 0.55rem;
           width: 100%;
-          padding: 0.42rem 0.55rem;
-          border-radius: var(--radius);
+          height: 30px;
+          padding: 0 0.55rem;
+          border-radius: var(--radius-sm);
           background: transparent;
           border: 1px solid transparent;
           color: var(--text-muted);
-          font-size: 0.8rem;
+          font-size: 13px;
           font-weight: 500;
           cursor: pointer;
           text-align: left;
-          transition: all 0.12s ease;
+          transition: all var(--transition-fast);
         }
 
         .sidebar-nav-btn:hover {
-          background: rgba(255, 255, 255, 0.035);
-          color: var(--text);
+          background: var(--bg-card-hover);
+          color: var(--text-primary);
         }
 
         .sidebar-nav-btn.active {
-          background: rgba(255, 255, 255, 0.06);
-          color: #ffffff;
+          background: var(--bg-surface);
+          border-color: var(--border-subtle);
+          color: var(--text-primary);
         }
 
         .sidebar-create-btn {
-          color: #93c5fd;
+          color: var(--text-secondary);
         }
         .sidebar-create-btn:hover {
-          color: #ffffff;
-          background: var(--accent-soft);
+          color: var(--text-primary);
         }
 
         /* Knowledge Bases section */
@@ -641,7 +638,7 @@ export function Sidebar({
 
         .sidebar-empty-hint {
           padding: 0.85rem 0.5rem;
-          font-size: 0.75rem;
+          font-size: 12px;
           color: var(--text-dim);
           text-align: center;
         }
@@ -650,26 +647,28 @@ export function Sidebar({
           display: flex;
           align-items: center;
           gap: 0.55rem;
-          padding: 0.42rem 0.55rem;
+          height: 32px;
+          padding: 0 0.55rem;
           border: 1px solid transparent;
           background: transparent;
           color: var(--text-muted);
-          border-radius: var(--radius);
+          border-radius: var(--radius-sm);
           cursor: pointer;
           text-align: left;
           width: 100%;
           position: relative;
-          transition: all 0.12s ease;
+          transition: all var(--transition-fast);
         }
 
         .sidebar-item:hover {
-          background: rgba(255, 255, 255, 0.035);
-          color: var(--text);
+          background: var(--bg-card-hover);
+          color: var(--text-primary);
         }
 
         .sidebar-item-active {
-          background: rgba(255, 255, 255, 0.06);
-          color: #ffffff;
+          background: var(--bg-surface);
+          border-color: var(--border-subtle);
+          color: var(--text-primary);
         }
 
         .active-pill {
@@ -678,32 +677,32 @@ export function Sidebar({
           top: 50%;
           transform: translateY(-50%);
           width: 2px;
-          height: 16px;
+          height: 14px;
           border-radius: 0 1px 1px 0;
           background: var(--accent);
         }
 
         .sidebar-item-icon {
-          width: 20px;
-          height: 20px;
+          width: 18px;
+          height: 18px;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          border-radius: 4px;
-          background: rgba(255, 255, 255, 0.04);
+          border-radius: var(--radius-xs);
+          background: var(--bg-surface);
         }
 
         .sidebar-item-letter {
-          width: 20px;
-          height: 20px;
-          border-radius: 4px;
-          background: rgba(255, 255, 255, 0.05);
-          color: var(--text);
+          width: 18px;
+          height: 18px;
+          border-radius: var(--radius-xs);
+          background: var(--bg-input);
+          color: var(--text-secondary);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 0.7rem;
+          font-size: 11px;
           font-weight: 600;
         }
 
@@ -711,28 +710,30 @@ export function Sidebar({
           flex: 1;
           min-width: 0;
           display: flex;
-          flex-direction: column;
+          align-items: center;
+          justify-content: space-between;
+          gap: 6px;
         }
 
         .sidebar-item-name {
-          font-size: 0.8rem;
+          font-size: 13px;
           font-weight: 500;
-          color: var(--text);
+          color: var(--text-secondary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
         .sidebar-item-active .sidebar-item-name {
-          color: #ffffff;
+          color: var(--text-primary);
           font-weight: 500;
         }
 
         .sidebar-item-meta {
-          font-size: 0.65rem;
+          font-size: 11px;
           color: var(--text-dim);
           font-family: var(--font-mono);
-          margin-top: 1px;
+          flex-shrink: 0;
         }
 
         /* Account & Developer section */
@@ -748,7 +749,7 @@ export function Sidebar({
         /* Footer */
         .sidebar-footer {
           padding: 0.5rem 0.75rem;
-          font-size: 0.64rem;
+          font-size: 11px;
           font-family: var(--font-mono);
           color: var(--text-dim);
           border-top: 1px solid var(--border-subtle);
@@ -759,10 +760,10 @@ export function Sidebar({
         }
 
         .footer-status-dot {
-          width: 5px;
-          height: 5px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
-          background: var(--success);
+          background: var(--status-live);
         }
 
         /* ── Collapsed Overrides ─────────────────────────────────────── */
@@ -781,24 +782,24 @@ export function Sidebar({
 
         .sidebar.sidebar-collapsed :global(.sidebar-nav-btn) {
           justify-content: center;
-          padding: 0.5rem 0;
+          padding: 0.45rem 0;
         }
 
         .sidebar.sidebar-collapsed :global(.sidebar-item) {
           justify-content: center;
-          padding: 0.5rem 0;
+          padding: 0.45rem 0;
         }
 
         /* ── Mobile ──────────────────────────────────────────────────── */
         @media (max-width: 768px) {
           .sidebar {
             transform: translateX(-100%);
-            transition: transform 0.25s ease;
+            transition: transform 0.2s ease;
             box-shadow: none;
           }
           .sidebar-open {
             transform: translateX(0);
-            box-shadow: 4px 0 32px rgba(0, 0, 0, 0.6);
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
           }
         }
       `}</style>

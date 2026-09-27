@@ -43,28 +43,61 @@ function CopyButton({ text }: { text: string }) {
       }}
       title="Copy response"
     >
-      {copied ? "✓ Copied" : "⎘ Copy"}
+      {copied ? (
+        <>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          <span>Copied</span>
+        </>
+      ) : (
+        <>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+          <span>Copy</span>
+        </>
+      )}
 
       <style jsx>{`
         .copy-btn {
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          background: rgba(255, 255, 255, 0.04);
-          color: #94a3b8;
-          padding: 2px 7px;
-          border-radius: 5px;
+          border: 1px solid var(--border);
+          background: transparent;
+          color: var(--text-muted);
+          padding: 3px 8px;
+          border-radius: var(--radius-xs);
           font-size: 0.7rem;
           font-weight: 500;
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: 5px;
           cursor: pointer;
-          transition: all 0.15s ease;
+          transition: all var(--transition-fast);
           margin-left: auto;
         }
         .copy-btn:hover {
-          color: #ffffff;
-          border-color: rgba(255, 255, 255, 0.18);
-          background: rgba(255, 255, 255, 0.08);
+          color: var(--text-primary);
+          border-color: var(--border-hover);
+          background: var(--bg-surface);
         }
       `}</style>
     </button>
@@ -697,7 +730,18 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                   <div className="msg-assistant-card">
                     <div className="assistant-header">
                       <div className="assistant-avatar-badge">
-                        <span className="avatar-icon">✦</span>
+                        <svg
+                          width="13"
+                          height="13"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                        </svg>
                       </div>
                       <div className="assistant-title-meta">
                         <span className="assistant-name">{siteTitle || "Knowledge Assistant"}</span>
@@ -708,7 +752,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                             title="Specific details were not found in local site documents; answer is grounded in live web search"
                           >
                             <span className="web-pulse-dot" />
-                            🌐 Live Web Grounded
+                            <span>Live Web Grounded</span>
                           </span>
                         )}
                       </div>
@@ -749,7 +793,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                       ) : streaming && m.id === messages[messages.length - 1]?.id ? (
                         <TypingIndicator />
                       ) : (
-                        <div style={{ color: "#64748b", fontStyle: "italic", fontSize: "0.82rem" }}>
+                        <div style={{ color: "var(--text-muted)", fontStyle: "italic", fontSize: "0.82rem" }}>
                           *(No response generated)*
                         </div>
                       )}
@@ -777,7 +821,19 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                               </>
                             ) : (
                               <>
-                                <span>🔊</span>
+                                <svg
+                                  width="12"
+                                  height="12"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                                </svg>
                                 <span>Listen</span>
                               </>
                             )}
@@ -788,7 +844,18 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                             onClick={() => handleRateMessage(m.id, "up")}
                             title="Good response"
                           >
-                            👍
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.75"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+                            </svg>
                           </button>
                           <button
                             type="button"
@@ -796,11 +863,22 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                             onClick={() => handleRateMessage(m.id, "down")}
                             title="Inaccurate or unhelpful"
                           >
-                            👎
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.75"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3" />
+                            </svg>
                           </button>
                           {m.rating && (
                             <span className="feedback-toast">
-                              {m.rating === "up" ? "Thanks for feedback!" : "Feedback recorded"}
+                              {m.rating === "up" ? "Feedback received" : "Feedback recorded"}
                             </span>
                           )}
                         </div>
@@ -811,7 +889,6 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                               className="perf-chip"
                               title="Serverless RAG retrieval + generation latency"
                             >
-                              ⚡{" "}
                               {m.latencyMs < 1000
                                 ? `${m.latencyMs}ms`
                                 : `${(m.latencyMs / 1000).toFixed(1)}s`}
@@ -825,7 +902,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                                 className="perf-chip web-chip"
                                 title="Grounded in real-time live web search results"
                               >
-                                🌐 {m.citations.length} web{" "}
+                                {m.citations.length} web{" "}
                                 {m.citations.length === 1 ? "source" : "sources"}
                               </span>
                             ) : (
@@ -833,7 +910,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                                 className="perf-chip verified-chip"
                                 title="Verified against indexed document chunks"
                               >
-                                🛡️ {m.citations.length}{" "}
+                                {m.citations.length}{" "}
                                 {m.citations.length === 1 ? "source" : "sources"}
                               </span>
                             ))}
@@ -846,7 +923,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                       !m.content.includes("I couldn't find that in the source.") && (
                         <div className="msg-citations-block">
                           <span className="citations-header-label">
-                            {m.isWebFallback ? "🌐 Live Web Sources" : "Verified Sources"}
+                            {m.isWebFallback ? "Live Web Sources" : "Verified Sources"}
                           </span>
                           <div className="msg-citations-tray">
                             {m.citations.map((c) => (
@@ -886,16 +963,43 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                               submitQuestion(targetQ, {
                                 forceWebSearch: true,
                                 webSearchQuery: targetQ,
-                                userDisplayQuestion: `🌐 Search the web for: "${targetQ}"`,
+                                userDisplayQuestion: `Search the web for: "${targetQ}"`,
                               });
                             }
                           }}
                         >
-                          <span className="btn-globe-icon">🌐</span>
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.75"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{ marginRight: 6 }}
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                          </svg>
                           <span className="btn-text">
-                            Search the Web for &ldquo;<strong>{m.webSearchQuery || "this"}</strong>&rdquo;
+                            Search the web for &ldquo;<strong>{m.webSearchQuery || "this"}</strong>&rdquo;
                           </span>
-                          <span className="btn-arrow">→</span>
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            style={{ marginLeft: 6 }}
+                          >
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                            <polyline points="12 5 19 12 12 19" />
+                          </svg>
                         </button>
                       </div>
                     )}
@@ -923,7 +1027,18 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           title="Scroll to latest response"
         >
           <span>Scroll to bottom</span>
-          <span className="scroll-arrow">↓</span>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
         </button>
       )}
 
@@ -938,7 +1053,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
             onKeyDown={handleKeyDown}
             placeholder={
               isListening
-                ? "🎙️ Listening... speak your question now"
+                ? "Listening... speak your question now"
                 : ready
                   ? `Ask ${siteTitle ? `about ${siteTitle}` : "a question"}…`
                   : "Index a page first"
@@ -956,12 +1071,12 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                 disabled={!ready || streaming}
                 title="Select AI Response Language"
               >
-                <option value="auto">🌐 Auto</option>
-                <option value="English">🇬🇧 EN</option>
-                <option value="Spanish">🇪🇸 ES</option>
-                <option value="French">🇫🇷 FR</option>
-                <option value="Hindi">🇮🇳 HI</option>
-                <option value="Tamil">🇮🇳 TA</option>
+                <option value="auto">Auto-detect</option>
+                <option value="English">English (EN)</option>
+                <option value="Spanish">Spanish (ES)</option>
+                <option value="French">French (FR)</option>
+                <option value="Hindi">Hindi (HI)</option>
+                <option value="Tamil">Tamil (TA)</option>
               </select>
 
               <button
@@ -976,7 +1091,21 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                     <span className="mic-dot" />
                   </span>
                 ) : (
-                  <span>🎙️</span>
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                    <line x1="8" y1="23" x2="16" y2="23" />
+                  </svg>
                 )}
               </button>
 
@@ -987,7 +1116,21 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                   onClick={handleExportTranscript}
                   title="Export conversation as Markdown transcript"
                 >
-                  <span>📥 Export (.md)</span>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.75"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  <span>Export</span>
                 </button>
               )}
             </div>
@@ -1000,7 +1143,9 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                   onClick={handleStopGenerating}
                   title="Stop generating response"
                 >
-                  <span className="stop-sq">■</span>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="4" y="4" width="16" height="16" rx="2" />
+                  </svg>
                   <span>Stop</span>
                 </button>
               ) : (
@@ -1010,7 +1155,19 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                   className="dock-send-btn"
                   title="Send question (Enter)"
                 >
-                  <span className="send-arrow">↑</span>
+                  <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="12" y1="19" x2="12" y2="5" />
+                    <polyline points="5 12 12 5 19 12" />
+                  </svg>
                 </button>
               )}
             </div>
@@ -1076,15 +1233,14 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .msg-user-bubble {
           position: relative;
           padding: 0.65rem 1rem;
-          border-radius: var(--radius-md) var(--radius-md) var(--radius-xs) var(--radius-md);
+          border-radius: var(--radius);
           font-size: 0.875rem;
           line-height: 1.55;
           word-break: break-word;
           white-space: pre-wrap;
-          background: var(--bg-elevated);
+          background: var(--bg-surface);
           border: 1px solid var(--border);
           color: var(--text-primary);
-          box-shadow: var(--shadow-sm);
         }
 
         .msg-assistant {
@@ -1095,9 +1251,8 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           width: 100%;
           background: var(--bg-card);
           border: 1px solid var(--border);
-          border-radius: var(--radius-md);
+          border-radius: var(--radius);
           padding: 1.15rem 1.25rem;
-          box-shadow: var(--shadow-sm);
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
@@ -1118,16 +1273,12 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           width: 22px;
           height: 22px;
           border-radius: var(--radius-xs);
-          background: var(--primary-subtle);
-          border: 1px solid var(--primary-border);
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: var(--primary-hover);
-          font-size: 0.7rem;
-        }
-        .avatar-icon {
-          line-height: 1;
+          color: var(--text-muted);
         }
         .assistant-title-meta {
           display: flex;
@@ -1157,10 +1308,10 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           align-items: center;
           gap: 5px;
           padding: 1px 7px;
-          background: var(--success-subtle);
-          border: 1px solid var(--success-border);
-          border-radius: 9999px;
-          color: var(--success);
+          background: var(--bg-surface);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-xs);
+          color: var(--text-muted);
           font-size: 0.68rem;
           font-weight: 500;
           letter-spacing: 0.01em;
@@ -1170,13 +1321,13 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           width: 5px;
           height: 5px;
           border-radius: 50%;
-          background: var(--success);
+          background: var(--status-live);
         }
 
         .perf-chip.web-chip {
-          background: var(--success-subtle);
-          border-color: var(--success-border);
-          color: var(--success);
+          background: var(--bg-surface);
+          border-color: var(--border);
+          color: var(--text-muted);
         }
 
         .msg-search-chip {
@@ -1195,7 +1346,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .search-chip-icon {
           width: 11px;
           height: 11px;
-          color: var(--primary);
+          color: var(--accent);
           flex-shrink: 0;
         }
         .msg-search-chip strong {
@@ -1206,7 +1357,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .msg-bubble-content {
           font-size: 0.875rem;
           line-height: 1.65;
-          color: var(--text-secondary);
+          color: var(--text-primary);
           word-break: break-word;
         }
 
@@ -1225,7 +1376,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         }
 
         .feedback-pill {
-          background: var(--bg-surface);
+          background: transparent;
           border: 1px solid var(--border);
           color: var(--text-muted);
           width: 26px;
@@ -1237,29 +1388,21 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           justify-content: center;
           cursor: pointer;
           transition: all var(--transition-fast);
-          opacity: 0.8;
         }
         .feedback-pill:hover {
-          opacity: 1;
-          background: var(--bg-card-hover);
+          background: var(--bg-surface);
           border-color: var(--border-hover);
           color: var(--text-primary);
         }
-        .feedback-pill.active-up {
-          opacity: 1;
-          background: var(--success-subtle);
-          border-color: var(--success-border);
-          color: var(--success);
-        }
+        .feedback-pill.active-up,
         .feedback-pill.active-down {
-          opacity: 1;
-          background: var(--danger-subtle);
-          border-color: var(--danger-border);
-          color: var(--danger);
+          background: var(--bg-surface);
+          border-color: var(--border-focus);
+          color: var(--text-primary);
         }
 
         .speak-pill {
-          background: var(--bg-surface);
+          background: transparent;
           border: 1px solid var(--border);
           color: var(--text-muted);
           padding: 3px 8px;
@@ -1274,13 +1417,13 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         }
         .speak-pill:hover {
           color: var(--text-primary);
-          background: var(--bg-card-hover);
+          background: var(--bg-surface);
           border-color: var(--border-hover);
         }
         .speak-pill.active-speaking {
-          color: var(--primary-hover);
-          background: var(--primary-subtle);
-          border-color: var(--primary-border);
+          color: var(--accent);
+          background: var(--accent-subtle);
+          border-color: var(--accent-border);
         }
 
         .speaking-waves {
@@ -1292,7 +1435,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .sw-bar {
           width: 2px;
           height: 8px;
-          background: var(--primary);
+          background: var(--accent);
           border-radius: 1px;
           animation: waveScale 0.6s ease-in-out infinite alternate;
         }
@@ -1341,9 +1484,9 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           letter-spacing: 0.02em;
         }
         .perf-chip.verified-chip {
-          color: var(--success);
-          border-color: var(--success-border);
-          background: var(--success-subtle);
+          color: var(--text-muted);
+          border-color: var(--border);
+          background: var(--bg-surface);
         }
 
         .msg-citations-block {
@@ -1378,9 +1521,9 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           display: inline-flex;
           align-items: center;
           gap: 0.55rem;
-          background: var(--primary-subtle);
-          border: 1px solid var(--primary-border);
-          color: var(--primary-hover);
+          background: var(--accent-subtle);
+          border: 1px solid var(--accent-border);
+          color: var(--text-primary);
           padding: 0.45rem 0.85rem;
           border-radius: var(--radius-sm);
           font-size: 0.8rem;
@@ -1389,31 +1532,19 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           transition: all var(--transition-fast);
         }
         .web-search-action-btn:hover:not(:disabled) {
-          background: rgba(37, 99, 235, 0.2);
-          border-color: var(--primary);
+          background: var(--accent);
+          border-color: var(--accent);
           color: #ffffff;
         }
         .web-search-action-btn:disabled {
           opacity: 0.5;
           cursor: not-allowed;
         }
-        .btn-globe-icon {
-          font-size: 0.85rem;
-        }
         .btn-text {
           max-width: 380px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-        }
-        .btn-arrow {
-          font-size: 0.85rem;
-          transition: transform 0.15s ease;
-          color: var(--primary);
-        }
-        .web-search-action-btn:hover:not(:disabled) .btn-arrow {
-          transform: translateX(2px);
-          color: #ffffff;
         }
 
         .scroll-to-bottom-btn {
@@ -1425,9 +1556,9 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           align-items: center;
           gap: 6px;
           padding: 5px 12px;
-          background: var(--bg-elevated);
+          background: var(--bg-surface);
           border: 1px solid var(--border);
-          border-radius: 9999px;
+          border-radius: var(--radius-sm);
           color: var(--text-primary);
           font-size: 0.75rem;
           font-weight: 500;
@@ -1438,13 +1569,9 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           animation: bounceIn 0.25s ease both;
         }
         .scroll-to-bottom-btn:hover {
-          background: var(--bg-card-hover);
+          background: var(--bg-card);
           border-color: var(--border-hover);
           transform: translateX(-50%) translateY(-1px);
-        }
-        .scroll-arrow {
-          font-size: 0.8rem;
-          color: var(--primary);
         }
 
         /* Grounded Command Dock */
@@ -1456,15 +1583,15 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           justify-content: center;
           padding: 0.75rem 1.25rem 1rem 1.25rem;
           background: var(--bg);
-          border-top: 1px solid var(--border-subtle);
+          border-top: 1px solid var(--border);
           z-index: 15;
         }
         .chat-dock-form {
           width: 100%;
           max-width: 760px;
-          background: var(--bg-card);
+          background: var(--bg-surface);
           border: 1px solid var(--border);
-          border-radius: var(--radius-md);
+          border-radius: var(--radius);
           padding: 0.65rem 0.85rem 0.55rem 0.85rem;
           display: flex;
           flex-direction: column;
@@ -1472,8 +1599,8 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
         }
         .chat-dock-form:focus-within {
-          border-color: var(--border-focus);
-          box-shadow: 0 0 0 1px var(--primary);
+          border-color: var(--accent);
+          box-shadow: 0 0 0 1px var(--accent);
         }
 
         .dock-textarea {
@@ -1512,7 +1639,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           padding: 2px 6px;
           border: 1px solid var(--border);
           border-radius: var(--radius-xs);
-          background: var(--bg-surface);
+          background: var(--bg-input);
           color: var(--text-muted);
           font-size: 0.72rem;
           font-weight: 500;
@@ -1533,14 +1660,14 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           height: 26px;
           border: 1px solid var(--border);
           border-radius: var(--radius-xs);
-          background: var(--bg-surface);
+          background: var(--bg-input);
           color: var(--text-muted);
           font-size: 0.8rem;
           cursor: pointer;
           transition: all var(--transition-fast);
         }
         .dock-tool-btn:hover {
-          background: var(--bg-card-hover);
+          background: var(--bg-card);
           border-color: var(--border-hover);
           color: var(--text-primary);
         }
@@ -1582,18 +1709,18 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
         .dock-transcript-pill {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: 5px;
           padding: 2px 7px;
           border: 1px solid var(--border);
           border-radius: var(--radius-xs);
-          background: var(--bg-surface);
+          background: var(--bg-input);
           color: var(--text-muted);
           font-size: 0.7rem;
           cursor: pointer;
           transition: all var(--transition-fast);
         }
         .dock-transcript-pill:hover {
-          background: var(--bg-card-hover);
+          background: var(--bg-card);
           color: var(--text-primary);
           border-color: var(--border-hover);
         }
@@ -1608,7 +1735,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           height: 28px;
           border: none;
           border-radius: var(--radius-xs);
-          background: var(--primary);
+          background: var(--accent);
           color: #ffffff;
           font-size: 0.95rem;
           font-weight: 600;
@@ -1619,7 +1746,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           transition: background-color var(--transition-fast);
         }
         .dock-send-btn:hover:not(:disabled) {
-          background: var(--primary-hover);
+          background: var(--accent-hover);
         }
         .dock-send-btn:disabled {
           opacity: 0.35;

@@ -104,21 +104,27 @@ export function BotCard({
           </div>
         </div>
 
-        {/* Meaningful status indicator badges ONLY */}
-        <div className="card-badge-row">
-          {site.isPublic === false && (
-            <span className="status-chip chip-private" title="Private workspace">
-              Private
+        {/* Single restrained status indicator (dot + text, no filled colorful pills) */}
+        <div className="card-status-indicator">
+          {site.autoSync ? (
+            <span className="status-dot-indicator" title="Automated sync active">
+              <span className="status-dot status-dot-live" />
+              <span>Auto-sync</span>
             </span>
-          )}
-          {site.enableWebSearch !== false && (
-            <span className="status-chip chip-web" title="Web search fallback enabled">
-              Web Grounded
+          ) : site.enableWebSearch !== false ? (
+            <span className="status-dot-indicator" title="Live web search enabled">
+              <span className="status-dot status-dot-live" />
+              <span>Web</span>
             </span>
-          )}
-          {site.autoSync && (
-            <span className="status-chip chip-sync" title="Auto-sync active">
-              Auto-Sync
+          ) : site.isPublic === false ? (
+            <span className="status-dot-indicator" title="Private workspace">
+              <span className="status-dot status-dot-idle" />
+              <span>Private</span>
+            </span>
+          ) : (
+            <span className="status-dot-indicator" title="Indexed and ready">
+              <span className="status-dot status-dot-live" />
+              <span>Ready</span>
             </span>
           )}
         </div>
@@ -257,21 +263,18 @@ export function BotCard({
         .bot-card {
           display: flex;
           flex-direction: column;
-          gap: 0.85rem;
-          padding: 1.15rem 1.25rem;
+          gap: 12px;
+          padding: 16px;
           background: var(--bg-card);
           border: 1px solid var(--border);
-          border-radius: var(--radius-md);
+          border-radius: var(--radius);
           cursor: pointer;
-          transition: all 0.15s ease;
-          box-shadow: var(--shadow-sm);
+          transition: border-color var(--transition-fast), background-color var(--transition-fast);
         }
 
         .bot-card:hover {
           background: var(--bg-card-hover);
           border-color: var(--border-hover);
-          box-shadow: var(--shadow-md);
-          transform: translateY(-1px);
         }
 
         /* ── Header ─────────────────────────────────────────────── */
@@ -279,21 +282,21 @@ export function BotCard({
           display: flex;
           align-items: flex-start;
           justify-content: space-between;
-          gap: 0.75rem;
+          gap: 12px;
         }
 
         .card-avatar-group {
           display: flex;
           align-items: center;
-          gap: 0.7rem;
+          gap: 10px;
           min-width: 0;
         }
 
         .card-avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: var(--radius-sm);
-          background: rgba(255, 255, 255, 0.04);
+          width: 28px;
+          height: 28px;
+          border-radius: var(--radius-xs);
+          background: var(--bg-surface);
           border: 1px solid var(--border);
           display: flex;
           align-items: center;
@@ -302,12 +305,12 @@ export function BotCard({
         }
 
         .avatar-img {
-          border-radius: 3px;
+          border-radius: 2px;
         }
 
         .avatar-abbr {
-          color: var(--text-muted);
-          font-size: 0.72rem;
+          color: var(--text-secondary);
+          font-size: 11px;
           font-weight: 600;
           letter-spacing: -0.01em;
         }
@@ -318,68 +321,39 @@ export function BotCard({
 
         .card-title {
           margin: 0;
-          font-size: 0.95rem;
+          font-size: 14px;
           font-weight: 600;
-          color: var(--text);
-          letter-spacing: -0.015em;
+          color: var(--text-primary);
+          letter-spacing: -0.01em;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
         .card-meta-line {
-          font-size: 0.72rem;
-          color: var(--text-dim);
+          font-size: 12px;
+          color: var(--text-muted);
           font-family: var(--font-mono);
           margin-top: 1px;
+          display: block;
         }
 
-        .card-badge-row {
-          display: flex;
-          align-items: center;
-          gap: 0.35rem;
+        .card-status-indicator {
           flex-shrink: 0;
-        }
-
-        .status-chip {
-          padding: 2px 7px;
-          border-radius: 4px;
-          font-size: 0.68rem;
-          font-weight: 500;
-          border: 1px solid var(--border);
-          background: rgba(255, 255, 255, 0.03);
-          color: var(--text-muted);
-        }
-
-        .chip-web {
-          color: #93c5fd;
-          background: rgba(59, 130, 246, 0.08);
-          border-color: rgba(59, 130, 246, 0.2);
-        }
-
-        .chip-sync {
-          color: #fcd34d;
-          background: rgba(245, 158, 11, 0.08);
-          border-color: rgba(245, 158, 11, 0.2);
-        }
-
-        .chip-private {
-          color: var(--text-muted);
-          background: rgba(255, 255, 255, 0.04);
-          border-color: rgba(255, 255, 255, 0.08);
+          padding-top: 2px;
         }
 
         /* ── Description ────────────────────────────────────────── */
         .card-desc {
           margin: 0;
-          font-size: 0.82rem;
-          color: var(--text-muted);
+          font-size: 13px;
+          color: var(--text-secondary);
           line-height: 1.5;
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
-          min-height: 2.45rem;
+          min-height: 38px;
         }
 
         /* ── Footer ─────────────────────────────────────────────── */
@@ -387,28 +361,28 @@ export function BotCard({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding-top: 0.7rem;
+          padding-top: 12px;
           border-top: 1px solid var(--border-subtle);
-          gap: 0.5rem;
+          gap: 8px;
         }
 
         .card-timestamp {
-          font-size: 0.72rem;
-          color: var(--text-dim);
+          font-size: 12px;
+          color: var(--text-muted);
         }
 
         .card-actions {
           display: flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 6px;
         }
 
         .secondary-actions-group {
           display: flex;
           align-items: center;
-          gap: 0.25rem;
+          gap: 2px;
           opacity: 0.8;
-          transition: opacity 0.15s ease;
+          transition: opacity var(--transition-fast);
         }
         .bot-card:hover .secondary-actions-group {
           opacity: 1;
@@ -417,7 +391,7 @@ export function BotCard({
         .action-icon-btn {
           width: 26px;
           height: 26px;
-          border-radius: var(--radius-sm);
+          border-radius: var(--radius-xs);
           border: 1px solid transparent;
           background: transparent;
           color: var(--text-muted);
@@ -425,35 +399,35 @@ export function BotCard({
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          transition: all 0.12s ease;
+          transition: all var(--transition-fast);
         }
 
         .action-icon-btn:hover {
-          color: var(--text);
-          background: rgba(255, 255, 255, 0.06);
+          color: var(--text-primary);
+          background: var(--bg-surface);
           border-color: var(--border);
         }
 
         .action-danger:hover {
-          color: #f87171;
-          background: rgba(239, 68, 68, 0.08);
-          border-color: rgba(239, 68, 68, 0.2);
+          color: var(--status-error);
+          background: var(--status-error-subtle);
+          border-color: var(--status-error-border);
         }
 
         .action-chat-btn {
           display: inline-flex;
           align-items: center;
-          gap: 0.35rem;
-          padding: 0.32rem 0.75rem;
-          border-radius: var(--radius-sm);
+          gap: 5px;
+          height: 26px;
+          padding: 0 10px;
+          border-radius: var(--radius-xs);
           border: 1px solid transparent;
-          background: var(--accent-btn);
+          background: var(--accent);
           color: #ffffff;
-          font-size: 0.76rem;
+          font-size: 12px;
           font-weight: 500;
           cursor: pointer;
-          transition: all 0.12s ease;
-          margin-left: 0.25rem;
+          transition: background-color var(--transition-fast);
         }
 
         .action-chat-btn:hover {
