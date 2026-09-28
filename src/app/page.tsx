@@ -17,6 +17,7 @@ import { CrawlProgressBar, type CrawlProgressState } from "@/components/CrawlPro
 import { RightInspectorDrawer, type DrawerTab } from "@/components/RightInspectorDrawer";
 import { CommandPalette } from "@/components/CommandPalette";
 import { ApiKeysModal } from "@/components/ApiKeysModal";
+import { AdminPlatformDashboard } from "@/components/AdminPlatformDashboard";
 import { useAppStore, type View } from "@/lib/store/useAppStore";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -143,7 +144,7 @@ function AppInner() {
   // ── data loading ─────────────────────────────────────────────────────────
   const loadSites = useCallback(async () => {
     try {
-      const url = adminScope === "all" ? "/api/sites?scope=all" : "/api/sites";
+      const url = (isAdmin || adminScope === "all") ? "/api/sites?scope=all" : "/api/sites";
       const res = await fetch(url);
       const data = await res.json();
       if (res.ok) {
@@ -155,7 +156,7 @@ function AppInner() {
     } finally {
       setSitesLoading(false);
     }
-  }, [adminScope, setSites, setIsAdmin, setSitesLoading]);
+  }, [isAdmin, adminScope, setSites, setIsAdmin, setSitesLoading]);
 
   useEffect(() => {
     loadSites();
@@ -480,11 +481,38 @@ function AppInner() {
         onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
         onOpenCommandPalette={() => setCommandPaletteOpen(true)}
         onOpenApiKeys={() => setShowApiKeysModal(true)}
+        isAdmin={isAdmin}
       />
 
       <main className={`main-content ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
         {/* ── HOME VIEW ─────────────────────────────────────────────── */}
         {view === "home" && (
+          isAdmin ? (
+            <AdminPlatformDashboard
+              sites={sites}
+              onSelectSite={openChat}
+              onDeleteSite={handleDeleteSite}
+              onSettings={openSettings}
+              onAnalytics={openAnalytics}
+              onEmbed={openEmbed}
+              onSyncSite={async (siteId) => {
+                setRefreshingSiteId(siteId);
+                try {
+                  const res = await fetch(`/api/sites/${siteId}/sync`, { method: "POST" });
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.error || "Sync failed");
+                  addToast("Knowledge base re-indexed successfully", "success");
+                  await loadSites();
+                } catch (err: any) {
+                  addToast(err.message || "Sync failed", "error");
+                } finally {
+                  setRefreshingSiteId(null);
+                }
+              }}
+              onOpenApiKeys={() => setShowApiKeysModal(true)}
+              onRefreshAll={loadSites}
+            />
+          ) : (
           <div className="home-view">
             <header className="home-hero">
               <div className="hero-top-row">
@@ -797,6 +825,7 @@ function AppInner() {
               </>
             )}
           </div>
+          )
         )}
 
         {/* ── CHAT VIEW ─────────────────────────────────────────────── */}

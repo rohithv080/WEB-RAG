@@ -10,8 +10,8 @@ export async function GET(req: NextRequest) {
     const scope = req.nextUrl.searchParams.get("scope"); // "all" for admin, or default
 
     let whereClause: any = {};
-    if (isAdmin && scope === "all") {
-      // Super Admin viewing all bots across the entire system
+    if (isAdmin && scope !== "user") {
+      // Super Admin viewing all bots across the entire system by default
       whereClause = {};
     } else if (currentUserId) {
       // User view: show their bots + unassigned legacy bots
