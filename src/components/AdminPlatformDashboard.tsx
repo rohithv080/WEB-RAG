@@ -163,7 +163,16 @@ export function AdminPlatformDashboard({
             onClick={onOpenApiKeys}
             title="Manage platform API keys"
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
             </svg>
             <span>API Keys</span>
@@ -220,7 +229,8 @@ export function AdminPlatformDashboard({
           <span className="kpi-label">Indexed Sources</span>
           <div className="kpi-value-row">
             <span className="kpi-num">
-              {metrics?.summary.totalPages ?? sites.reduce((acc, s) => acc + (s.pages?.length || 0), 0)}
+              {metrics?.summary.totalPages ??
+                sites.reduce((acc, s) => acc + (s.pages?.length || 0), 0)}
             </span>
             <span className="kpi-tag">Documents & URLs</span>
           </div>
@@ -231,7 +241,10 @@ export function AdminPlatformDashboard({
           <span className="kpi-label">Vector Chunks</span>
           <div className="kpi-value-row">
             <span className="kpi-num">
-              {(metrics?.summary.totalChunks ?? sites.reduce((acc, s) => acc + (s.totalChunks || 0), 0)).toLocaleString()}
+              {(
+                metrics?.summary.totalChunks ??
+                sites.reduce((acc, s) => acc + (s.totalChunks || 0), 0)
+              ).toLocaleString()}
             </span>
             <span className="kpi-tag accent">768-dim</span>
           </div>
@@ -251,7 +264,9 @@ export function AdminPlatformDashboard({
           <span className="kpi-label">Average Latency</span>
           <div className="kpi-value-row">
             <span className="kpi-num">
-              {metrics?.summary.avgLatencyMs ? `${(metrics.summary.avgLatencyMs / 1000).toFixed(2)}s` : "—"}
+              {metrics?.summary.avgLatencyMs
+                ? `${(metrics.summary.avgLatencyMs / 1000).toFixed(2)}s`
+                : "—"}
             </span>
             <span className="kpi-tag neutral">Llama 3.3 70B</span>
           </div>
@@ -262,7 +277,8 @@ export function AdminPlatformDashboard({
           <span className="kpi-label">User CSAT Score</span>
           <div className="kpi-value-row">
             <span className="kpi-num">
-              {metrics?.summary.satisfactionRate !== null && metrics?.summary.satisfactionRate !== undefined
+              {metrics?.summary.satisfactionRate !== null &&
+              metrics?.summary.satisfactionRate !== undefined
                 ? `${metrics.summary.satisfactionRate}%`
                 : "100%"}
             </span>
@@ -290,7 +306,16 @@ export function AdminPlatformDashboard({
           className={`tab-btn ${activeTab === "governance" ? "active" : ""}`}
           onClick={() => setActiveTab("governance")}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <rect x="3" y="3" width="18" height="18" rx="2" />
             <path d="M3 9h18M9 21V9" />
           </svg>
@@ -302,7 +327,16 @@ export function AdminPlatformDashboard({
           className={`tab-btn ${activeTab === "analytics" ? "active" : ""}`}
           onClick={() => setActiveTab("analytics")}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <line x1="18" y1="20" x2="18" y2="10" />
             <line x1="12" y1="20" x2="12" y2="4" />
             <line x1="6" y1="20" x2="6" y2="14" />
@@ -315,7 +349,16 @@ export function AdminPlatformDashboard({
           className={`tab-btn ${activeTab === "audit" ? "active" : ""}`}
           onClick={() => setActiveTab("audit")}
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
           </svg>
           <span>Live Audit Stream ({metrics?.auditLogs?.length ?? 0})</span>
@@ -327,7 +370,16 @@ export function AdminPlatformDashboard({
         <section className="tab-pane">
           <div className="governance-toolbar">
             <div className="search-wrap">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
@@ -383,7 +435,14 @@ export function AdminPlatformDashboard({
                 onClick={() => setViewLayout("table")}
                 title="Table View (Governance Standard)"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <line x1="3" y1="6" x2="21" y2="6" />
                   <line x1="3" y1="12" x2="21" y2="12" />
                   <line x1="3" y1="18" x2="21" y2="18" />
@@ -395,7 +454,14 @@ export function AdminPlatformDashboard({
                 onClick={() => setViewLayout("grid")}
                 title="Grid View (Cards)"
               >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
                   <rect x="3" y="3" width="7" height="7" />
                   <rect x="14" y="3" width="7" height="7" />
                   <rect x="14" y="14" width="7" height="7" />
@@ -407,7 +473,14 @@ export function AdminPlatformDashboard({
 
           {filteredSites.length === 0 ? (
             <div className="empty-box">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
                 <circle cx="11" cy="11" r="8" />
                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
               </svg>
@@ -487,7 +560,14 @@ export function AdminPlatformDashboard({
                             onClick={() => onSelectSite(site)}
                             title="Test / Chat with bot"
                           >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
                               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                             </svg>
                             <span>Chat</span>
@@ -499,7 +579,14 @@ export function AdminPlatformDashboard({
                             onClick={() => onAnalytics(site)}
                             title="View bot telemetry & gaps"
                           >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
                               <line x1="18" y1="20" x2="18" y2="10" />
                               <line x1="12" y1="20" x2="12" y2="4" />
                               <line x1="6" y1="20" x2="6" y2="14" />
@@ -513,7 +600,14 @@ export function AdminPlatformDashboard({
                             onClick={() => onSettings(site)}
                             title="Configure bot settings"
                           >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
                               <circle cx="12" cy="12" r="3" />
                               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
                             </svg>
@@ -526,7 +620,15 @@ export function AdminPlatformDashboard({
                             disabled={syncingId === site.id}
                             title="Force Sync Now"
                           >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={syncingId === site.id ? "spin-icon" : ""}>
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              className={syncingId === site.id ? "spin-icon" : ""}
+                            >
                               <polyline points="23 4 23 10 17 10" />
                               <polyline points="1 20 1 14 7 14" />
                               <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
@@ -539,7 +641,14 @@ export function AdminPlatformDashboard({
                             onClick={() => onDeleteSite(site.id)}
                             title="Delete Knowledge Base"
                           >
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg
+                              width="12"
+                              height="12"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
                               <polyline points="3 6 5 6 21 6" />
                               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                             </svg>
@@ -576,18 +685,28 @@ export function AdminPlatformDashboard({
             <div className="chart-header">
               <div>
                 <h3 className="chart-title">Daily Platform Query Activity</h3>
-                <p className="chart-sub">Volume of user prompts processed across all knowledge bases over the last 14 days.</p>
+                <p className="chart-sub">
+                  Volume of user prompts processed across all knowledge bases over the last 14 days.
+                </p>
               </div>
               <span className="chart-total-pill">
-                {metrics?.activityTimeline.reduce((sum, a) => sum + a.count, 0) || 0} total queries (14d)
+                {metrics?.activityTimeline.reduce((sum, a) => sum + a.count, 0) || 0} total queries
+                (14d)
               </span>
             </div>
 
             <div className="chart-bars-wrap">
               {metrics?.activityTimeline.map((item) => {
-                const heightPercent = Math.max(Math.round((item.count / maxQueryCount) * 100), item.count > 0 ? 8 : 2);
+                const heightPercent = Math.max(
+                  Math.round((item.count / maxQueryCount) * 100),
+                  item.count > 0 ? 8 : 2
+                );
                 return (
-                  <div key={item.date} className="bar-col" title={`${item.label}: ${item.count} queries`}>
+                  <div
+                    key={item.date}
+                    className="bar-col"
+                    title={`${item.label}: ${item.count} queries`}
+                  >
                     <span className="bar-count">{item.count > 0 ? item.count : ""}</span>
                     <div className="bar-track">
                       <div className="bar-fill" style={{ height: `${heightPercent}%` }} />
@@ -614,7 +733,9 @@ export function AdminPlatformDashboard({
                       <div className="density-header">
                         <span className="density-rank">#{idx + 1}</span>
                         <span className="density-name">{bot.name}</span>
-                        <span className="density-val">{(bot.totalChunks || 0).toLocaleString()} chunks</span>
+                        <span className="density-val">
+                          {(bot.totalChunks || 0).toLocaleString()} chunks
+                        </span>
                       </div>
                       <div className="density-bar-track">
                         <div className="density-bar-fill" style={{ width: `${pct}%` }} />
@@ -633,7 +754,9 @@ export function AdminPlatformDashboard({
               <div className="quality-stats-list">
                 <div className="quality-row">
                   <span className="q-label">Positive Feedback Ratio</span>
-                  <span className="q-val positive">{metrics?.summary.satisfactionRate ?? 100}%</span>
+                  <span className="q-val positive">
+                    {metrics?.summary.satisfactionRate ?? 100}%
+                  </span>
                 </div>
                 <div className="quality-row">
                   <span className="q-label">Total Thumbs Up</span>
@@ -646,7 +769,9 @@ export function AdminPlatformDashboard({
                 <div className="quality-row">
                   <span className="q-label">Average Response Latency</span>
                   <span className="q-val">
-                    {metrics?.summary.avgLatencyMs ? `${(metrics.summary.avgLatencyMs / 1000).toFixed(2)}s` : "—"}
+                    {metrics?.summary.avgLatencyMs
+                      ? `${(metrics.summary.avgLatencyMs / 1000).toFixed(2)}s`
+                      : "—"}
                   </span>
                 </div>
                 <div className="quality-row">
@@ -664,7 +789,9 @@ export function AdminPlatformDashboard({
         <section className="tab-pane">
           <div className="audit-header">
             <h3 className="chart-title">Live Platform Audit Stream</h3>
-            <p className="chart-sub">Real-time log of the latest queries and AI generation events across all bots.</p>
+            <p className="chart-sub">
+              Real-time log of the latest queries and AI generation events across all bots.
+            </p>
           </div>
 
           {metrics?.auditLogs.length === 0 ? (
@@ -834,8 +961,12 @@ export function AdminPlatformDashboard({
           animation: spin 0.8s linear infinite;
         }
         @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
 
         /* KPI Grid */
@@ -1291,7 +1422,9 @@ export function AdminPlatformDashboard({
           width: 100%;
           background: var(--accent);
           border-radius: var(--radius-micro) var(--radius-micro) 0 0;
-          transition: height 0.3s ease, background 0.15s ease;
+          transition:
+            height 0.3s ease,
+            background 0.15s ease;
         }
         .bar-col:hover .bar-fill {
           background: #3b82f6;

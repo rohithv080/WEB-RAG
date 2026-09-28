@@ -269,7 +269,9 @@ export function BotCard({
           border: 1px solid var(--border);
           border-radius: var(--radius);
           cursor: pointer;
-          transition: border-color var(--transition-fast), background-color var(--transition-fast);
+          transition:
+            border-color var(--transition-fast),
+            background-color var(--transition-fast);
         }
 
         .bot-card:hover {

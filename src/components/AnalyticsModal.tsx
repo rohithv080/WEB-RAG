@@ -185,7 +185,16 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         <div className="modal-header">
           <div className="header-left">
             <div className="bot-avatar">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="18" y1="20" x2="18" y2="10" />
                 <line x1="12" y1="20" x2="12" y2="4" />
                 <line x1="6" y1="20" x2="6" y2="14" />
@@ -214,7 +223,17 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                   onClick={exportCSV}
                   title="Export as CSV spreadsheet"
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 4 }}>
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ marginRight: 4 }}
+                  >
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                     <polyline points="7 10 12 15 17 10" />
                     <line x1="12" y1="15" x2="12" y2="3" />
@@ -232,7 +251,16 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
               </div>
             )}
             <button type="button" className="close-btn" onClick={onClose} title="Close">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
@@ -250,7 +278,16 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           ) : error ? (
             <div className="error-state">
               <span className="error-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
                   <line x1="12" y1="9" x2="12" y2="13" />
                   <line x1="12" y1="17" x2="12.01" y2="17" />
@@ -305,7 +342,8 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                     )}
                   </div>
                   <span className="kpi-hint">
-                    Positive: {data.metrics.thumbsUpCount} &nbsp;|&nbsp; Negative: {data.metrics.thumbsDownCount}
+                    Positive: {data.metrics.thumbsUpCount} &nbsp;|&nbsp; Negative:{" "}
+                    {data.metrics.thumbsDownCount}
                   </span>
                 </div>
 
@@ -351,8 +389,7 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                               className="bar-fill"
                               style={{
                                 height: `${heightPercent}%`,
-                                background:
-                                  item.count > 0 ? "var(--accent)" : "var(--border)",
+                                background: item.count > 0 ? "var(--accent)" : "var(--border)",
                               }}
                             />
                           </div>
@@ -433,11 +470,29 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                               <div className="session-summary">
                                 <span className="session-chevron">
                                   {isExpanded ? (
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <svg
+                                      width="12"
+                                      height="12"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
                                       <polyline points="6 9 12 15 18 9" />
                                     </svg>
                                   ) : (
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <svg
+                                      width="12"
+                                      height="12"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                    >
                                       <polyline points="9 18 15 12 9 6" />
                                     </svg>
                                   )}
@@ -543,7 +598,16 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                 <div className="tab-pane">
                   <div className="gaps-explainer">
                     <span className="explainer-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
                         <circle cx="12" cy="12" r="10" />
                         <line x1="12" y1="16" x2="12" y2="12" />
                         <line x1="12" y1="8" x2="12.01" y2="8" />
@@ -562,7 +626,16 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
                   {data.contentGaps.length === 0 ? (
                     <div className="empty-gaps">
                       <span className="check-icon">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg
+                          width="28"
+                          height="28"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="var(--success)"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
                           <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                           <polyline points="22 4 12 14.01 9 11.01" />
                         </svg>
@@ -1407,7 +1480,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           border: 1px solid var(--border);
           border-radius: var(--radius-sm);
           gap: 1rem;
-          transition: background 0.15s ease, border-color 0.15s ease;
+          transition:
+            background 0.15s ease,
+            border-color 0.15s ease;
         }
         .source-row:hover {
           background: var(--bg-hover);

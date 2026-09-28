@@ -111,7 +111,17 @@ export function CitationCard({ citation, query }: Props) {
           />
         )}
         <span className="cite-label">{displayTitle}</span>
-        <svg className="cite-arrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          className="cite-arrow"
+          width="10"
+          height="10"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <line x1="7" y1="17" x2="17" y2="7" />
           <polyline points="7 7 17 7 17 17" />
         </svg>
@@ -148,9 +158,7 @@ export function CitationCard({ citation, query }: Props) {
           </p>
 
           <div className="cite-popover-footer">
-            <span>
-              {isWebCitation ? "Open external article" : "Inspect verified context"}
-            </span>
+            <span>{isWebCitation ? "Open external article" : "Inspect verified context"}</span>
             <span className="cite-popover-key">{isWebCitation ? "Open URL" : "Enter"}</span>
           </div>
         </div>

@@ -389,8 +389,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
             latencyMs: m.latencyMs || undefined,
             isWebFallback: Boolean(m.isWebFallback),
             suggestWebSearch:
-              !m.isWebFallback &&
-              /would you like me to search the web/i.test(m.content),
+              !m.isWebFallback && /would you like me to search the web/i.test(m.content),
           }));
           setMessages(loaded);
         } else {
@@ -793,7 +792,13 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                       ) : streaming && m.id === messages[messages.length - 1]?.id ? (
                         <TypingIndicator />
                       ) : (
-                        <div style={{ color: "var(--text-muted)", fontStyle: "italic", fontSize: "0.82rem" }}>
+                        <div
+                          style={{
+                            color: "var(--text-muted)",
+                            fontStyle: "italic",
+                            fontSize: "0.82rem",
+                          }}
+                        >
                           *(No response generated)*
                         </div>
                       )}
@@ -984,7 +989,8 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
                             <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
                           </svg>
                           <span className="btn-text">
-                            Search the web for &ldquo;<strong>{m.webSearchQuery || "this"}</strong>&rdquo;
+                            Search the web for &ldquo;<strong>{m.webSearchQuery || "this"}</strong>
+                            &rdquo;
                           </span>
                           <svg
                             width="12"

@@ -98,12 +98,17 @@ function syncUrlAndStorage(opts: {
   try {
     const url = new URL(window.location.href);
 
-    const targetView = opts.view !== undefined ? opts.view : (url.searchParams.has("bot") ? "chat" : "home");
+    const targetView =
+      opts.view !== undefined ? opts.view : url.searchParams.has("bot") ? "chat" : "home";
     const targetSite = opts.site !== undefined ? opts.site : null;
-    const targetSession = opts.sessionId !== undefined ? opts.sessionId : url.searchParams.get("session");
-    const targetDrawerOpen = opts.drawerOpen !== undefined ? opts.drawerOpen : url.searchParams.has("tab");
-    const targetDrawerTab = opts.drawerTab || (url.searchParams.get("tab") as DrawerTab | null) || "pages";
-    const targetModal = opts.modal !== undefined ? opts.modal : (url.searchParams.get("modal") as ActiveModal);
+    const targetSession =
+      opts.sessionId !== undefined ? opts.sessionId : url.searchParams.get("session");
+    const targetDrawerOpen =
+      opts.drawerOpen !== undefined ? opts.drawerOpen : url.searchParams.has("tab");
+    const targetDrawerTab =
+      opts.drawerTab || (url.searchParams.get("tab") as DrawerTab | null) || "pages";
+    const targetModal =
+      opts.modal !== undefined ? opts.modal : (url.searchParams.get("modal") as ActiveModal);
 
     if (targetView === "chat" && targetSite) {
       url.searchParams.set("bot", targetSite.id);
@@ -152,12 +157,21 @@ function syncUrlAndStorage(opts: {
     }
 
     const newUrl = url.pathname + (url.search ? url.search : "");
-    const currentUrl = window.location.pathname + (window.location.search ? window.location.search : "");
+    const currentUrl =
+      window.location.pathname + (window.location.search ? window.location.search : "");
     if (newUrl !== currentUrl) {
       if (opts.replace) {
-        window.history.replaceState({ view: targetView, botId: targetSite?.id, sessionId: targetSession }, "", newUrl);
+        window.history.replaceState(
+          { view: targetView, botId: targetSite?.id, sessionId: targetSession },
+          "",
+          newUrl
+        );
       } else {
-        window.history.pushState({ view: targetView, botId: targetSite?.id, sessionId: targetSession }, "", newUrl);
+        window.history.pushState(
+          { view: targetView, botId: targetSite?.id, sessionId: targetSession },
+          "",
+          newUrl
+        );
       }
     }
   } catch (e) {
@@ -188,9 +202,16 @@ function getInitialNavigationState() {
     const urlTab = params.get("tab") as DrawerTab | null;
     const urlModal = params.get("modal") as ActiveModal;
 
-    const savedView = (localStorage.getItem("web_rag_view") as View) || (urlBotId ? "chat" : "home");
-    const targetBotId = urlBotId || (savedView === "chat" ? localStorage.getItem("web_rag_active_bot_id") : null);
-    const targetSessionId = urlSessionId !== null ? urlSessionId : (savedView === "chat" ? localStorage.getItem("web_rag_session_id") : null);
+    const savedView =
+      (localStorage.getItem("web_rag_view") as View) || (urlBotId ? "chat" : "home");
+    const targetBotId =
+      urlBotId || (savedView === "chat" ? localStorage.getItem("web_rag_active_bot_id") : null);
+    const targetSessionId =
+      urlSessionId !== null
+        ? urlSessionId
+        : savedView === "chat"
+          ? localStorage.getItem("web_rag_session_id")
+          : null;
 
     let cachedSite: SiteSummary | null = null;
     const rawCachedSite = localStorage.getItem("web_rag_selected_site");
@@ -343,7 +364,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   // High-Level Navigation
   openChat: (site, initialSessionId) => {
     const sid = initialSessionId !== undefined ? initialSessionId : (site.latestSessionId ?? null);
-    syncUrlAndStorage({ view: "chat", site, sessionId: sid, drawerOpen: false, drawerTab: "pages" });
+    syncUrlAndStorage({
+      view: "chat",
+      site,
+      sessionId: sid,
+      drawerOpen: false,
+      drawerTab: "pages",
+    });
     set((s) => ({
       view: "chat",
       selectedSite: site,
@@ -355,7 +382,13 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   startNewChat: () => {
     const s = get();
-    syncUrlAndStorage({ view: "chat", site: s.selectedSite, sessionId: null, drawerOpen: s.drawerOpen, drawerTab: s.drawerTab });
+    syncUrlAndStorage({
+      view: "chat",
+      site: s.selectedSite,
+      sessionId: null,
+      drawerOpen: s.drawerOpen,
+      drawerTab: s.drawerTab,
+    });
     set((st) => ({
       sessionId: null,
       chatKey: st.chatKey + 1,
@@ -364,7 +397,13 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   switchSession: (sessionId) => {
     const s = get();
-    syncUrlAndStorage({ view: "chat", site: s.selectedSite, sessionId, drawerOpen: s.drawerOpen, drawerTab: s.drawerTab });
+    syncUrlAndStorage({
+      view: "chat",
+      site: s.selectedSite,
+      sessionId,
+      drawerOpen: s.drawerOpen,
+      drawerTab: s.drawerTab,
+    });
     set((st) => ({
       sessionId,
       chatKey: st.chatKey + 1,
@@ -390,14 +429,24 @@ export const useAppStore = create<AppState>((set, get) => ({
       const urlTab = params.get("tab") as DrawerTab | null;
       const urlModal = params.get("modal") as ActiveModal;
 
-      const savedView = (localStorage.getItem("web_rag_view") as View) || (urlBotId ? "chat" : "home");
-      const targetBotId = urlBotId || (savedView === "chat" ? localStorage.getItem("web_rag_active_bot_id") : null);
-      const targetSessionId = urlSessionId !== null ? urlSessionId : (savedView === "chat" ? localStorage.getItem("web_rag_session_id") : null);
+      const savedView =
+        (localStorage.getItem("web_rag_view") as View) || (urlBotId ? "chat" : "home");
+      const targetBotId =
+        urlBotId || (savedView === "chat" ? localStorage.getItem("web_rag_active_bot_id") : null);
+      const targetSessionId =
+        urlSessionId !== null
+          ? urlSessionId
+          : savedView === "chat"
+            ? localStorage.getItem("web_rag_session_id")
+            : null;
 
       if (targetBotId && (savedView === "chat" || urlBotId)) {
         const matched = sites.find((s) => s.id === targetBotId);
         if (matched) {
-          const activeSession = targetSessionId !== null && targetSessionId !== undefined ? targetSessionId : (matched.latestSessionId ?? null);
+          const activeSession =
+            targetSessionId !== null && targetSessionId !== undefined
+              ? targetSessionId
+              : (matched.latestSessionId ?? null);
           set({
             view: "chat",
             selectedSite: matched,

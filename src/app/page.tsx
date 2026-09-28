@@ -144,7 +144,7 @@ function AppInner() {
   // ── data loading ─────────────────────────────────────────────────────────
   const loadSites = useCallback(async () => {
     try {
-      const url = (isAdmin || adminScope === "all") ? "/api/sites?scope=all" : "/api/sites";
+      const url = isAdmin || adminScope === "all" ? "/api/sites?scope=all" : "/api/sites";
       const res = await fetch(url);
       const data = await res.json();
       if (res.ok) {
@@ -486,8 +486,8 @@ function AppInner() {
 
       <main className={`main-content ${sidebarCollapsed ? "sidebar-collapsed" : ""}`}>
         {/* ── HOME VIEW ─────────────────────────────────────────────── */}
-        {view === "home" && (
-          isAdmin ? (
+        {view === "home" &&
+          (isAdmin ? (
             <AdminPlatformDashboard
               sites={sites}
               onSelectSite={openChat}
@@ -513,63 +513,297 @@ function AppInner() {
               onRefreshAll={loadSites}
             />
           ) : (
-          <div className="home-view">
-            <header className="home-hero">
-              <div className="hero-top-row">
-                <div className="hero-headings">
-                  <h1 className="hero-title">Knowledge Bases</h1>
-                  <p className="hero-sub">
-                    Manage indexed documents, web crawls, and deploy autonomous knowledge
-                    assistants.
-                  </p>
+            <div className="home-view">
+              <header className="home-hero">
+                <div className="hero-top-row">
+                  <div className="hero-headings">
+                    <h1 className="hero-title">Knowledge Bases</h1>
+                    <p className="hero-sub">
+                      Manage indexed documents, web crawls, and deploy autonomous knowledge
+                      assistants.
+                    </p>
+                  </div>
+
+                  <div className="hero-top-actions">
+                    {isAdmin && (
+                      <div className="admin-scope-toggle">
+                        <button
+                          type="button"
+                          className={`admin-toggle-btn ${adminScope === "user" ? "active" : ""}`}
+                          onClick={() => setAdminScope("user")}
+                        >
+                          My Bots
+                        </button>
+                        <button
+                          type="button"
+                          className={`admin-toggle-btn ${adminScope === "all" ? "active" : ""}`}
+                          onClick={() => setAdminScope("all")}
+                          title="View all bots created across the system"
+                        >
+                          All Bots
+                        </button>
+                      </div>
+                    )}
+
+                    <button type="button" className="hero-create-btn" onClick={openModal}>
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        style={{ marginRight: 4 }}
+                      >
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                      </svg>
+                      <span>New Bot</span>
+                    </button>
+
+                    <div className="hero-auth-slot">
+                      <Show when="signed-in">
+                        <SignOutButton>
+                          <button className="hero-logout-btn" title="Sign out / Log out">
+                            <svg
+                              width="13"
+                              height="13"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                              <polyline points="16 17 21 12 16 7" />
+                              <line x1="21" y1="12" x2="9" y2="12" />
+                            </svg>
+                            <span>Log Out</span>
+                          </button>
+                        </SignOutButton>
+                      </Show>
+                      <Show when="signed-out">
+                        <div className="hero-guest-auth">
+                          <SignInButton mode="modal">
+                            <button className="hero-signin-btn">Sign In</button>
+                          </SignInButton>
+                          <SignUpButton mode="modal">
+                            <button className="hero-signup-btn">Sign Up</button>
+                          </SignUpButton>
+                        </div>
+                      </Show>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="hero-top-actions">
-                  {isAdmin && (
-                    <div className="admin-scope-toggle">
+                <div className="hero-stats-strip">
+                  <div className="stat-card">
+                    <span className="stat-lbl">Active Bots</span>
+                    <span className="stat-num">{sites.length}</span>
+                    <span className="stat-sub">Configured knowledge bases</span>
+                  </div>
+                  <div className="stat-card">
+                    <span className="stat-lbl">Indexed Sources</span>
+                    <span className="stat-num">
+                      {sites.reduce((acc, s) => acc + (s.pages?.length || 0), 0).toLocaleString()}
+                    </span>
+                    <span className="stat-sub">Live web pages & documents</span>
+                  </div>
+                  <div className="stat-card">
+                    <span className="stat-lbl">Knowledge Chunks</span>
+                    <span className="stat-num">
+                      {sites.reduce((acc, s) => acc + (s.totalChunks || 0), 0).toLocaleString()}
+                    </span>
+                    <span className="stat-sub">pgvector 768-dim embeddings</span>
+                  </div>
+                  <div className="stat-card stat-card-status">
+                    <span className="stat-lbl">System Status</span>
+                    <div className="status-row">
+                      <span className="pulse-dot" />
+                      <span className="stat-num stat-status-text">Operational</span>
+                    </div>
+                    <span className="stat-sub">Llama 3.3 70B via Groq</span>
+                  </div>
+                </div>
+              </header>
+
+              {sitesLoading ? (
+                <Skeleton count={3} />
+              ) : sites.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <>
+                  {/* ── Bot Search, Filter Tabs & Sort Ribbon ────────────── */}
+                  <div className="bot-filter-ribbon">
+                    <div className="filter-search-box">
+                      <svg
+                        className="search-icon"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.75"
+                      >
+                        <circle cx="7" cy="7" r="4.5" />
+                        <path d="M10.5 10.5L14 14" strokeLinecap="round" />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Search bots by name, description, or URL..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="filter-search-input"
+                      />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          className="search-clear-btn"
+                          onClick={() => setSearchQuery("")}
+                          title="Clear search"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="filter-actions-right">
+                      <div className="filter-pills">
+                        <button
+                          type="button"
+                          className={`filter-pill ${filterTag === "all" ? "active" : ""}`}
+                          onClick={() => setFilterTag("all")}
+                        >
+                          All ({sites.length})
+                        </button>
+                        <button
+                          type="button"
+                          className={`filter-pill ${filterTag === "web" ? "active" : ""}`}
+                          onClick={() => setFilterTag("web")}
+                          title="Show only bots with Live Web Search fallback enabled"
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            style={{ marginRight: 5, verticalAlign: "middle" }}
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                          </svg>
+                          Web Grounded
+                        </button>
+                        <button
+                          type="button"
+                          className={`filter-pill ${filterTag === "sync" ? "active" : ""}`}
+                          onClick={() => setFilterTag("sync")}
+                          title="Show only bots with automated sitemap sync"
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            style={{ marginRight: 5, verticalAlign: "middle" }}
+                          >
+                            <polyline points="23 4 23 10 17 10" />
+                            <polyline points="1 20 1 14 7 14" />
+                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                          </svg>
+                          Auto-Sync
+                        </button>
+                        <button
+                          type="button"
+                          className={`filter-pill ${filterTag === "private" ? "active" : ""}`}
+                          onClick={() => setFilterTag("private")}
+                          title="Show only private bots"
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            style={{ marginRight: 5, verticalAlign: "middle" }}
+                          >
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                          </svg>
+                          Private
+                        </button>
+                      </div>
+
+                      <div className="sort-selector-wrap">
+                        <select
+                          value={sortBy}
+                          onChange={(e) => setSortBy(e.target.value as any)}
+                          className="sort-select"
+                          title="Sort bots"
+                        >
+                          <option value="recent">Recently Updated</option>
+                          <option value="chunks">Most Chunks</option>
+                          <option value="name">Alphabetical</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {filteredSites.length === 0 ? (
+                    <div className="empty-search-results">
+                      <div className="empty-search-icon">
+                        <svg
+                          width="22"
+                          height="22"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="1.75"
+                        >
+                          <circle cx="11" cy="11" r="8" />
+                          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                      </div>
+                      <h3 className="empty-search-title">No matching knowledge bots</h3>
+                      <p className="empty-search-sub">
+                        No bots match {searchQuery ? `"${searchQuery}"` : "the selected filter"}.
+                      </p>
                       <button
                         type="button"
-                        className={`admin-toggle-btn ${adminScope === "user" ? "active" : ""}`}
-                        onClick={() => setAdminScope("user")}
+                        className="reset-filters-btn"
+                        onClick={() => {
+                          setSearchQuery("");
+                          setFilterTag("all");
+                        }}
                       >
-                        My Bots
-                      </button>
-                      <button
-                        type="button"
-                        className={`admin-toggle-btn ${adminScope === "all" ? "active" : ""}`}
-                        onClick={() => setAdminScope("all")}
-                        title="View all bots created across the system"
-                      >
-                        All Bots
+                        Reset Filters & Show All
                       </button>
                     </div>
-                  )}
-
-                  <button type="button" className="hero-create-btn" onClick={openModal}>
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      style={{ marginRight: 4 }}
-                    >
-                      <line x1="12" y1="5" x2="12" y2="19" />
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    <span>New Bot</span>
-                  </button>
-
-                  <div className="hero-auth-slot">
-                    <Show when="signed-in">
-                      <SignOutButton>
-                        <button className="hero-logout-btn" title="Sign out / Log out">
+                  ) : (
+                    <div className="bot-grid">
+                      {filteredSites.map((s) => (
+                        <BotCard
+                          key={s.id}
+                          site={s}
+                          onClick={() => openChat(s)}
+                          onDelete={handleDeleteSite}
+                          onEmbed={openEmbed}
+                          onSettings={openSettings}
+                          onAnalytics={openAnalytics}
+                        />
+                      ))}
+                      <button type="button" className="add-bot-card" onClick={openModal}>
+                        <div className="add-bot-icon">
                           <svg
-                            width="13"
-                            height="13"
+                            width="18"
+                            height="18"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -577,256 +811,21 @@ function AppInner() {
                             strokeLinecap="round"
                             strokeLinejoin="round"
                           >
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                            <polyline points="16 17 21 12 16 7" />
-                            <line x1="21" y1="12" x2="9" y2="12" />
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
                           </svg>
-                          <span>Log Out</span>
-                        </button>
-                      </SignOutButton>
-                    </Show>
-                    <Show when="signed-out">
-                      <div className="hero-guest-auth">
-                        <SignInButton mode="modal">
-                          <button className="hero-signin-btn">Sign In</button>
-                        </SignInButton>
-                        <SignUpButton mode="modal">
-                          <button className="hero-signup-btn">Sign Up</button>
-                        </SignUpButton>
-                      </div>
-                    </Show>
-                  </div>
-                </div>
-              </div>
-
-              <div className="hero-stats-strip">
-                <div className="stat-card">
-                  <span className="stat-lbl">Active Bots</span>
-                  <span className="stat-num">{sites.length}</span>
-                  <span className="stat-sub">Configured knowledge bases</span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-lbl">Indexed Sources</span>
-                  <span className="stat-num">
-                    {sites.reduce((acc, s) => acc + (s.pages?.length || 0), 0).toLocaleString()}
-                  </span>
-                  <span className="stat-sub">Live web pages & documents</span>
-                </div>
-                <div className="stat-card">
-                  <span className="stat-lbl">Knowledge Chunks</span>
-                  <span className="stat-num">
-                    {sites.reduce((acc, s) => acc + (s.totalChunks || 0), 0).toLocaleString()}
-                  </span>
-                  <span className="stat-sub">pgvector 768-dim embeddings</span>
-                </div>
-                <div className="stat-card stat-card-status">
-                  <span className="stat-lbl">System Status</span>
-                  <div className="status-row">
-                    <span className="pulse-dot" />
-                    <span className="stat-num stat-status-text">Operational</span>
-                  </div>
-                  <span className="stat-sub">Llama 3.3 70B via Groq</span>
-                </div>
-              </div>
-            </header>
-
-            {sitesLoading ? (
-              <Skeleton count={3} />
-            ) : sites.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <>
-                {/* ── Bot Search, Filter Tabs & Sort Ribbon ────────────── */}
-                <div className="bot-filter-ribbon">
-                  <div className="filter-search-box">
-                    <svg
-                      className="search-icon"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.75"
-                    >
-                      <circle cx="7" cy="7" r="4.5" />
-                      <path d="M10.5 10.5L14 14" strokeLinecap="round" />
-                    </svg>
-                    <input
-                      type="text"
-                      placeholder="Search bots by name, description, or URL..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="filter-search-input"
-                    />
-                    {searchQuery && (
-                      <button
-                        type="button"
-                        className="search-clear-btn"
-                        onClick={() => setSearchQuery("")}
-                        title="Clear search"
-                      >
-                        ✕
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="filter-actions-right">
-                    <div className="filter-pills">
-                      <button
-                        type="button"
-                        className={`filter-pill ${filterTag === "all" ? "active" : ""}`}
-                        onClick={() => setFilterTag("all")}
-                      >
-                        All ({sites.length})
-                      </button>
-                      <button
-                        type="button"
-                        className={`filter-pill ${filterTag === "web" ? "active" : ""}`}
-                        onClick={() => setFilterTag("web")}
-                        title="Show only bots with Live Web Search fallback enabled"
-                      >
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          style={{ marginRight: 5, verticalAlign: "middle" }}
-                        >
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="2" y1="12" x2="22" y2="12" />
-                          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                        </svg>
-                        Web Grounded
-                      </button>
-                      <button
-                        type="button"
-                        className={`filter-pill ${filterTag === "sync" ? "active" : ""}`}
-                        onClick={() => setFilterTag("sync")}
-                        title="Show only bots with automated sitemap sync"
-                      >
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          style={{ marginRight: 5, verticalAlign: "middle" }}
-                        >
-                          <polyline points="23 4 23 10 17 10" />
-                          <polyline points="1 20 1 14 7 14" />
-                          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
-                        </svg>
-                        Auto-Sync
-                      </button>
-                      <button
-                        type="button"
-                        className={`filter-pill ${filterTag === "private" ? "active" : ""}`}
-                        onClick={() => setFilterTag("private")}
-                        title="Show only private bots"
-                      >
-                        <svg
-                          width="12"
-                          height="12"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          style={{ marginRight: 5, verticalAlign: "middle" }}
-                        >
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                        </svg>
-                        Private
+                        </div>
+                        <div className="add-bot-info">
+                          <span className="add-bot-title">Deploy New Bot</span>
+                          <span className="add-bot-desc">Index a web URL or upload document</span>
+                        </div>
                       </button>
                     </div>
-
-                    <div className="sort-selector-wrap">
-                      <select
-                        value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as any)}
-                        className="sort-select"
-                        title="Sort bots"
-                      >
-                        <option value="recent">Recently Updated</option>
-                        <option value="chunks">Most Chunks</option>
-                        <option value="name">Alphabetical</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {filteredSites.length === 0 ? (
-                  <div className="empty-search-results">
-                    <div className="empty-search-icon">
-                      <svg
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.75"
-                      >
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                      </svg>
-                    </div>
-                    <h3 className="empty-search-title">No matching knowledge bots</h3>
-                    <p className="empty-search-sub">
-                      No bots match {searchQuery ? `"${searchQuery}"` : "the selected filter"}.
-                    </p>
-                    <button
-                      type="button"
-                      className="reset-filters-btn"
-                      onClick={() => {
-                        setSearchQuery("");
-                        setFilterTag("all");
-                      }}
-                    >
-                      Reset Filters & Show All
-                    </button>
-                  </div>
-                ) : (
-                  <div className="bot-grid">
-                    {filteredSites.map((s) => (
-                      <BotCard
-                        key={s.id}
-                        site={s}
-                        onClick={() => openChat(s)}
-                        onDelete={handleDeleteSite}
-                        onEmbed={openEmbed}
-                        onSettings={openSettings}
-                        onAnalytics={openAnalytics}
-                      />
-                    ))}
-                    <button type="button" className="add-bot-card" onClick={openModal}>
-                      <div className="add-bot-icon">
-                        <svg
-                          width="18"
-                          height="18"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <line x1="12" y1="5" x2="12" y2="19" />
-                          <line x1="5" y1="12" x2="19" y2="12" />
-                        </svg>
-                      </div>
-                      <div className="add-bot-info">
-                        <span className="add-bot-title">Deploy New Bot</span>
-                        <span className="add-bot-desc">Index a web URL or upload document</span>
-                      </div>
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-          )
-        )}
+                  )}
+                </>
+              )}
+            </div>
+          ))}
 
         {/* ── CHAT VIEW ─────────────────────────────────────────────── */}
         {view === "chat" && selectedSite && (
@@ -1368,7 +1367,8 @@ function AppInner() {
                         <span className="modal-sync-title">Daily Auto-Sync</span>
                       </div>
                       <span className="modal-sync-sub">
-                        Automatically scan for newly published articles & updates daily at 06:30 AM IST
+                        Automatically scan for newly published articles & updates daily at 06:30 AM
+                        IST
                       </span>
                     </div>
                     <label className="toggle-switch">
@@ -1788,7 +1788,9 @@ function AppInner() {
           color: var(--text-primary);
           font-size: 0.8125rem;
           font-family: var(--font-sans);
-          transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+          transition:
+            border-color var(--transition-fast),
+            box-shadow var(--transition-fast);
         }
 
         .filter-search-input:focus {
@@ -2306,7 +2308,9 @@ function AppInner() {
           font-size: 0.8125rem;
           font-family: var(--font-sans);
           outline: none;
-          transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+          transition:
+            border-color var(--transition-fast),
+            box-shadow var(--transition-fast);
           resize: vertical;
         }
         .field-input:focus,

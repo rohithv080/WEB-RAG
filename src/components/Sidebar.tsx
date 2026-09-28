@@ -275,47 +275,53 @@ export function Sidebar({
           </div>
         )}
         <nav className="sidebar-list">
-          {filtered.length === 0 ? (
-            !isCollapsed && (
-              <div className="sidebar-empty-hint">
-                {search ? "No matching bots" : "No knowledge bases yet"}
-              </div>
-            )
-          ) : (
-            filtered.map((site) => {
-              const favicon = getFavicon(site);
-              const isActive = site.id === activeSiteId;
+          {filtered.length === 0
+            ? !isCollapsed && (
+                <div className="sidebar-empty-hint">
+                  {search ? "No matching bots" : "No knowledge bases yet"}
+                </div>
+              )
+            : filtered.map((site) => {
+                const favicon = getFavicon(site);
+                const isActive = site.id === activeSiteId;
 
-              return (
-                <button
-                  key={site.id}
-                  className={`sidebar-item ${isActive ? "sidebar-item-active" : ""}`}
-                  onClick={() => {
-                    onSelect(site);
-                    setMobileOpen(false);
-                  }}
-                  title={isCollapsed ? site.name : undefined}
-                >
-                  {isActive && <span className="active-pill" />}
-                  <div className="sidebar-item-icon">
-                    {favicon ? (
-                      <img src={favicon} alt="" width={15} height={15} style={{ borderRadius: 2 }} />
-                    ) : (
-                      <span className="sidebar-item-letter">{site.name.charAt(0).toUpperCase()}</span>
-                    )}
-                  </div>
-                  {!isCollapsed && (
-                    <div className="sidebar-item-info">
-                      <span className="sidebar-item-name">{site.name}</span>
-                      <span className="sidebar-item-meta">
-                        {site.totalChunks.toLocaleString()} chunks
-                      </span>
+                return (
+                  <button
+                    key={site.id}
+                    className={`sidebar-item ${isActive ? "sidebar-item-active" : ""}`}
+                    onClick={() => {
+                      onSelect(site);
+                      setMobileOpen(false);
+                    }}
+                    title={isCollapsed ? site.name : undefined}
+                  >
+                    {isActive && <span className="active-pill" />}
+                    <div className="sidebar-item-icon">
+                      {favicon ? (
+                        <img
+                          src={favicon}
+                          alt=""
+                          width={15}
+                          height={15}
+                          style={{ borderRadius: 2 }}
+                        />
+                      ) : (
+                        <span className="sidebar-item-letter">
+                          {site.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </button>
-              );
-            })
-          )}
+                    {!isCollapsed && (
+                      <div className="sidebar-item-info">
+                        <span className="sidebar-item-name">{site.name}</span>
+                        <span className="sidebar-item-meta">
+                          {site.totalChunks.toLocaleString()} chunks
+                        </span>
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
         </nav>
       </div>
 
@@ -529,7 +535,9 @@ export function Sidebar({
           color: var(--text-primary);
           font-size: 12px;
           outline: none;
-          transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+          transition:
+            border-color var(--transition-fast),
+            box-shadow var(--transition-fast);
         }
 
         .sidebar-search:focus {

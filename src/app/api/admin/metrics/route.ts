@@ -8,7 +8,10 @@ export async function GET(req: NextRequest) {
   try {
     const { isAdmin } = await getAuthUser();
     if (!isAdmin) {
-      return NextResponse.json({ error: "Unauthorized. Admin privileges required." }, { status: 403 });
+      return NextResponse.json(
+        { error: "Unauthorized. Admin privileges required." },
+        { status: 403 }
+      );
     }
 
     // 1. Core platform counts
