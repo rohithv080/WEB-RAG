@@ -51,6 +51,7 @@ type Props = {
   onSyncSite: (siteId: string) => Promise<void>;
   onOpenApiKeys: () => void;
   onRefreshAll: () => Promise<void>;
+  onSwitchAccount?: () => void;
 };
 
 export function AdminPlatformDashboard({
@@ -63,6 +64,7 @@ export function AdminPlatformDashboard({
   onSyncSite,
   onOpenApiKeys,
   onRefreshAll,
+  onSwitchAccount,
 }: Props) {
   const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
   const [loadingMetrics, setLoadingMetrics] = useState(true);
@@ -177,6 +179,33 @@ export function AdminPlatformDashboard({
             </svg>
             <span>API Keys</span>
           </button>
+
+          {onSwitchAccount && (
+            <button
+              type="button"
+              className="action-btn switch-account-btn"
+              onClick={onSwitchAccount}
+              title="Switch between administrative and personal accounts"
+            >
+              <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M16 3h5v5" />
+                <path d="M4 20L21 3" />
+                <path d="M21 16v5h-5" />
+                <path d="M15 15l6 6" />
+                <path d="M4 4l5 5" />
+              </svg>
+              <span>Switch Profile</span>
+            </button>
+          )}
 
           <button
             type="button"

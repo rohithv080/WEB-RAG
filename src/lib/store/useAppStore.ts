@@ -6,7 +6,7 @@ import type { DrawerTab } from "@/components/RightInspectorDrawer";
 import type { Citation } from "@/components/CitationCard";
 
 export type View = "home" | "chat";
-export type ActiveModal = "settings" | "analytics" | "embed" | "keys" | "add" | null;
+export type ActiveModal = "settings" | "analytics" | "embed" | "keys" | "add" | "account" | null;
 
 interface AppState {
   // Navigation & Active Bot
@@ -29,6 +29,7 @@ interface AppState {
   showAnalyticsModal: boolean;
   analyticsSite: SiteSummary | null;
   showApiKeysModal: boolean;
+  showAccountModal: boolean;
   commandPaletteOpen: boolean;
   inspectingCitation: { citation: Citation; query?: string } | null;
 
@@ -73,6 +74,9 @@ interface AppState {
   openAnalytics: (site: SiteSummary) => void;
   closeAnalytics: () => void;
   setShowApiKeysModal: (open: boolean) => void;
+  setShowAccountModal: (open: boolean) => void;
+  openAccountModal: () => void;
+  closeAccountModal: () => void;
   setCommandPaletteOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
   setInspectingCitation: (data: { citation: Citation; query?: string } | null) => void;
 
@@ -192,6 +196,7 @@ function getInitialNavigationState() {
       showSettingsModal: false,
       showAnalyticsModal: false,
       showApiKeysModal: false,
+      showAccountModal: false,
     };
   }
 
@@ -236,6 +241,7 @@ function getInitialNavigationState() {
         showSettingsModal: urlModal === "settings",
         showAnalyticsModal: urlModal === "analytics",
         showApiKeysModal: urlModal === "keys",
+        showAccountModal: urlModal === "account",
       };
     }
 
@@ -250,6 +256,7 @@ function getInitialNavigationState() {
       showSettingsModal: urlModal === "settings",
       showAnalyticsModal: urlModal === "analytics",
       showApiKeysModal: urlModal === "keys",
+      showAccountModal: urlModal === "account",
     };
   } catch (e) {
     console.error("Error reading initial navigation state:", e);
@@ -264,6 +271,7 @@ function getInitialNavigationState() {
       showSettingsModal: false,
       showAnalyticsModal: false,
       showApiKeysModal: false,
+      showAccountModal: false,
     };
   }
 }
@@ -289,6 +297,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   showAnalyticsModal: initialNav.showAnalyticsModal,
   analyticsSite: null,
   showApiKeysModal: initialNav.showApiKeysModal,
+  showAccountModal: initialNav.showAccountModal,
   commandPaletteOpen: false,
   inspectingCitation: null,
 
@@ -461,6 +470,7 @@ export const useAppStore = create<AppState>((set, get) => ({
             embedSite: urlModal === "embed" ? matched : null,
             showApiKeysModal: urlModal === "keys",
             showAddBotModal: urlModal === "add",
+            showAccountModal: urlModal === "account",
           });
           syncUrlAndStorage({
             view: "chat",
@@ -482,6 +492,8 @@ export const useAppStore = create<AppState>((set, get) => ({
         set({ showApiKeysModal: true });
       } else if (urlModal === "add") {
         set({ showAddBotModal: true });
+      } else if (urlModal === "account") {
+        set({ showAccountModal: true });
       }
 
       const currentSelected = get().selectedSite;
@@ -539,6 +551,18 @@ export const useAppStore = create<AppState>((set, get) => ({
   setShowApiKeysModal: (open) => {
     syncUrlAndStorage({ modal: open ? "keys" : null });
     set({ showApiKeysModal: open });
+  },
+  setShowAccountModal: (open) => {
+    syncUrlAndStorage({ modal: open ? "account" : null });
+    set({ showAccountModal: open });
+  },
+  openAccountModal: () => {
+    syncUrlAndStorage({ modal: "account" });
+    set({ showAccountModal: true });
+  },
+  closeAccountModal: () => {
+    syncUrlAndStorage({ modal: null });
+    set({ showAccountModal: false });
   },
   setCommandPaletteOpen: (arg) =>
     set((s) => ({

@@ -9,7 +9,10 @@ import {
   useUser,
 } from "@clerk/nextjs";
 
+import { useAppStore } from "@/lib/store/useAppStore";
+
 export function AuthBar() {
+  const openAccountModal = useAppStore((s) => s.openAccountModal);
   const hasClerkKey = Boolean(process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY);
 
   if (!hasClerkKey) {
@@ -68,7 +71,13 @@ export function AuthBar() {
     <div className="auth-bar">
       <Show when="signed-in">
         <div className="signed-in-card">
-          <div className="user-profile-row">
+          <div
+            className="user-profile-row"
+            onClick={openAccountModal}
+            role="button"
+            tabIndex={0}
+            title="Click to view profile & switch accounts"
+          >
             <UserButton />
             <div className="user-text-col">
               <span className="user-name">{displayName}</span>
@@ -79,11 +88,19 @@ export function AuthBar() {
               )}
             </div>
           </div>
-          <SignOutButton>
-            <button className="logout-icon-btn" title="Sign out / Log out">
+          <div className="signed-in-actions">
+            <button
+              type="button"
+              className="switch-profile-btn"
+              onClick={(e) => {
+                e.stopPropagation();
+                openAccountModal();
+              }}
+              title="Switch Account Profile"
+            >
               <svg
-                width="13"
-                height="13"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -91,12 +108,32 @@ export function AuthBar() {
                 strokeLinecap="round"
                 strokeLinejoin="round"
               >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <polyline points="16 17 21 12 16 7" />
-                <line x1="21" y1="12" x2="9" y2="12" />
+                <path d="M16 3h5v5" />
+                <path d="M4 20L21 3" />
+                <path d="M21 16v5h-5" />
+                <path d="M15 15l6 6" />
+                <path d="M4 4l5 5" />
               </svg>
             </button>
-          </SignOutButton>
+            <SignOutButton>
+              <button className="logout-icon-btn" title="Sign out / Log out">
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </button>
+            </SignOutButton>
+          </div>
         </div>
       </Show>
 
@@ -140,6 +177,14 @@ export function AuthBar() {
           align-items: center;
           gap: 8px;
           min-width: 0;
+          cursor: pointer;
+          border-radius: 4px;
+          padding: 2px 4px;
+          margin: -2px -4px;
+          transition: background 0.12s ease;
+        }
+        .user-profile-row:hover {
+          background: rgba(255, 255, 255, 0.05);
         }
 
         .user-text-col {
@@ -167,6 +212,33 @@ export function AuthBar() {
           font-weight: 600;
           color: var(--accent);
           letter-spacing: 0.02em;
+        }
+
+        .signed-in-actions {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          flex-shrink: 0;
+        }
+
+        .switch-profile-btn {
+          width: 24px;
+          height: 24px;
+          border-radius: 4px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: var(--text-dim);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.12s ease;
+          flex-shrink: 0;
+        }
+        .switch-profile-btn:hover {
+          color: var(--accent, #6366f1);
+          border-color: rgba(99, 102, 241, 0.3);
+          background: rgba(99, 102, 241, 0.1);
         }
 
         .logout-icon-btn {

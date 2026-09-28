@@ -18,6 +18,7 @@ type Props = {
   onHome: () => void;
   onNewChat?: () => void;
   onOpenApiKeys?: () => void;
+  onSwitchAccount?: () => void;
 };
 
 type PaletteItem = {
@@ -43,6 +44,7 @@ export function CommandPalette({
   onHome,
   onNewChat,
   onOpenApiKeys,
+  onSwitchAccount,
 }: Props) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -315,6 +317,37 @@ export function CommandPalette({
         badge: "API",
         action: () => {
           onOpenApiKeys();
+        },
+      });
+    }
+
+    if (onSwitchAccount) {
+      items.push({
+        id: "action-switch-account",
+        category: "Actions",
+        title: "Switch Account Profile",
+        subtitle: "Quickly toggle between admin & user profiles or add another account",
+        icon: (
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M16 3h5v5" />
+            <path d="M4 20L21 3" />
+            <path d="M21 16v5h-5" />
+            <path d="M15 15l6 6" />
+            <path d="M4 4l5 5" />
+          </svg>
+        ),
+        badge: "Auth",
+        action: () => {
+          onSwitchAccount();
         },
       });
     }

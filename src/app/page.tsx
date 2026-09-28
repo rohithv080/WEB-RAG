@@ -18,6 +18,7 @@ import { RightInspectorDrawer, type DrawerTab } from "@/components/RightInspecto
 import { CommandPalette } from "@/components/CommandPalette";
 import { ApiKeysModal } from "@/components/ApiKeysModal";
 import { AdminPlatformDashboard } from "@/components/AdminPlatformDashboard";
+import { AccountSwitcherModal } from "@/components/AccountSwitcherModal";
 import { useAppStore, type View } from "@/lib/store/useAppStore";
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -70,6 +71,9 @@ function AppInner() {
     closeAnalytics,
     showApiKeysModal,
     setShowApiKeysModal,
+    showAccountModal,
+    setShowAccountModal,
+    openAccountModal,
     openChat,
     startNewChat,
     switchSession,
@@ -511,6 +515,7 @@ function AppInner() {
               }}
               onOpenApiKeys={() => setShowApiKeysModal(true)}
               onRefreshAll={loadSites}
+              onSwitchAccount={openAccountModal}
             />
           ) : (
             <div className="home-view">
@@ -565,11 +570,16 @@ function AppInner() {
 
                     <div className="hero-auth-slot">
                       <Show when="signed-in">
-                        <SignOutButton>
-                          <button className="hero-logout-btn" title="Sign out / Log out">
+                        <div className="hero-auth-actions">
+                          <button
+                            type="button"
+                            className="hero-switch-btn"
+                            onClick={openAccountModal}
+                            title="Switch Account Profile"
+                          >
                             <svg
-                              width="13"
-                              height="13"
+                              width="12"
+                              height="12"
                               viewBox="0 0 24 24"
                               fill="none"
                               stroke="currentColor"
@@ -577,13 +587,34 @@ function AppInner() {
                               strokeLinecap="round"
                               strokeLinejoin="round"
                             >
-                              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                              <polyline points="16 17 21 12 16 7" />
-                              <line x1="21" y1="12" x2="9" y2="12" />
+                              <path d="M16 3h5v5" />
+                              <path d="M4 20L21 3" />
+                              <path d="M21 16v5h-5" />
+                              <path d="M15 15l6 6" />
+                              <path d="M4 4l5 5" />
                             </svg>
-                            <span>Log Out</span>
+                            <span>Switch Account</span>
                           </button>
-                        </SignOutButton>
+                          <SignOutButton>
+                            <button className="hero-logout-btn" title="Sign out / Log out">
+                              <svg
+                                width="13"
+                                height="13"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" y1="12" x2="9" y2="12" />
+                              </svg>
+                              <span>Log Out</span>
+                            </button>
+                          </SignOutButton>
+                        </div>
                       </Show>
                       <Show when="signed-out">
                         <div className="hero-guest-auth">
@@ -1489,6 +1520,10 @@ function AppInner() {
           setCommandPaletteOpen(false);
           setShowApiKeysModal(true);
         }}
+        onSwitchAccount={() => {
+          setCommandPaletteOpen(false);
+          openAccountModal();
+        }}
       />
 
       {/* ── DEVELOPER API KEYS MODAL ─────────────────────────────── */}
@@ -1498,6 +1533,9 @@ function AppInner() {
         sites={sites}
         onToast={addToast}
       />
+
+      {/* ── ACCOUNT SWITCHER MODAL ─────────────────────────────────── */}
+      <AccountSwitcherModal isOpen={showAccountModal} onClose={() => setShowAccountModal(false)} />
 
       <style jsx>{`
         /* ── App Layout ────────────────────────────────────────────── */
@@ -1613,6 +1651,32 @@ function AppInner() {
         .hero-auth-slot {
           display: flex;
           align-items: center;
+        }
+
+        .hero-auth-actions {
+          display: flex;
+          align-items: center;
+          gap: 0.45rem;
+        }
+
+        .hero-switch-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.35rem;
+          padding: 0.42rem 0.75rem;
+          border-radius: var(--radius-sm);
+          background: rgba(99, 102, 241, 0.08);
+          border: 1px solid rgba(99, 102, 241, 0.25);
+          color: #a5b4fc;
+          font-size: 0.78rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+        .hero-switch-btn:hover {
+          color: #ffffff;
+          border-color: rgba(99, 102, 241, 0.45);
+          background: rgba(99, 102, 241, 0.16);
         }
 
         .hero-logout-btn {
