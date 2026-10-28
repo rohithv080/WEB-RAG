@@ -1665,9 +1665,9 @@ function AppInner() {
           gap: 0.35rem;
           padding: 0.42rem 0.75rem;
           border-radius: var(--radius-sm);
-          background: rgba(99, 102, 241, 0.08);
-          border: 1px solid rgba(99, 102, 241, 0.25);
-          color: #a5b4fc;
+          background: var(--accent-subtle);
+          border: 1px solid var(--accent-border);
+          color: var(--accent-text);
           font-size: 0.78rem;
           font-weight: 500;
           cursor: pointer;
@@ -1675,8 +1675,8 @@ function AppInner() {
         }
         .hero-switch-btn:hover {
           color: #ffffff;
-          border-color: rgba(99, 102, 241, 0.45);
-          background: rgba(99, 102, 241, 0.16);
+          border-color: var(--accent);
+          background: var(--accent);
         }
 
         .hero-logout-btn {
@@ -2600,7 +2600,7 @@ function AppInner() {
           transition: all 0.12s ease;
         }
         .file-remove-btn:hover {
-          color: #f87171;
+          color: var(--status-error);
         }
 
         .doc-upload-divider {

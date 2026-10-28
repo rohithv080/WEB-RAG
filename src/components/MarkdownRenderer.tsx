@@ -501,32 +501,32 @@ function InlineCitationChip({
           position: relative;
           top: -0.22em;
           cursor: pointer;
-          background: rgba(99, 102, 241, 0.18);
-          border: 1px solid rgba(139, 92, 246, 0.35);
-          color: #c4b5fd;
+          background: rgba(4, 120, 87, 0.18);
+          border: 1px solid rgba(52, 211, 153, 0.35);
+          color: #34d399;
           transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         .inline-cite-badge.is-web {
-          background: rgba(6, 182, 212, 0.18);
-          border-color: rgba(6, 182, 212, 0.4);
-          color: #67e8f9;
+          background: rgba(232, 134, 74, 0.18);
+          border-color: rgba(232, 134, 74, 0.4);
+          color: #f4a983;
         }
 
         .inline-cite-badge:hover {
-          background: rgba(139, 92, 246, 0.35);
-          border-color: rgba(167, 139, 250, 0.6);
+          background: rgba(4, 120, 87, 0.35);
+          border-color: rgba(52, 211, 153, 0.6);
           color: #ffffff;
           transform: translateY(-1px);
-          box-shadow: 0 0 10px rgba(139, 92, 246, 0.45);
+          box-shadow: 0 0 10px rgba(52, 211, 153, 0.35);
         }
 
         .inline-cite-badge.is-web:hover {
-          background: rgba(6, 182, 212, 0.35);
-          border-color: rgba(6, 182, 212, 0.65);
+          background: rgba(232, 134, 74, 0.35);
+          border-color: rgba(244, 169, 131, 0.65);
           color: #ffffff;
-          box-shadow: 0 0 10px rgba(6, 182, 212, 0.45);
+          box-shadow: 0 0 10px rgba(232, 134, 74, 0.35);
         }
 
         .inline-cite-badge.pending {
@@ -612,8 +612,8 @@ function InlineCitationChip({
 
         .popover-badge {
           padding: 1px 5px;
-          background: rgba(16, 185, 129, 0.12);
-          border: 1px solid rgba(16, 185, 129, 0.25);
+          background: rgba(52, 211, 153, 0.12);
+          border: 1px solid rgba(52, 211, 153, 0.25);
           color: #34d399;
           border-radius: 4px;
           font-size: 0.65rem;
@@ -622,9 +622,9 @@ function InlineCitationChip({
         }
 
         .popover-web-badge {
-          background: rgba(6, 182, 212, 0.15) !important;
-          border-color: rgba(6, 182, 212, 0.35) !important;
-          color: #22d3ee !important;
+          background: rgba(232, 134, 74, 0.15) !important;
+          border-color: rgba(232, 134, 74, 0.35) !important;
+          color: #f4a983 !important;
         }
 
         .popover-title {
@@ -678,8 +678,8 @@ function InlineCitationChip({
         .popover-spinner {
           width: 10px;
           height: 10px;
-          border: 1.5px solid rgba(139, 92, 246, 0.3);
-          border-top-color: #8b5cf6;
+          border: 1.5px solid var(--accent-border, rgba(4, 120, 87, 0.3));
+          border-top-color: var(--accent-text, #34d399);
           border-radius: 50%;
           animation: spin 0.8s linear infinite;
         }

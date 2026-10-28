@@ -10,18 +10,18 @@ type Props = {
 };
 
 const COLOR_PALETTE = [
-  "#3d9cf0", // Blue
-  "#a78bfa", // Purple
-  "#34d399", // Green
-  "#fb923c", // Orange
-  "#f472b6", // Pink
-  "#22d3ee", // Cyan
-  "#facc15", // Amber
-  "#6366f1", // Indigo
+  "#047857", // Emerald
+  "#4a7c59", // Moss Green
+  "#f472b6", // Vintage Pink
+  "#e8864a", // Warm Peach
+  "#34d399", // Light Emerald
+  "#db2777", // Rose Pink
+  "#f4a983", // Soft Peach
+  "#282a24", // Deep Olive
 ];
 
 export function EmbedModal({ site, isOpen, onClose }: Props) {
-  const [color, setColor] = useState("#3d9cf0");
+  const [color, setColor] = useState("#047857");
   const [title, setTitle] = useState("");
   const [greeting, setGreeting] = useState("");
   const [position, setPosition] = useState<"bottom-right" | "bottom-left">("bottom-right");

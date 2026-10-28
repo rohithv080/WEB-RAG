@@ -579,14 +579,14 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           color: var(--text-main);
         }
         .chunks-badge {
-          background: var(--accent-soft);
-          border-color: rgba(37, 99, 235, 0.25);
-          color: var(--accent);
+          background: var(--accent-subtle, rgba(4, 120, 87, 0.1));
+          border-color: var(--accent-border, rgba(4, 120, 87, 0.25));
+          color: var(--accent-text, #34d399);
         }
         .embed-badge {
-          background: rgba(16, 185, 129, 0.08);
-          border-color: rgba(16, 185, 129, 0.2);
-          color: #10b981;
+          background: rgba(52, 211, 153, 0.08);
+          border-color: rgba(52, 211, 153, 0.2);
+          color: #34d399;
         }
 
         /* Search Filter Row */
@@ -692,9 +692,9 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           font-family: var(--font-mono, monospace);
           font-size: 0.68rem;
           font-weight: 600;
-          color: var(--accent);
-          background: var(--accent-soft);
-          border: 1px solid rgba(37, 99, 235, 0.2);
+          color: var(--accent-text, #34d399);
+          background: var(--accent-subtle, rgba(4, 120, 87, 0.1));
+          border: 1px solid var(--accent-border, rgba(4, 120, 87, 0.25));
           padding: 1px 5px;
           border-radius: var(--radius-micro);
         }
@@ -742,9 +742,9 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           border-color: var(--border-hover);
         }
         .delete-btn:hover {
-          background: rgba(239, 68, 68, 0.08);
-          border-color: rgba(239, 68, 68, 0.3);
-          color: #ef4444;
+          background: var(--status-error-subtle, rgba(244, 114, 182, 0.08));
+          border-color: var(--status-error-border, rgba(244, 114, 182, 0.3));
+          color: var(--status-error, #f472b6);
         }
         .btn-spinner {
           width: 10px;
@@ -819,13 +819,13 @@ export function ChunkExplorerView({ pageId, onBack, onToast, onChunksUpdated }: 
           }
         }
         .error-box {
-          color: #ef4444;
+          color: var(--status-error, #f472b6);
         }
         .error-title {
           display: flex;
           align-items: center;
           gap: 6px;
-          color: #ef4444;
+          color: var(--status-error, #f472b6);
           font-weight: 500;
         }
         .retry-btn {

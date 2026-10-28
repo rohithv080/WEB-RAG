@@ -79,7 +79,7 @@ export function RightInspectorDrawer({
   const [analyticsLoading, setAnalyticsLoading] = useState(false);
 
   // Embed Customizer State
-  const [embedColor, setEmbedColor] = useState("#0066cc");
+  const [embedColor, setEmbedColor] = useState("#047857");
   const [embedPosition, setEmbedPosition] = useState<"bottom-right" | "bottom-left">(
     "bottom-right"
   );

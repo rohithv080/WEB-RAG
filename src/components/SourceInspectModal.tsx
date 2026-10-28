@@ -445,13 +445,13 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
           border-radius: 50%;
         }
         .score-dot.high {
-          background: #22c55e;
+          background: var(--status-live);
         }
         .score-dot.medium {
           background: var(--accent);
         }
         .score-dot.fallback {
-          background: #888888;
+          background: var(--status-idle);
         }
 
         .score-text {
@@ -546,8 +546,8 @@ export function SourceInspectModal({ citation, query = "", onClose }: Props) {
         }
 
         :global(.kw-highlight) {
-          background: rgba(37, 99, 235, 0.2);
-          color: var(--accent);
+          background: var(--accent-subtle, rgba(4, 120, 87, 0.2));
+          color: var(--accent-text, #34d399);
           padding: 1px 4px;
           border-radius: 2px;
           font-weight: 500;

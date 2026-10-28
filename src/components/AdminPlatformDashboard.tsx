@@ -928,8 +928,8 @@ export function AdminPlatformDashboard({
           font-weight: 600;
           padding: 2px 7px;
           border-radius: var(--radius-micro);
-          background: rgba(37, 99, 235, 0.12);
-          border: 1px solid rgba(37, 99, 235, 0.25);
+          background: rgba(4, 120, 87, 0.12);
+          border: 1px solid rgba(4, 120, 87, 0.25);
           color: var(--accent);
           text-transform: uppercase;
           letter-spacing: 0.04em;
@@ -940,9 +940,9 @@ export function AdminPlatformDashboard({
           gap: 5px;
           font-size: 0.7rem;
           font-weight: 500;
-          color: #10b981;
-          background: rgba(16, 185, 129, 0.08);
-          border: 1px solid rgba(16, 185, 129, 0.2);
+          color: #34d399;
+          background: rgba(52, 211, 153, 0.08);
+          border: 1px solid rgba(52, 211, 153, 0.2);
           padding: 2px 8px;
           border-radius: var(--radius-micro);
         }
@@ -950,8 +950,8 @@ export function AdminPlatformDashboard({
           width: 5px;
           height: 5px;
           border-radius: 50%;
-          background: #10b981;
-          box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+          background: #34d399;
+          box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);
         }
         .admin-sub {
           margin: 0;
@@ -1055,14 +1055,14 @@ export function AdminPlatformDashboard({
           color: var(--text-muted);
         }
         .kpi-tag.accent {
-          background: rgba(37, 99, 235, 0.1);
-          border-color: rgba(37, 99, 235, 0.2);
+          background: rgba(4, 120, 87, 0.1);
+          border-color: rgba(4, 120, 87, 0.2);
           color: var(--accent);
         }
         .kpi-tag.positive {
-          background: rgba(16, 185, 129, 0.08);
-          border-color: rgba(16, 185, 129, 0.2);
-          color: #10b981;
+          background: rgba(52, 211, 153, 0.08);
+          border-color: rgba(52, 211, 153, 0.2);
+          color: #34d399;
         }
         .kpi-sub {
           font-size: 0.72rem;
@@ -1176,7 +1176,7 @@ export function AdminPlatformDashboard({
         .filter-btn.active {
           color: var(--accent);
           background: var(--accent-soft);
-          border-color: rgba(37, 99, 235, 0.3);
+          border-color: rgba(4, 120, 87, 0.3);
           font-weight: 600;
         }
         .layout-toggle {
@@ -1286,7 +1286,7 @@ export function AdminPlatformDashboard({
           font-size: 0.72rem;
           color: var(--accent);
           background: var(--accent-soft);
-          border: 1px solid rgba(37, 99, 235, 0.2);
+          border: 1px solid rgba(4, 120, 87, 0.2);
           padding: 2px 6px;
           border-radius: var(--radius-micro);
         }
@@ -1300,15 +1300,15 @@ export function AdminPlatformDashboard({
           border: 1px solid var(--border);
         }
         .sync-pill.active {
-          color: #10b981;
-          background: rgba(16, 185, 129, 0.08);
-          border-color: rgba(16, 185, 129, 0.2);
+          color: #34d399;
+          background: rgba(52, 211, 153, 0.08);
+          border-color: rgba(52, 211, 153, 0.2);
         }
         .sync-dot {
           width: 4px;
           height: 4px;
           border-radius: 50%;
-          background: #10b981;
+          background: #34d399;
         }
         .sync-pill.manual {
           color: var(--text-muted);
@@ -1361,9 +1361,9 @@ export function AdminPlatformDashboard({
           border-color: var(--border-hover);
         }
         .delete-btn:hover {
-          background: rgba(239, 68, 68, 0.08);
-          border-color: rgba(239, 68, 68, 0.3);
-          color: #ef4444;
+          background: rgba(244, 114, 182, 0.08);
+          border-color: rgba(244, 114, 182, 0.3);
+          color: #f472b6;
         }
 
         /* Grid */
@@ -1411,7 +1411,7 @@ export function AdminPlatformDashboard({
           padding: 3px 8px;
           border-radius: var(--radius-micro);
           background: var(--accent-soft);
-          border: 1px solid rgba(37, 99, 235, 0.25);
+          border: 1px solid rgba(4, 120, 87, 0.25);
           color: var(--accent);
           white-space: nowrap;
         }
@@ -1456,7 +1456,7 @@ export function AdminPlatformDashboard({
             background 0.15s ease;
         }
         .bar-col:hover .bar-fill {
-          background: #3b82f6;
+          background: var(--accent-text);
         }
         .bar-label {
           font-size: 0.65rem;
@@ -1565,10 +1565,10 @@ export function AdminPlatformDashboard({
           color: var(--text-main);
         }
         .q-val.positive {
-          color: #10b981;
+          color: #34d399;
         }
         .q-val.negative {
-          color: #ef4444;
+          color: #f472b6;
         }
         .q-val.accent {
           color: var(--accent);
@@ -1612,7 +1612,7 @@ export function AdminPlatformDashboard({
         .web-badge.yes {
           color: var(--accent);
           background: var(--accent-soft);
-          border-color: rgba(37, 99, 235, 0.25);
+          border-color: rgba(4, 120, 87, 0.25);
         }
         .web-badge.no {
           color: var(--text-muted);
@@ -1625,12 +1625,12 @@ export function AdminPlatformDashboard({
           border-radius: var(--radius-micro);
         }
         .rating-pill.up {
-          color: #10b981;
-          background: rgba(16, 185, 129, 0.1);
+          color: #34d399;
+          background: rgba(52, 211, 153, 0.1);
         }
         .rating-pill.down {
-          color: #ef4444;
-          background: rgba(239, 68, 68, 0.1);
+          color: #f472b6;
+          background: rgba(244, 114, 182, 0.1);
         }
         .rating-pill.unrated {
           color: var(--text-muted);

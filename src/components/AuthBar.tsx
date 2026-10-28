@@ -236,9 +236,9 @@ export function AuthBar() {
           flex-shrink: 0;
         }
         .switch-profile-btn:hover {
-          color: var(--accent, #6366f1);
-          border-color: rgba(99, 102, 241, 0.3);
-          background: rgba(99, 102, 241, 0.1);
+          color: var(--accent);
+          border-color: var(--accent-border);
+          background: var(--accent-subtle);
         }
 
         .logout-icon-btn {
@@ -256,9 +256,9 @@ export function AuthBar() {
           flex-shrink: 0;
         }
         .logout-icon-btn:hover {
-          color: #f87171;
-          border-color: rgba(248, 113, 113, 0.3);
-          background: rgba(248, 113, 113, 0.08);
+          color: var(--status-error);
+          border-color: var(--status-error-border);
+          background: var(--status-error-subtle);
         }
 
         .auth-button-group {

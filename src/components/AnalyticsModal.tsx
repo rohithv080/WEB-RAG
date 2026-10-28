@@ -1284,14 +1284,14 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
           font-size: 0.7rem;
         }
         .rating-up {
-          color: #10b981;
-          background: rgba(16, 185, 129, 0.08);
-          border: 1px solid rgba(16, 185, 129, 0.2);
+          color: #34d399;
+          background: rgba(52, 211, 153, 0.08);
+          border: 1px solid rgba(52, 211, 153, 0.2);
         }
         .rating-down {
-          color: #ef4444;
-          background: rgba(239, 68, 68, 0.08);
-          border: 1px solid rgba(239, 68, 68, 0.2);
+          color: #f472b6;
+          background: rgba(244, 114, 182, 0.08);
+          border: 1px solid rgba(244, 114, 182, 0.2);
         }
 
         .msg-content {
@@ -1406,9 +1406,9 @@ export function AnalyticsModal({ site, isOpen, onClose }: Props) {
         .gap-badge {
           font-size: 0.68rem;
           font-weight: 600;
-          color: #ef4444;
-          background: rgba(239, 68, 68, 0.08);
-          border: 1px solid rgba(239, 68, 68, 0.2);
+          color: #f472b6;
+          background: rgba(244, 114, 182, 0.08);
+          border: 1px solid rgba(244, 114, 182, 0.2);
           padding: 0.15rem 0.5rem;
           border-radius: var(--radius-micro);
         }

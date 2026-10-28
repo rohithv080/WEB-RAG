@@ -206,7 +206,7 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
           .add-page-error {
             margin: 0;
             font-size: 0.76rem;
-            color: #ef4444;
+            color: var(--status-error);
           }
         `}</style>
       </form>
@@ -397,7 +397,7 @@ export function UrlInput({ siteId, onScraped, onUnauthorized, disabled, compact 
         .url-error {
           margin: 0;
           font-size: 0.78rem;
-          color: #ef4444;
+          color: var(--status-error);
         }
       `}</style>
     </form>

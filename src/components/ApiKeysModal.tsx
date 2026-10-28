@@ -915,8 +915,8 @@ askKnowledgeBot().catch(console.error);`;
         }
 
         .revoke-key-btn:hover {
-          color: #ef4444;
-          background: rgba(239, 68, 68, 0.1);
+          color: #f472b6;
+          background: rgba(244, 114, 182, 0.1);
         }
 
         .keys-loading,

@@ -101,8 +101,8 @@ export function CrawlProgressBar({ progress, compact = false }: Props) {
         }
 
         .pulse-amber {
-          background: #f59e0b;
-          box-shadow: 0 0 8px rgba(245, 158, 11, 0.6);
+          background: var(--accent-tertiary, #e8864a);
+          box-shadow: 0 0 8px var(--accent-tertiary-border, rgba(232, 134, 74, 0.6));
           animation: pulseGlow 1.2s infinite;
         }
 

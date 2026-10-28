@@ -1,64 +1,90 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   Design System — High-Craft Minimalist SaaS Token System
-   References: Linear, Vercel Dashboard, Stripe, Raycast, Notion
-   Strict Single Accent · Low-Contrast Hairline Borders · Crisp Typography
+   Design System — Modern Vintage Token System
+   Palette: Emerald · Moss Green · Pink · Peach
+   Warm Olive Undertones · Botanical Accents · Retro Character
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── 12-Step True Neutral Grayscale ─────────────────────────────────── */
+  /* ── 12-Step Warm Olive-Tinted Grayscale ────────────────────────────── */
   --neutral-0: #000000;
-  --neutral-50: #09090b;
-  --neutral-100: #0d0d10;
-  --neutral-150: #121215;
-  --neutral-200: #16161a;
-  --neutral-250: #1c1c22;
-  --neutral-300: #24242c;
-  --neutral-400: #32323d;
-  --neutral-500: #52525b;
-  --neutral-600: #71717a;
-  --neutral-700: #a1a1aa;
-  --neutral-800: #d4d4d8;
-  --neutral-850: #e4e4e7;
-  --neutral-900: #f4f4f5;
-  --neutral-950: #fafafa;
+  --neutral-50: #0a0b09;
+  --neutral-100: #0f100d;
+  --neutral-150: #141512;
+  --neutral-200: #191a16;
+  --neutral-250: #1f211c;
+  --neutral-300: #282a24;
+  --neutral-400: #363832;
+  --neutral-500: #53564e;
+  --neutral-600: #73766d;
+  --neutral-700: #a3a69c;
+  --neutral-800: #d2d5cc;
+  --neutral-850: #e2e5dc;
+  --neutral-900: #f2f4ef;
+  --neutral-950: #f9faf6;
   --neutral-1000: #ffffff;
 
-  /* ── Dark Mode Default Surfaces ─────────────────────────────────────── */
-  --bg: #0a0a0b;
-  --bg-sidebar: #0f0f11;
-  --bg-surface: #141416;
-  --bg-card: #141416;
-  --bg-card-hover: #19191d;
-  --bg-elevated: #1a1a1e;
-  --bg-input: #111113;
+  /* ── Dark Mode Default Surfaces (warm olive-black) ──────────────────── */
+  --bg: #0a0c09;
+  --bg-sidebar: #0f110d;
+  --bg-surface: #141613;
+  --bg-card: #141613;
+  --bg-card-hover: #1a1c18;
+  --bg-elevated: #1b1d19;
+  --bg-input: #111310;
 
-  /* ── Precision Low-Contrast Hairlines ───────────────────────────────── */
-  --border-subtle: #1c1c21;
-  --border: #23232a;
-  --border-hover: #353540;
-  --border-focus: #2563eb;
+  /* ── Precision Warm Hairlines ───────────────────────────────────────── */
+  --border-subtle: #1e201b;
+  --border: #262923;
+  --border-hover: #383b33;
+  --border-focus: #047857;
 
-  /* ── Typography Colors ──────────────────────────────────────────────── */
-  --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --text-dim: #52525b;
+  /* ── Typography Colors (warm tinted) ────────────────────────────────── */
+  --text-primary: #f2f4ef;
+  --text-secondary: #a3a69c;
+  --text-muted: #73766d;
+  --text-dim: #53564e;
 
-  /* ── ONE Single Accent Color: Restrained Blue (Linear/Raycast) ───────── */
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
-  --accent-subtle: rgba(37, 99, 235, 0.08);
-  --accent-border: rgba(37, 99, 235, 0.28);
-  --accent-text: #60a5fa;
+  /* ── Primary Accent: Emerald ────────────────────────────────────────── */
+  --accent: #047857;
+  --accent-hover: #065f46;
+  --accent-subtle: rgba(4, 120, 87, 0.10);
+  --accent-border: rgba(4, 120, 87, 0.30);
+  --accent-text: #34d399;
 
-  /* ── Strict Status Indicators (Small Dots Only, No Heavy Pills) ─────── */
-  --status-live: #10b981;
-  --status-idle: #71717a;
-  --status-error: #ef4444;
-  --status-live-subtle: rgba(16, 185, 129, 0.1);
-  --status-live-border: rgba(16, 185, 129, 0.25);
-  --status-error-subtle: rgba(239, 68, 68, 0.1);
-  --status-error-border: rgba(239, 68, 68, 0.25);
+  /* ── Secondary Accent: Pink ─────────────────────────────────────────── */
+  --accent-secondary: #db2777;
+  --accent-secondary-hover: #be185d;
+  --accent-secondary-subtle: rgba(219, 39, 119, 0.10);
+  --accent-secondary-border: rgba(219, 39, 119, 0.28);
+  --accent-secondary-text: #f472b6;
+
+  /* ── Tertiary Accent: Peach ─────────────────────────────────────────── */
+  --accent-tertiary: #e8864a;
+  --accent-tertiary-hover: #d97537;
+  --accent-tertiary-subtle: rgba(232, 134, 74, 0.10);
+  --accent-tertiary-border: rgba(232, 134, 74, 0.28);
+  --accent-tertiary-text: #f4a983;
+
+  /* ── Moss Green Tint (decorative) ───────────────────────────────────── */
+  --moss: #4a7c59;
+  --moss-hover: #3d6b4f;
+  --moss-subtle: rgba(74, 124, 89, 0.10);
+  --moss-border: rgba(74, 124, 89, 0.28);
+  --moss-text: #6fcf97;
+
+  /* ── Status Indicators (palette-matched) ────────────────────────────── */
+  --status-live: #34d399;
+  --status-idle: #73766d;
+  --status-error: #f472b6;
+  --status-live-subtle: rgba(52, 211, 153, 0.10);
+  --status-live-border: rgba(52, 211, 153, 0.25);
+  --status-error-subtle: rgba(244, 114, 182, 0.10);
+  --status-error-border: rgba(244, 114, 182, 0.25);
+
+  /* Danger aliases */
+  --danger: var(--status-error);
+  --danger-subtle: var(--status-error-subtle);
+  --danger-border: var(--status-error-border);
 
   /* ── Standard Spacing Scale ─────────────────────────────────────────── */
   --space-1: 4px;
@@ -78,11 +104,11 @@
   --radius-lg: 10px;
   --radius-full: 9999px;
 
-  /* ── Elevation Shadows (Very Subtle Hairline Drops) ─────────────────── */
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.55);
+  /* ── Elevation Shadows (warm tint) ──────────────────────────────────── */
+  --shadow-xs: 0 1px 2px rgba(5, 10, 5, 0.25);
+  --shadow-sm: 0 1px 3px rgba(5, 10, 5, 0.35);
+  --shadow-md: 0 4px 14px rgba(5, 10, 5, 0.45);
+  --shadow-lg: 0 12px 32px rgba(5, 10, 5, 0.55);
 
   /* ── Transitions ────────────────────────────────────────────────────── */
   --transition-fast: 0.12s ease;
@@ -96,28 +122,28 @@
 /* ── Light Mode Token Mappings ───────────────────────────────────────── */
 [data-theme="light"],
 .light {
-  --bg: #fafafa;
-  --bg-sidebar: #f4f4f5;
+  --bg: #f9faf6;
+  --bg-sidebar: #f2f4ef;
   --bg-surface: #ffffff;
   --bg-card: #ffffff;
-  --bg-card-hover: #f7f7f8;
+  --bg-card-hover: #f5f7f2;
   --bg-elevated: #ffffff;
   --bg-input: #ffffff;
 
-  --border-subtle: #f0f0f2;
-  --border: #e4e4e7;
-  --border-hover: #d4d4d8;
-  --border-focus: #2563eb;
+  --border-subtle: #eef0e8;
+  --border: #e2e5dc;
+  --border-hover: #d2d5cc;
+  --border-focus: #047857;
 
-  --text-primary: #09090b;
-  --text-secondary: #52525b;
-  --text-muted: #71717a;
-  --text-dim: #a1a1aa;
+  --text-primary: #0a0b09;
+  --text-secondary: #53564e;
+  --text-muted: #73766d;
+  --text-dim: #a3a69c;
 
-  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --shadow-xs: 0 1px 2px rgba(5, 10, 5, 0.04);
+  --shadow-sm: 0 1px 3px rgba(5, 10, 5, 0.08);
+  --shadow-md: 0 4px 14px rgba(5, 10, 5, 0.10);
+  --shadow-lg: 0 12px 32px rgba(5, 10, 5, 0.12);
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -402,4 +428,9 @@ button:disabled {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-hover);
+}
+
+::selection {
+  background: rgba(4, 120, 87, 0.28);
+  color: var(--text-primary);
 }

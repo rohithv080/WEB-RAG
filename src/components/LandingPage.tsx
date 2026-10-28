@@ -551,8 +551,8 @@ export function LandingPage() {
       <style jsx>{`
         .lp-container {
           min-height: 100vh;
-          background: #09090b;
-          color: #f4f4f5;
+          background: #0a0c09;
+          color: #f2f4ef;
           font-family:
             var(--font-sans),
             -apple-system,
@@ -570,7 +570,7 @@ export function LandingPage() {
           z-index: 50;
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
-          background: rgba(9, 9, 11, 0.85);
+          background: rgba(10, 12, 9, 0.85);
           border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }
         .lp-header-inner {
@@ -590,7 +590,7 @@ export function LandingPage() {
           width: 26px;
           height: 26px;
           border-radius: 6px;
-          background: #2563eb;
+          background: #047857;
           color: #ffffff;
           display: flex;
           align-items: center;
@@ -600,8 +600,8 @@ export function LandingPage() {
           width: 20px;
           height: 20px;
           border-radius: 4px;
-          background: #27272a;
-          color: #f4f4f5;
+          background: #282a24;
+          color: #f2f4ef;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -615,7 +615,7 @@ export function LandingPage() {
         .lp-brand-tag {
           font-size: 0.68rem;
           font-weight: 500;
-          color: #a1a1aa;
+          color: #a3a69c;
           background: rgba(255, 255, 255, 0.06);
           border: 1px solid rgba(255, 255, 255, 0.08);
           padding: 0.15rem 0.45rem;
@@ -630,7 +630,7 @@ export function LandingPage() {
         }
         .lp-nav-link {
           font-size: 0.84rem;
-          color: #a1a1aa;
+          color: #a3a69c;
           transition: color 0.15s ease;
         }
         .lp-nav-link:hover {
@@ -646,7 +646,7 @@ export function LandingPage() {
           border-radius: 6px;
           border: 1px solid transparent;
           background: transparent;
-          color: #d4d4d8;
+          color: #d2d5cc;
           font-size: 0.82rem;
           font-weight: 500;
           transition: all 0.15s ease;
@@ -659,8 +659,8 @@ export function LandingPage() {
           padding: 0.45rem 1rem;
           border-radius: 6px;
           border: 1px solid rgba(255, 255, 255, 0.12);
-          background: #f4f4f5;
-          color: #09090b;
+          background: #f2f4ef;
+          color: #0a0c09;
           font-size: 0.82rem;
           font-weight: 600;
           letter-spacing: -0.01em;
@@ -695,21 +695,21 @@ export function LandingPage() {
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid rgba(255, 255, 255, 0.08);
           font-size: 0.74rem;
-          color: #a1a1aa;
+          color: #a3a69c;
           margin-bottom: 1.5rem;
         }
         .lp-status-dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #10b981;
-          box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+          background: #34d399;
+          box-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
         }
         .lp-status-dot-sm {
           width: 5px;
           height: 5px;
           border-radius: 50%;
-          background: #10b981;
+          background: #34d399;
           display: inline-block;
         }
         .lp-hero-headline {
@@ -718,13 +718,13 @@ export function LandingPage() {
           font-weight: 700;
           letter-spacing: -0.035em;
           line-height: 1.15;
-          color: #fafafa;
+          color: #f9faf6;
         }
         .lp-hero-description {
           margin: 0 auto 2rem;
           font-size: 1.05rem;
           line-height: 1.6;
-          color: #a1a1aa;
+          color: #a3a69c;
           max-width: 620px;
         }
         .lp-hero-cta-group {
@@ -741,8 +741,8 @@ export function LandingPage() {
           padding: 0.7rem 1.4rem;
           border-radius: 6px;
           border: 1px solid rgba(255, 255, 255, 0.15);
-          background: #f4f4f5;
-          color: #09090b;
+          background: #f2f4ef;
+          color: #0a0c09;
           font-size: 0.88rem;
           font-weight: 600;
           letter-spacing: -0.01em;
@@ -757,7 +757,7 @@ export function LandingPage() {
           border-radius: 6px;
           border: 1px solid rgba(255, 255, 255, 0.1);
           background: rgba(255, 255, 255, 0.03);
-          color: #e4e4e7;
+          color: #e2e5dc;
           font-size: 0.88rem;
           font-weight: 500;
           transition: all 0.15s ease;
@@ -772,14 +772,14 @@ export function LandingPage() {
           margin-top: 1rem;
         }
         .lp-preview-window {
-          background: #0e0e12;
+          background: #0e100d;
           border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 10px;
           overflow: hidden;
           box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
         }
         .lp-window-titlebar {
-          background: #131317;
+          background: #131513;
           padding: 0.65rem 1rem;
           border-bottom: 1px solid rgba(255, 255, 255, 0.07);
           display: flex;
@@ -803,7 +803,7 @@ export function LandingPage() {
           align-items: center;
           gap: 0.5rem;
           font-size: 0.76rem;
-          color: #71717a;
+          color: #73766d;
           background: rgba(0, 0, 0, 0.35);
           padding: 0.25rem 0.85rem;
           border-radius: 4px;
@@ -819,8 +819,8 @@ export function LandingPage() {
           font-size: 0.72rem;
           font-weight: 500;
           color: #34d399;
-          background: rgba(16, 185, 129, 0.08);
-          border: 1px solid rgba(16, 185, 129, 0.2);
+          background: rgba(52, 211, 153, 0.08);
+          border: 1px solid rgba(52, 211, 153, 0.2);
           padding: 0.2rem 0.55rem;
           border-radius: 4px;
         }
@@ -850,14 +850,14 @@ export function LandingPage() {
           font-weight: 700;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          background: #27272a;
-          color: #a1a1aa;
+          background: #282a24;
+          color: #a3a69c;
           padding: 0.15rem 0.45rem;
           border-radius: 3px;
         }
         .lp-demo-query-text {
           font-size: 0.9rem;
-          color: #f4f4f5;
+          color: #f2f4ef;
           font-weight: 500;
         }
         .lp-demo-retrieval-strip {
@@ -872,7 +872,7 @@ export function LandingPage() {
           align-items: center;
           gap: 0.35rem;
           font-size: 0.72rem;
-          color: #a1a1aa;
+          color: #a3a69c;
           background: rgba(255, 255, 255, 0.03);
           border: 1px solid rgba(255, 255, 255, 0.06);
           padding: 0.25rem 0.6rem;
@@ -880,11 +880,11 @@ export function LandingPage() {
         }
         .lp-retrieval-status {
           color: #34d399;
-          border-color: rgba(16, 185, 129, 0.2);
-          background: rgba(16, 185, 129, 0.05);
+          border-color: rgba(52, 211, 153, 0.2);
+          background: rgba(52, 211, 153, 0.05);
         }
         .lp-demo-answer-box {
-          background: #111116;
+          background: #111310;
           border: 1px solid rgba(255, 255, 255, 0.08);
           border-radius: 8px;
           padding: 1.25rem;
@@ -899,7 +899,7 @@ export function LandingPage() {
           width: 20px;
           height: 20px;
           border-radius: 4px;
-          background: #2563eb;
+          background: #047857;
           color: #ffffff;
           font-size: 0.65rem;
           font-weight: 700;
@@ -910,18 +910,18 @@ export function LandingPage() {
         .lp-demo-ai-name {
           font-size: 0.82rem;
           font-weight: 600;
-          color: #f4f4f5;
+          color: #f2f4ef;
         }
         .lp-demo-timestamp {
           font-size: 0.7rem;
-          color: #71717a;
+          color: #73766d;
           margin-left: auto;
         }
         .lp-demo-answer-text {
           margin: 0 0 1rem;
           font-size: 0.88rem;
           line-height: 1.65;
-          color: #d4d4d8;
+          color: #d2d5cc;
         }
         .lp-demo-answer-text strong {
           color: #ffffff;
@@ -930,9 +930,9 @@ export function LandingPage() {
           display: inline-block;
           font-size: 0.72rem;
           font-weight: 600;
-          color: #60a5fa;
-          background: rgba(37, 99, 235, 0.12);
-          border: 1px solid rgba(37, 99, 235, 0.25);
+          color: #f4a983;
+          background: rgba(232, 134, 74, 0.12);
+          border: 1px solid rgba(232, 134, 74, 0.25);
           padding: 0.05rem 0.35rem;
           border-radius: 3px;
           cursor: pointer;
@@ -941,7 +941,7 @@ export function LandingPage() {
         }
         .lp-demo-citation-card {
           background: rgba(0, 0, 0, 0.35);
-          border-left: 2px solid #2563eb;
+          border-left: 2px solid #047857;
           padding: 0.75rem 1rem;
           border-radius: 0 6px 6px 0;
         }
@@ -953,21 +953,21 @@ export function LandingPage() {
           margin-bottom: 0.35rem;
         }
         .lp-citation-index {
-          color: #60a5fa;
+          color: #f4a983;
           font-weight: 700;
         }
         .lp-citation-url {
-          color: #a1a1aa;
+          color: #a3a69c;
           font-family: monospace;
         }
         .lp-citation-score {
-          color: #71717a;
+          color: #73766d;
           margin-left: auto;
         }
         .lp-citation-quote {
           margin: 0;
           font-size: 0.78rem;
-          color: #a1a1aa;
+          color: #a3a69c;
           font-style: italic;
           line-height: 1.5;
         }
@@ -993,7 +993,7 @@ export function LandingPage() {
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 0.06em;
-          color: #3b82f6;
+          color: var(--accent-text);
           display: block;
           margin-bottom: 0.5rem;
         }
@@ -1035,7 +1035,7 @@ export function LandingPage() {
           border-radius: 6px;
           background: rgba(255, 255, 255, 0.04);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          color: #3b82f6;
+          color: var(--accent-text);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -1072,9 +1072,9 @@ export function LandingPage() {
           font-size: 0.74rem;
           font-weight: 700;
           font-family: monospace;
-          color: #3b82f6;
-          background: rgba(37, 99, 235, 0.08);
-          border: 1px solid rgba(37, 99, 235, 0.2);
+          color: var(--accent-text);
+          background: var(--accent-subtle);
+          border: 1px solid var(--accent-border);
           display: inline-block;
           padding: 0.2rem 0.5rem;
           border-radius: 4px;
@@ -1117,7 +1117,7 @@ export function LandingPage() {
           width: 5px;
           height: 5px;
           border-radius: 50%;
-          background: #3b82f6;
+          background: var(--accent-text);
         }
 
         /* ── CTA Ribbon ──────────────────────────────────────────────── */
@@ -1155,7 +1155,7 @@ export function LandingPage() {
         /* ── Footer ──────────────────────────────────────────────────── */
         .lp-footer {
           border-top: 1px solid rgba(255, 255, 255, 0.08);
-          background: #09090b;
+          background: #0a0c09;
           padding: 2.5rem 1.5rem;
         }
         .lp-footer-content {
@@ -1181,7 +1181,7 @@ export function LandingPage() {
         .lp-footer-motto {
           margin: 0;
           font-size: 0.78rem;
-          color: #71717a;
+          color: #73766d;
         }
         .lp-footer-right {
           display: flex;
@@ -1198,7 +1198,7 @@ export function LandingPage() {
         }
         .lp-footer-copy {
           font-size: 0.74rem;
-          color: #52525b;
+          color: #53564e;
         }
 
         /* ── Responsive Media Queries ────────────────────────────────── */

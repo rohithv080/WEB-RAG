@@ -1700,11 +1700,11 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           0%,
           100% {
             transform: scale(1);
-            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            box-shadow: 0 0 0 0 rgba(244, 114, 182, 0.7);
           }
           50% {
             transform: scale(1.2);
-            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+            box-shadow: 0 0 0 4px rgba(244, 114, 182, 0);
           }
         }
 
@@ -1779,7 +1779,7 @@ export function ChatWindow({ siteId, sessionId, onSessionId, siteTitle, starterQ
           transition: all var(--transition-fast);
         }
         .dock-stop-btn:hover {
-          background: rgba(239, 68, 68, 0.2);
+          background: rgba(244, 114, 182, 0.2);
           border-color: var(--danger);
         }
         .stop-sq {

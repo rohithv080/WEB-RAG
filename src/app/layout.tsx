@@ -5,7 +5,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 
 const sansFont = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });

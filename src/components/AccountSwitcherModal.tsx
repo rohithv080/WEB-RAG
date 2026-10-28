@@ -610,7 +610,7 @@ export function AccountSwitcherModal({ isOpen, onClose }: Props) {
           border-radius: 10px;
           background: rgba(255, 255, 255, 0.05);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          color: var(--accent, #6366f1);
+          color: var(--accent, #047857);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -696,10 +696,10 @@ export function AccountSwitcherModal({ isOpen, onClose }: Props) {
         .active-account-card.admin-card {
           background: linear-gradient(
             135deg,
-            rgba(245, 158, 11, 0.05) 0%,
+            rgba(232, 134, 74, 0.05) 0%,
             rgba(255, 255, 255, 0.02) 100%
           );
-          border-color: rgba(245, 158, 11, 0.25);
+          border-color: rgba(232, 134, 74, 0.25);
         }
 
         .account-main-row {
@@ -731,7 +731,7 @@ export function AccountSwitcherModal({ isOpen, onClose }: Props) {
           width: 40px;
           height: 40px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #4f46e5, #06b6d4);
+          background: linear-gradient(135deg, #047857, #e8864a);
           color: #ffffff;
           font-size: 0.85rem;
           font-weight: 600;
@@ -754,9 +754,9 @@ export function AccountSwitcherModal({ isOpen, onClose }: Props) {
           width: 10px;
           height: 10px;
           border-radius: 50%;
-          background: #10b981;
-          border: 2px solid #0d0f12;
-          box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+          background: #34d399;
+          border: 2px solid #0d120e;
+          box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);
         }
 
         .account-meta {
@@ -856,8 +856,8 @@ export function AccountSwitcherModal({ isOpen, onClose }: Props) {
           font-size: 0.68rem;
           font-weight: 600;
           color: #34d399;
-          background: rgba(16, 185, 129, 0.12);
-          border: 1px solid rgba(16, 185, 129, 0.25);
+          background: rgba(52, 211, 153, 0.12);
+          border: 1px solid rgba(52, 211, 153, 0.25);
           padding: 3px 8px;
           border-radius: 6px;
           letter-spacing: 0.02em;
@@ -932,7 +932,7 @@ export function AccountSwitcherModal({ isOpen, onClose }: Props) {
           border-radius: 6px;
           font-size: 0.72rem;
           font-weight: 600;
-          background: var(--accent, #6366f1);
+          background: var(--accent, #047857);
           border: 1px solid transparent;
           color: #ffffff;
           cursor: pointer;
